@@ -1,0 +1,7 @@
+{
+  "name": "Devobi LLC - Real Estate AI Automation",
+  "description": "Minimalist landing page and AI chatbot for Devobi LLC, a premier AI automation consultancy for real estate agents.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

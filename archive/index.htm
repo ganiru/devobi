@@ -1,0 +1,158 @@
+
+<!doctype html>
+<html lang="en" class="h-100" data-bs-theme="auto">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LC7MK9JZ5R"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-LC7MK9JZ5R');
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="DevObi - Leading AI Automation Agency specializing in custom chatbots for lead generation, customer service, scheduling, lead generation and more, as well as intelligent process automation. Boost efficiency and reduce costs with our AI-powered business solutions.">
+    <meta name="author" content="Obinna Ezeilo">
+    <title>DevObi: AI Automation Agency | Chatbot Development & Business AI Solutions</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+  
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" href="images/favicons/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="manifest" href="images/favicons/site.webmanifest">
+    <link rel="mask-icon" href="images/favicons/safari-pinned-tab.svg" color="#712cf9">
+    <link rel="icon" href="images/favicons/favicon.ico">
+    <meta name="theme-color" content="#712cf9">
+
+    <!-- Custom styles for this template -->
+    <link href="styles.css" rel="stylesheet">
+    <!-- Calendly badge widget begin -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
+    <!-- Calendly badge widget end -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "DevObi",
+        "description": "AI Automation Agency specializing in chatbot development and business AI solutions",
+        "url": "https://devobi.com",
+        "sameAs": [
+          "https://www.linkedin.com/company/103682008",
+        ]
+      }
+      </script>
+      </head>
+      <body class="d-flex h-100 text-bg-dark">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="mb-auto">
+    <div>
+      <h3 class="float-md-start mb-0"><span style="color:green">Dev</span>Obi</h3>
+    </div>
+  </header>
+
+  <main class="px-6 row" style="display: flex; align-content: center;">
+    <div class="col-md-6">
+        <h1><span style="color:green">Automate</span> your business with <span style="color:green">AI</span>.</h1>
+        <br>
+        <p class="lead">Revolutionizing customer service, appointment scheduling and lead generation with AI-powered chatbots.</p>
+        <p class="lead">Empower your business with our cutting-edge AI solutions to <u>reduce running cost</u>, increase revenue and grow your clientelle.</p>
+        <br>
+        <p>
+        <!-- <button id="myButton" class="btn btn-lg btn-light fw-bold border-white bg-white">Free consultation</button> -->
+        Use the chatbot on this page to ask questions, request a free consultation, free estimate or a 30-day FREE TRIAL.
+        </p>
+        You can also contact us at info@devobi.com.
+    </div>
+    <div class="col-md-6 order-1">
+        <img src="images/robot-no-bg.png" class="img-fluid">
+    </div>
+  </main>
+
+  <footer class="mt-auto text-white-50 text-center">
+    <p>2024. &copy;Obinna Ezeilo. All Rights Reserved. info@devobi.com <!--<a href="https://getbootstrap.com/" class="text-white">
+    <br>Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+Background image from https://www.lummi.ai//photo/contemplative-robotic-figure-in-space-jl1am 
+    -->
+  </footer>
+</div>
+<script type="module">
+  import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+  Chatbot.init({
+      chatflowid: "0db7ed00-a87a-4b9e-9e3d-d16ea7a144f0",
+      apiHost: "https://flowiseai-railway-production-cd23.up.railway.app",
+      chatflowConfig: {
+          // topK: 2
+      },
+      theme: {
+          button: {
+              backgroundColor: "#145d20",
+              right: 20,
+              bottom: 20,
+              size: "medium",
+              iconColor: "white",
+          },
+          chatWindow: {
+              showTitle: true, // show/hide the title bar
+              title: 'DevObi Assistant',
+              welcomeMessage: "Hello! This is DevObi's virtual assistant. How may I help you today?",
+              backgroundColor: "#ffffff",
+              height: 700,
+              width: 400,
+              fontSize: 16,
+              poweredByTextColor: "#FFFFFF",
+              botMessage: {
+                  backgroundColor: "#f7f8ff",
+                  textColor: "#303235",
+                  showAvatar: true,
+                  avatarSrc: "https://devobi.com/images/robot-no-bg.png",
+              },
+              userMessage: {
+                  backgroundColor: "#145d20",
+                  textColor: "#ffffff",
+                  showAvatar: true,
+                  avatarSrc: "https://devobi.com/images/neutral-avatar.png",
+              },
+              textInput: {
+                  placeholder: "Type your question",
+                  backgroundColor: "#ffffff",
+                  textColor: "#303235",
+                  sendButtonColor: "#145d20",
+              }
+          }
+      }
+  })
+</script>
+<!-- <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+<script src="https://mediafiles.botpress.cloud/9dfcc667-c5c1-4403-a1c6-e8be55dde4db/webchat/config.js" defer></script>
+<script>
+  window.onload = function() {
+    window.botpressWebChat.sendEvent({ type: 'show' });
+  }
+    // Open the chatbot when you click the button
+    document.getElementById('myButton').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
+      });
+    
+      // To open the calendly
+    window.botpressWebChat.onEvent(
+        function(event)
+        {
+            if(event.type === 'TRIGGER')
+            {
+                Calendly.showPopupWidget('https://calendly.com/obinnae/ai-consultation?hide_event_type_details=1&hide_gdpr_banner=1')
+            }
+        },
+        ['TRIGGER']
+    );
+</script> -->
+</body>
+</html>
