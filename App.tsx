@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
+import SurveyBanner from './components/SurveyBanner';
 import Hero from './components/Hero';
 import Services from './components/Services';
 import Contact from './components/Contact';
@@ -9,7 +10,10 @@ import Chatbot from './components/Chatbot';
 const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
-      <Navbar />
+      <header className="fixed top-0 left-0 w-full z-50">
+        <SurveyBanner />
+        <Navbar />
+      </header>
       <main className="flex-grow">
         <Hero />
         <Services />
