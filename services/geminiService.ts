@@ -23,33 +23,20 @@ If the user is speaking to you, respond naturally as a voice assistant.`;
 
 export async function chatWithGemini(history: Message[], userInput: string): Promise<string> {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-
-    // Transform history into Gemini format
-    const contents = history.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    }));
-
-    // Add current user input
-    contents.push({
-      role: 'user',
-      parts: [{ text: userInput }]
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history, userInput })
     });
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: contents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-        topP: 0.9,
-      },
-    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
 
-    return response.text || "I'm sorry, I couldn't process that request.";
+    const data = await response.json();
+    return data.text || "I'm sorry, I couldn't process that request.";
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini Proxy Error:", error);
     return "I'm having trouble connecting right now. Please try again later or contact us at info@devobi.com.";
   }
 }
