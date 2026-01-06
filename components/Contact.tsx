@@ -10,6 +10,12 @@ const Contact: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    // Honeypot check
+    if (formData.get("_honey")) {
+      console.warn("Spam detected");
+      return;
+    }
+
     try {
       const response = await fetch("https://formsubmit.co/ajax/obi@devobi.com", {
         method: "POST",
@@ -44,6 +50,7 @@ const Contact: React.FC = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <input type="text" name="_honey" style={{ display: 'none' }} />
             <div className="space-y-2">
               <label className="text-xs uppercase font-bold text-gray-500 tracking-wider">Full Name</label>
               <input
