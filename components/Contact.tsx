@@ -39,8 +39,8 @@ const Contact: React.FC = () => {
     <section id="contact" className="py-24 px-6 md:px-12 relative overflow-hidden">
       <div className="max-w-4xl mx-auto glass p-8 md:p-16 rounded-sm">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Ready to automate?</h2>
-          <p className="text-gray-400">Tell us about your current workflow. We'll show you where AI can take over.</p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Ready to 3X Your Closings Without Hiring More Staff?</h2>
+          <p className="text-gray-400">Tell us your biggest time-waster. We'll show you how to eliminate it in 30 days or less.</p>
         </div>
 
         {submitted ? (
