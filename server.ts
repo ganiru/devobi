@@ -72,6 +72,11 @@ If the user is speaking to you, respond naturally as a voice assistant.`,
     }
 });
 
+// Redirect route for survey
+app.get('/survey', (req, res) => {
+    res.redirect(301, 'https://forms.gle/vg4MozP4P4skYwSr6');
+});
+
 // Serve static files from the Vite build in production
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'dist')));

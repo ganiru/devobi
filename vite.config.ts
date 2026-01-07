@@ -12,7 +12,22 @@ export default defineConfig(({ mode }) => {
         '/api': 'http://localhost:3001'
       }
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'survey-redirect',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            if (req.url === '/survey') {
+              res.writeHead(301, { Location: 'https://forms.gle/vg4MozP4P4skYwSr6' });
+              res.end();
+              return;
+            }
+            next();
+          });
+        }
+      }
+    ],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

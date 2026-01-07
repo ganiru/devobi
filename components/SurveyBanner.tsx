@@ -5,7 +5,7 @@ const SurveyBanner: React.FC = () => {
     return (
         <div className="bg-emerald-600/10 border-b border-emerald-500/20 py-2.5 px-6 text-center group relative z-[60]">
             <a
-                href="https://forms.gle/vg4MozP4P4skYwSr6"
+                href="/survey"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs md:text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center justify-center gap-2"
