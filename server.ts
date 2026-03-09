@@ -42,7 +42,7 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const result = await ai.models.generateContent({
-            model: 'gemini-3.1-flash-lite-preview',
+            model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite-preview',
             contents: contents,
             config: {
                 systemInstruction: `You are the AI Assistant for Devobi LLC, a consultancy run by an AI automation expert. 
