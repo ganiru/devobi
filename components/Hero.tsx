@@ -11,7 +11,7 @@ const Hero: React.FC = () => {
       {/* Social proof badge */}
       <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-medium">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Built for top-producing real estate agents
+        Built for real estate agents, brokers & wholesalers
       </div>
 
       <h1 className="text-4xl md:text-7xl font-bold tracking-tight mb-6 max-w-4xl">
@@ -20,7 +20,7 @@ const Hero: React.FC = () => {
       </h1>
 
       <p className="text-lg md:text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed">
-        We build custom AI systems that respond to your Zillow and website leads in under 60 seconds, qualify buyers automatically, and keep your CRM updated — without you lifting a finger.
+        We build custom AI systems that respond to leads in under 60 seconds, qualify buyers and sellers automatically, and keep your pipeline moving — whether you're closing listings, running a brokerage, or flipping contracts.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">

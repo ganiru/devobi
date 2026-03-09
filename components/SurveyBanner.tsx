@@ -10,8 +10,8 @@ const SurveyBanner: React.FC = () => {
                 rel="noopener noreferrer"
                 className="text-xs md:text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center justify-center gap-2"
             >
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300 border border-emerald-500/30 uppercase tracking-widest font-bold">Research</span>
-                <span>Real Estate Agents/Brokers/Wholesalers: Tell us your #1 time-waster — help us build the perfect fix.</span>
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300 border border-emerald-500/30 uppercase tracking-widest font-bold">Limited</span>
+                <span>Agent, Broker, or Wholesaler? Only 10 Founding Member spots available — see if you qualify.</span>
                 <span className="underline underline-offset-4 group-hover:no-underline font-semibold">Take the short survey →</span>
             </a>
         </div>
