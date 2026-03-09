@@ -5,7 +5,8 @@ import { GoogleGenAI } from "@google/genai";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-dotenv.config();
+dotenv.config({ path: '.env.local' });
+//dotenv.config(); // fallback to .env
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +42,7 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const result = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-3.1-flash-lite-preview',
             contents: contents,
             config: {
                 systemInstruction: `You are the AI Assistant for Devobi LLC, a consultancy run by an AI automation expert. 
@@ -68,7 +69,7 @@ If the user is speaking to you, respond naturally as a voice assistant.`,
         res.json({ text: result.text || "I'm sorry, I couldn't process that request." });
     } catch (error) {
         console.error("Server-side Gemini Error:", error);
-        res.status(500).json({ error: "Failed to communicate with AI." });
+        res.status(500).json({ error: "Failed to communicate with AI." + error });
     }
 });
 

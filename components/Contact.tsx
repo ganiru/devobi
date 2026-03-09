@@ -39,8 +39,8 @@ const Contact: React.FC = () => {
     <section id="contact" className="py-24 px-6 md:px-12 relative overflow-hidden">
       <div className="max-w-4xl mx-auto glass p-8 md:p-16 rounded-sm">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Ready to 3X Your Closings Without Hiring More Staff?</h2>
-          <p className="text-gray-400">Tell us your biggest time-waster. We'll show you how to eliminate it in 30 days or less.</p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Let's Eliminate Your Biggest Time-Waster</h2>
+          <p className="text-gray-400">Tell us what's slowing you down. We'll show you exactly how to automate it — free, no obligation.</p>
         </div>
 
         {submitted ? (
@@ -93,8 +93,11 @@ const Contact: React.FC = () => {
               type="submit"
               className="md:col-span-2 bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-sm font-bold text-lg transition-all"
             >
-              Send Request
+              Get My Free Strategy Session →
             </button>
+            <p className="md:col-span-2 text-center text-xs text-gray-600">
+              We respect your privacy. Your information is never shared or sold.
+            </p>
           </form>
         )}
 

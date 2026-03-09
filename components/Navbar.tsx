@@ -12,6 +12,7 @@ const Navbar: React.FC = () => {
       </div>
       <div className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
         <a href="#services" className="hover:text-emerald-400 transition-colors">Services</a>
+        <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</a>
         <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
         <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
       </div>
@@ -21,7 +22,7 @@ const Navbar: React.FC = () => {
         rel="noopener noreferrer"
         className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
       >
-        Get Started
+        Free Strategy Call
       </a>
     </nav>
   );
