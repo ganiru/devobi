@@ -6,7 +6,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="w-full glass py-4 px-6 md:px-12 flex justify-between items-center relative">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" onClick={() => window.location.href = "/"} style={{ cursor: "pointer" }}>
         <div className="w-8 h-8 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-black text-xl">D</div>
         <span className="text-xl font-semibold tracking-tighter">Devobi LLC</span>
       </div>
