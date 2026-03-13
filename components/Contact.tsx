@@ -27,7 +27,7 @@ const Contact: React.FC = () => {
               });
             }
           }}
-          className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-black bg-emerald-400 rounded-xl hover:bg-emerald-300 transition-colors"
+          className="inline-flex cursor-pointer items-center justify-center px-8 py-4 text-base font-semibold text-black bg-emerald-400 rounded-xl hover:bg-emerald-300 transition-colors"
         >
           Get Your Free Workflow Audit →
         </a>

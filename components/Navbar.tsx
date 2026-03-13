@@ -16,14 +16,34 @@ const Navbar: React.FC = () => {
         <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
         <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
       </div>
-      <a
+      {/* <a
         href={CALENDLY_LINK}
         target="_blank"
         rel="noopener noreferrer"
         className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
       >
         Schedule a Free Call
+      </a> */}
+      <a
+        onClick={(e) => {
+          e.preventDefault();
+          window.history.pushState({}, '', '/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+          window.scrollTo(0, 0);
+
+          // Add analytics (if using Google Analytics, Plausible, etc.)
+          if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'click', {
+              event_category: 'CTA',
+              event_label: 'Workflow Audit - Homepage',
+            });
+          }
+        }}
+        className="bg-emerald-500 cursor-pointer hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
+      >
+        Get Your Free Workflow Audit →
       </a>
+
     </nav>
   );
 };
