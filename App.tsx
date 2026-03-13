@@ -7,6 +7,7 @@ import Services from './components/Services';
 import Contact from './components/Contact';
 import Chatbot from './components/Chatbot';
 import Privacy from './components/Privacy';
+import WorkflowAudit from './components/WorkflowAudit';
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -33,6 +34,8 @@ const App: React.FC = () => {
       <main className="flex-grow">
         {currentPath === '/privacy' ? (
           <Privacy />
+        ) : currentPath === '/workflow-audit' ? (  // 👈 Add this condition
+          <WorkflowAudit />
         ) : (
           <>
             <Hero />

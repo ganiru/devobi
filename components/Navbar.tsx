@@ -2,7 +2,7 @@
 import React from 'react';
 
 const Navbar: React.FC = () => {
-  const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation";
+  const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=navbar&utm_campaign=audit_launch";
 
   return (
     <nav className="w-full glass py-4 px-6 md:px-12 flex justify-between items-center relative">
@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
         rel="noopener noreferrer"
         className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
       >
-        Free Strategy Call
+        Schedule a Free Call
       </a>
     </nav>
   );

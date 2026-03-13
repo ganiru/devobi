@@ -3,7 +3,7 @@ import React from 'react';
 
 const SurveyBanner: React.FC = () => {
     return (
-        <div className="bg-emerald-600/10 border-b border-emerald-500/20 py-2.5 px-6 text-center group relative z-[60]">
+        <div className="bg-emerald-900 border-b border-emerald-500/20 py-2.5 px-6 text-center group relative z-[60]">
             <a
                 href="/survey"
                 target="_blank"
