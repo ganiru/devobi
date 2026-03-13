@@ -147,7 +147,7 @@ const WorkflowAudit: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={!selectedBottleneck}
-                                className="md:col-span-2 bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-sm font-bold text-lg transition-all"
+                                className="md:col-span-2 cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-sm font-bold text-lg transition-all"
                             >
                                 Submit
                             </button>

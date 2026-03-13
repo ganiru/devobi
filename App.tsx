@@ -8,6 +8,7 @@ import Contact from './components/Contact';
 import Chatbot from './components/Chatbot';
 import Privacy from './components/Privacy';
 import WorkflowAudit from './components/WorkflowAudit';
+import DemoLeadForm from './components/DemoLeadForm';
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -34,8 +35,10 @@ const App: React.FC = () => {
       <main className="flex-grow">
         {currentPath === '/privacy' ? (
           <Privacy />
-        ) : currentPath === '/workflow-audit' ? (  // 👈 Add this condition
+        ) : currentPath === '/workflow-audit' ? (
           <WorkflowAudit />
+        ) : currentPath === '/demo-lead-form' ? (
+          <DemoLeadForm />
         ) : (
           <>
             <Hero />

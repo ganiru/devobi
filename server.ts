@@ -14,8 +14,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
+const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
+
+// Enable all CORS requests (required for Railway deployment)
 app.use(cors());
+
 app.use(express.json());
+
 
 // API Route for Gemini
 app.post('/api/chat', async (req, res) => {
@@ -70,6 +75,28 @@ If the user is speaking to you, respond naturally as a voice assistant.`,
     } catch (error) {
         console.error("Server-side Gemini Error:", error);
         res.status(500).json({ error: "Failed to communicate with AI." + error });
+    }
+});
+
+// Proxy route for n8n lead form webhook (avoids browser CORS restrictions)
+app.post('/api/submit-lead', async (req, res) => {
+    try {
+        const n8nResponse = await fetch(demoLeadWebhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body),
+        });
+
+        if (n8nResponse.ok) {
+            res.status(200).json({ success: true });
+        } else {
+            const errorText = await n8nResponse.text();
+            console.error('n8n webhook error:', n8nResponse.status, errorText);
+            res.status(n8nResponse.status).json({ success: false, error: errorText });
+        }
+    } catch (error) {
+        console.error('Lead proxy error:', error);
+        res.status(500).json({ success: false, error: 'Failed to forward lead to n8n.' });
     }
 });
 
