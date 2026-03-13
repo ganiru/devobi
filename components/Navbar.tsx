@@ -15,15 +15,8 @@ const Navbar: React.FC = () => {
         <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</a>
         <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
         <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
+        <a href="/demo-lead-form" className="hover:text-emerald-400 transition-colors cursor-pointer">Demo Lead Form</a>
       </div>
-      {/* <a
-        href={CALENDLY_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
-      >
-        Schedule a Free Call
-      </a> */}
       <a
         onClick={(e) => {
           e.preventDefault();

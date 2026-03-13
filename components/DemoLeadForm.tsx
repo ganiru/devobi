@@ -83,6 +83,10 @@ const DemoLeadForm: React.FC = () => {
             </div>
 
             <div className="max-w-xl mx-auto relative z-10">
+                <p className="text-center text-red-400 text-sm py-4">
+                    This is just for demo purposes. Enter fake data if you wish.
+                    <br />To see what the agent/broker will see when submitted, use your real email address.
+                </p>
                 <div className="text-center mb-12">
                     <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
                         Find Your Dream Home
@@ -90,6 +94,7 @@ const DemoLeadForm: React.FC = () => {
                     <p className="text-gray-400 text-lg">
                         Tell us what you're looking for and let our experts handle the rest.
                     </p>
+
                 </div>
 
                 <form onSubmit={handleSubmit} className="glass p-8 md:p-10 shadow-2xl space-y-7">
@@ -141,7 +146,7 @@ const DemoLeadForm: React.FC = () => {
                                 required
                                 value={formData.phone}
                                 onChange={handleChange}
-                                placeholder="+1 (555) 000-0000"
+                                placeholder="(555) 000-0000"
                                 className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
                             />
                         </div>
