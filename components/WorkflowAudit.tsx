@@ -6,6 +6,7 @@ const WorkflowAudit: React.FC = () => {
 
     const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=workflowaudit&utm_campaign=audit_launch";
     const FORMSUBMIT_URL = "https://formsubmit.co/ajax/obi@devobi.com";
+    const VIMEO_LINK = "https://vimeo.com/1174179749?utm_source=devobi_website&utm_medium=audit_page";
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -44,15 +45,24 @@ const WorkflowAudit: React.FC = () => {
         <main className="min-h-screen pt-32 pb-16 px-6">
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
-                <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
+                <h1 className="text-3xl md:text-4xl font-bold text-center mb-2">
                     Free Workflow Audit
                 </h1>
-                <p className="text-lg text-gray-400 text-center mb-10 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-400 text-center mb-6 max-w-2xl mx-auto">
                     Get a personalized 15-minute technical review of your lead qualification process.
                     No pitch — just actionable n8n workflow advice.
                 </p>
-
-
+                <div className="mb-4 text-center">
+                    <a
+                        href={VIMEO_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+                    >
+                        <span>🎥</span>
+                        Watch demo in new tab
+                    </a>
+                </div>
                 {submitted ? (
                     <div className="text-center py-12">
                         <h3 className="text-2xl font-bold text-emerald-500">Thank you!</h3>
@@ -69,7 +79,18 @@ const WorkflowAudit: React.FC = () => {
                     </div>
                 ) : (
                     <div>
-
+                        <div className="aspect-video max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/10 mb-8"
+                            style={{ padding: "56.25% 0 0 0", position: "relative" }}
+                        >
+                            <iframe
+                                src="https://player.vimeo.com/video/1174179749?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+                                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                style={{ position: "absolute", top: "0", left: "0", width: "100%", height: "100%" }}
+                                title="Lead Qualification Demo"
+                            ></iframe>
+                        </div>
+                        <script src="https://player.vimeo.com/api/player.js"></script>
                         {/* What You Get */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
                             <h2 className="font-semibold text-lg mb-4 text-center">You'll get:</h2>
