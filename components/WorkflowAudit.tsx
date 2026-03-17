@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 const WorkflowAudit: React.FC = () => {
     const [selectedBottleneck, setSelectedBottleneck] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=workflowaudit&utm_campaign=audit_launch";
     const FORMSUBMIT_URL = "https://formsubmit.co/ajax/obi@devobi.com";
@@ -25,20 +27,17 @@ const WorkflowAudit: React.FC = () => {
                 method: "POST",
                 body: formData
             });
-            console.log(response, response.ok);
             if (response.ok) {
                 setSubmitted(true);
                 form.reset();
-            }
-            else {
-                console.error("Failed to send email", response);
+            } else {
+                setError("Something went wrong. Please try again or email us directly.");
             }
         } catch (error) {
-            console.error("Error sending email:", error);
+            setError("Connection failed. Please check your internet and try again.");
+        } finally {
+            setIsLoading(false);
         }
-
-        // Option 2: Redirect to Calendly after submit
-        // window.location.href = CALENDLY_LINK;
     };
 
     return (
@@ -167,11 +166,16 @@ const WorkflowAudit: React.FC = () => {
                             </div>
                             <button
                                 type="submit"
-                                disabled={!selectedBottleneck}
-                                className="md:col-span-2 cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-sm font-bold text-lg transition-all"
+                                disabled={!selectedBottleneck || isLoading}
+                                className="md:col-span-2 cursor-pointer bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-600 disabled:cursor-not-allowed text-black py-4 rounded-sm font-bold text-lg transition-all"
                             >
-                                Submit
+                                {isLoading ? "Submitting..." : "Submit"}
                             </button>
+                            {error && (
+                                <p className="md:col-span-2 text-center text-sm text-red-400 mt-2">
+                                    {error}
+                                </p>
+                            )}
                             <p className="md:col-span-2 text-center text-xs text-gray-600">
                                 We respect your privacy. Your information is never shared or sold.
                             </p>
