@@ -1,9 +1,11 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Contact: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <section className="py-20 px-6">
+    <section id="contact" className="py-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           Ready to Automate Your Biggest Time-Waster?
@@ -15,8 +17,7 @@ const Contact: React.FC = () => {
         <a
           onClick={(e) => {
             e.preventDefault();
-            window.history.pushState({}, '', '/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            navigate('/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
             window.scrollTo(0, 0);
 
             // Add analytics (if using Google Analytics, Plausible, etc.)

@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import SurveyBanner from './components/SurveyBanner';
 import Hero from './components/Hero';
@@ -9,61 +9,69 @@ import Chatbot from './components/Chatbot';
 import Privacy from './components/Privacy';
 import WorkflowAudit from './components/WorkflowAudit';
 import DemoLeadForm from './components/DemoLeadForm';
+import Founding from './components/founding';
 
-const App: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+const ScrollToAnchor = () => {
+  const { hash, pathname } = useLocation();
 
   useEffect(() => {
-    const onLocationChange = () => setCurrentPath(window.location.pathname);
-    window.addEventListener('popstate', onLocationChange);
-    return () => window.removeEventListener('popstate', onLocationChange);
-  }, []);
+    if (hash) {
+      setTimeout(() => {
+        const id = hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 0);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [hash, pathname]);
 
-  const navigate = (path: string, e?: React.MouseEvent) => {
-    if (e) e.preventDefault();
-    window.history.pushState({}, '', path);
-    setCurrentPath(path);
-    window.scrollTo(0, 0);
-  };
+  return null;
+};
 
+const LandingPage = () => (
+  <>
+    <Hero />
+    <Services />
+    <Contact />
+  </>
+);
+
+const App: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
-      <header className="fixed top-0 left-0 w-full z-50">
-        <SurveyBanner />
-        <Navbar />
-      </header>
-      <main className="flex-grow">
-        {currentPath === '/privacy' ? (
-          <Privacy />
-        ) : currentPath === '/workflow-audit' ? (
-          <WorkflowAudit />
-        ) : currentPath === '/demo-lead-form' ? (
-          <DemoLeadForm />
-        ) : (
-          <>
-            <Hero />
-            <Services />
-            <Contact />
-          </>
-        )}
-      </main>
-      <footer className="py-12 px-6 border-t border-white/10 text-center text-gray-500">
-        <p className="font-semibold text-gray-400">&copy; {new Date().getFullYear()} Devobi LLC. All rights reserved.</p>
-        <p className="mt-2 text-sm italic">Automating the future of real estate.</p>
-        <div className="mt-4 flex justify-center gap-6 text-xs text-gray-600">
-          <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
-          <span>·</span>
-          <a
-            href="/privacy"
-            onClick={(e) => navigate('/privacy', e)}
-            className="hover:text-emerald-400 transition-colors"
-          >
-            Privacy Policy
-          </a>
-        </div>
-      </footer>
-      <Chatbot />
-    </div>
+    <BrowserRouter>
+      <ScrollToAnchor />
+      <div className="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
+        <header className="fixed top-0 left-0 w-full z-50">
+          <SurveyBanner />
+          <Navbar />
+        </header>
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/workflow-audit" element={<WorkflowAudit />} />
+            <Route path="/demo-lead-form" element={<DemoLeadForm />} />
+            <Route path="/founding" element={<Founding />} />
+            <Route path="*" element={<LandingPage />} />
+          </Routes>
+        </main>
+        <footer className="py-12 px-6 border-t border-white/10 text-center text-gray-500">
+          <p className="font-semibold text-gray-400">&copy; {new Date().getFullYear()} Devobi LLC. All rights reserved.</p>
+          <p className="mt-2 text-sm italic">Automating the future of real estate.</p>
+          <div className="mt-4 flex justify-center gap-6 text-xs text-gray-600">
+            <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
+            <span>·</span>
+            <Link to="/privacy" className="hover:text-emerald-400 transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+        </footer>
+        <Chatbot />
+      </div>
+    </BrowserRouter>
   );
 };
 

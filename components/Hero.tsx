@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Hero: React.FC = () => {
   const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation";
@@ -32,12 +32,12 @@ const Hero: React.FC = () => {
         >
           Book a Free Strategy Call
         </a>
-        <a
-          href="#services"
+        <Link
+          to="/#services"
           className="glass hover:bg-white/10 px-8 py-4 rounded-sm font-bold text-lg transition-all"
         >
           See How It Works
-        </a>
+        </Link>
       </div>
 
       {/* Stats row */}

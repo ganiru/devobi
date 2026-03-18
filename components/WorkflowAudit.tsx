@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const WorkflowAudit: React.FC = () => {
+    const navigate = useNavigate();
     const [selectedBottleneck, setSelectedBottleneck] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -192,8 +194,7 @@ const WorkflowAudit: React.FC = () => {
                     <button
                         onClick={(e) => {
                             e.preventDefault();
-                            window.history.pushState({}, '', '/');
-                            window.dispatchEvent(new PopStateEvent('popstate'));
+                            navigate('/');
                             window.scrollTo(0, 0);
                         }}
                         className="text-emerald-400 hover:text-emerald-300 transition-colors text-sm font-medium"

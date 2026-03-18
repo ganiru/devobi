@@ -1,27 +1,27 @@
-
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate();
   const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=navbar&utm_campaign=audit_launch";
 
   return (
     <nav className="w-full glass py-4 px-6 md:px-12 flex justify-between items-center relative">
-      <div className="flex items-center gap-2" onClick={() => window.location.href = "/"} style={{ cursor: "pointer" }}>
+      <Link to="/" className="flex items-center gap-2" style={{ cursor: "pointer" }}>
         <div className="w-8 h-8 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-black text-xl">D</div>
         <span className="text-xl font-semibold tracking-tighter">Devobi LLC</span>
-      </div>
+      </Link>
       <div className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-        <a href="#services" className="hover:text-emerald-400 transition-colors">Services</a>
-        <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</a>
-        <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
+        <Link to="/#services" className="hover:text-emerald-400 transition-colors">Services</Link>
+        <Link to="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
+        <Link to="/#contact" className="hover:text-emerald-400 transition-colors">Contact</Link>
         <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
-        <a href="/demo-lead-form" className="hover:text-emerald-400 transition-colors cursor-pointer">Demo Lead Form</a>
+        <Link to="/demo-lead-form" className="hover:text-emerald-400 transition-colors cursor-pointer">Demo Lead Form</Link>
       </div>
       <a
         onClick={(e) => {
           e.preventDefault();
-          window.history.pushState({}, '', '/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
-          window.dispatchEvent(new PopStateEvent('popstate'));
+          navigate('/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
           window.scrollTo(0, 0);
 
           // Add analytics (if using Google Analytics, Plausible, etc.)
