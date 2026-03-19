@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Contact: React.FC = () => {
   const navigate = useNavigate();
@@ -14,30 +14,28 @@ const Contact: React.FC = () => {
           Get a free workflow audit + personalized n8n automation strategy for your real estate business.
         </p>
 
-        <a
-          onClick={(e) => {
-            e.preventDefault();
-            navigate('/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
-            window.scrollTo(0, 0);
-
-            // Add analytics (if using Google Analytics, Plausible, etc.)
-            if (typeof window !== 'undefined' && (window as any).gtag) {
-              (window as any).gtag('event', 'click', {
-                event_category: 'CTA',
-                event_label: 'Workflow Audit - Homepage',
-              });
-            }
-          }}
+        <Link
+          to="/workflow-audit?utm_source=contact&utm_campaign=audit_launch"
+          onClick={() => window.scrollTo(0, 0)}
           className="inline-flex cursor-pointer items-center justify-center px-8 py-4 text-base font-semibold text-black bg-emerald-400 rounded-xl hover:bg-emerald-300 transition-colors"
         >
           Get Your Free Workflow Audit →
-        </a>
+        </Link>
 
         <p className="mt-4 text-sm text-gray-500">
           ✓ 15-minute technical review &nbsp;•&nbsp;
           ✓ No pitch, just advice &nbsp;•&nbsp;
           ✓ Works with your CRM
         </p>
+        <div className="mt-8">
+          <Link 
+            to="/founding" 
+            className="px-6 py-3 mt-8 bg-white/10 text-emerald-400 font-semibold rounded-lg hover:bg-white/20 transition border border-emerald-400/30"
+            style={{ zIndex: 1 }}
+          >
+            View Founding Member Pricing
+          </Link>
+        </div>
       </div>
     </section>
 
