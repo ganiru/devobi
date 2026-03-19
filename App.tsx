@@ -9,7 +9,7 @@ import Chatbot from './components/Chatbot';
 import Privacy from './components/Privacy';
 import WorkflowAudit from './components/WorkflowAudit';
 import DemoLeadForm from './components/DemoLeadForm';
-import Founding from './components/founding';
+import Founding from './components/Founding';
 
 const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
