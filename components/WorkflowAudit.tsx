@@ -91,7 +91,6 @@ const WorkflowAudit: React.FC = () => {
                                 title="Lead Qualification Demo"
                             ></iframe>
                         </div>
-                        <script src="https://player.vimeo.com/api/player.js"></script>
                         {/* What You Get */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
                             <h2 className="font-semibold text-lg mb-4 text-center">You'll get:</h2>
