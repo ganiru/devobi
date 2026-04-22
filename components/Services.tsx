@@ -1,7 +1,17 @@
-
 import React from 'react';
 
 const services = [
+  {
+    badge: "ROI Recovery",
+    title: "Lead Reactivation Engine",
+    audience: "Agents · Brokers",
+    description: "Your old CRM leads aren't dead — they're just dormant. Our AI reads each contact's history, writes personalized reactivation emails, verifies them for accuracy, and automatically follows up to book appointments. No manual work. No guesswork.",
+    icon: (
+      <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    )
+  },
   {
     badge: "Speed-to-Lead",
     title: "24/7 AI Concierge",
@@ -34,23 +44,35 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
       </svg>
     )
-  },
-  {
-    badge: "ROI Recovery",
-    title: "Database Re-activation",
-    audience: "Agents · Brokers",
-    description: "Stop letting old CRM leads gather dust. Our AI agents re-engage your cold database to identify who is back in the market, delivering 'ready to talk' prospects directly to your inbox without you lifting a finger.", icon: (
-      <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    )
   }
 ];
 
-const steps = [
-  { number: "01", title: "Discovery Call", description: "We audit your current workflow and identify the biggest time-wasters costing you deals." },
-  { number: "02", title: "Custom Build", description: "We build automations tailored to your CRM, lead sources, and communication style. No templates." },
-  { number: "03", title: "Go Live in 2 Weeks", description: "Your system is live, tested, and running. We handle onboarding and stay on hand for support." },
+const reactivationSteps = [
+  {
+    number: "01",
+    title: "Export Your Old Leads",
+    description: "You give us a CSV export or temporary CRM access. We handle the rest — no tech knowledge required."
+  },
+  {
+    number: "02",
+    title: "AI Writes Personalized Emails",
+    description: "Our system reads each lead's history and generates custom reactivation emails — not generic templates."
+  },
+  {
+    number: "03",
+    title: "Hallucination Check & Send",
+    description: "A second AI verifies every email for accuracy (no made-up facts), then sends automatically via your domain."
+  },
+  {
+    number: "04",
+    title: "Auto-Classify Replies",
+    description: "Inbound replies are analyzed by intent (interested, not interested, needs info) and routed accordingly."
+  },
+  {
+    number: "05",
+    title: "Qualified Leads → Calendar",
+    description: "Hot leads get booking links. You show up to pre-qualified appointments, not cold prospects."
+  }
 ];
 
 const crms = ["Follow Up Boss", "LionDesk", "KvCORE", "Salesforce", "HubSpot", "Chime", "Sierra Interactive"];
@@ -90,20 +112,44 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="py-24 px-6 md:px-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Up and Running in 2 Weeks</h2>
-          <p className="text-gray-400 mb-16 max-w-xl mx-auto">No lengthy onboarding. No learning curve. We build it, you use it.</p>
+      {/* How Lead Reactivation Works */}
+      <section id="how-it-works" className="py-24 px-6 md:px-12 bg-neutral-950/50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">How the Lead Reactivation Engine Works</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              From dormant database to booked appointments — completely automated. No manual follow-up. No copying and pasting. 
+              Just results.
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-8 text-left">
-            {steps.map((step) => (
-              <div key={step.number} className="relative">
-                <div className="text-6xl font-bold text-emerald-500/20 mb-4">{step.number}</div>
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{step.description}</p>
+          <div className="space-y-12">
+            {reactivationSteps.map((step, idx) => (
+              <div key={step.number} className="flex gap-6 items-start">
+                <div className="flex-shrink-0 w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-emerald-500">{step.number}</span>
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{step.description}</p>
+                </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-16 p-8 glass rounded-sm border-emerald-500/30">
+            <div className="flex items-start gap-4">
+              <svg className="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="font-bold text-lg mb-2">Currently Running Pilot Programs</h4>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  We're running free 14-day pilots with select DFW agents to build case studies. If you don't get at least 3 qualified 
+                  responses from your old leads, you pay nothing. Limited spots available.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -112,4 +158,3 @@ const Services: React.FC = () => {
 };
 
 export default Services;
-
