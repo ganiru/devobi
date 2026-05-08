@@ -14,7 +14,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
-const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
+const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook-test/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
+const sendMailWebhook = 'https://n8n-production-6955.up.railway.app/webhook/3969361d-c5df-41d0-8db8-265bf071f73d';
 
 // Enable all CORS requests (required for Railway deployment)
 app.use(cors());
@@ -97,6 +98,28 @@ app.post('/api/submit-lead', async (req, res) => {
     } catch (error) {
         console.error('Lead proxy error:', error);
         res.status(500).json({ success: false, error: 'Failed to forward lead to n8n.' });
+    }
+});
+
+// Proxy route for send-mail webhook (avoids browser CORS restrictions)
+app.post('/api/send-mail', async (req, res) => {
+    try {
+        const n8nResponse = await fetch(sendMailWebhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body),
+        });
+
+        if (n8nResponse.ok) {
+            res.status(200).json({ success: true });
+        } else {
+            const errorText = await n8nResponse.text();
+            console.error('n8n send-mail webhook error:', n8nResponse.status, errorText);
+            res.status(n8nResponse.status).json({ success: false, error: errorText });
+        }
+    } catch (error) {
+        console.error('Send-mail proxy error:', error);
+        res.status(500).json({ success: false, error: 'Failed to forward email to n8n.' });
     }
 });
 

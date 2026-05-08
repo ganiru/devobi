@@ -11,6 +11,7 @@ import WorkflowAudit from './components/WorkflowAudit';
 import DemoLeadForm from './components/DemoLeadForm';
 import Founding from './components/Founding';
 import OptIn from './components/OptIn';
+import SendMail from './components/SendMail';
 
 const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -57,6 +58,7 @@ const App: React.FC = () => {
             <Route path="/demo-lead-form" element={<DemoLeadForm />} />
             <Route path="/founding" element={<Founding />} />
             <Route path="/opt-in" element={<OptIn />} />
+            <Route path="/sendmail" element={<SendMail />} />
             <Route path="*" element={<LandingPage />} />
           </Routes>
         </main>
