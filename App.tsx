@@ -12,6 +12,7 @@ import DemoLeadForm from './components/DemoLeadForm';
 import Founding from './components/Founding';
 import OptIn from './components/OptIn';
 import SendMail from './components/SendMail';
+import LeadReactivationForm from './components/LeadReactivationForm';
 
 const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -59,6 +60,7 @@ const App: React.FC = () => {
             <Route path="/founding" element={<Founding />} />
             <Route path="/opt-in" element={<OptIn />} />
             <Route path="/sendmail" element={<SendMail />} />
+            <Route path="/reactivate" element={<LeadReactivationForm />} />
             <Route path="*" element={<LandingPage />} />
           </Routes>
         </main>
