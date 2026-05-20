@@ -1,5 +1,4 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 /**
  * LeadReactivationForm component
@@ -75,12 +74,12 @@ const LeadReactivationForm: React.FC = () => {
           <p className="text-gray-400 text-lg mb-8 max-w-sm mx-auto">
             Your CSV has been submitted. The lead reactivation will begin shortly.
           </p>
-          <Link
-            to="/reactivate"
-            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-emerald-400 font-semibold transition-all"
+          <button
+            onClick={() => setStatus('idle')}
+            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-emerald-400 font-semibold transition-all cursor-pointer"
           >
             Upload Another CSV
-          </Link>
+          </button>
         </div>
       </main>
     );
