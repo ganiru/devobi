@@ -5,7 +5,7 @@ const services = [
     badge: "ROI Recovery",
     title: "Lead Reactivation Engine",
     audience: "Agents · Brokers",
-    description: "Your old CRM leads aren't dead — they're just dormant. Our AI reads each contact's history, writes personalized reactivation emails, verifies them for accuracy, and automatically follows up to book appointments. No manual work. No guesswork.",
+    description: "Your old CRM leads aren't dead — they're dormant. Our AI reads each contact's history, writes personalized reactivation emails, verifies them for accuracy, and automatically follows up to book appointments. No templates. No manual work.",
     icon: (
       <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -66,12 +66,12 @@ const reactivationSteps = [
   {
     number: "04",
     title: "Auto-Classify Replies",
-    description: "Inbound replies are analyzed by intent (interested, not interested, needs info) and routed accordingly."
+    description: "Inbound replies are analyzed by intent — interested, not interested, needs more info — and routed accordingly."
   },
   {
     number: "05",
-    title: "Qualified Leads → Calendar",
-    description: "Hot leads get booking links. You show up to pre-qualified appointments, not cold prospects."
+    title: "Qualified Leads → Your Calendar",
+    description: "Hot leads get booking links sent automatically. You show up to pre-qualified appointments, not cold calls."
   }
 ];
 
@@ -80,6 +80,48 @@ const crms = ["Follow Up Boss", "LionDesk", "KvCORE", "Salesforce", "HubSpot", "
 const Services: React.FC = () => {
   return (
     <>
+      {/* Day-in-the-life scenario — the visceral narrative hook */}
+      <section className="py-16 px-6 md:px-12 bg-neutral-900/40 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-500/70 mb-4 block">
+            What This Looks Like in Practice
+          </span>
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-white">
+            A Tuesday Morning — Before vs. After Devobi
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6 text-left">
+            {/* Before */}
+            <div className="p-6 rounded-lg border border-red-500/20 bg-red-500/5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-2 h-2 rounded-full bg-red-400"></span>
+                <span className="text-xs font-bold uppercase tracking-widest text-red-400">Without Devobi</span>
+              </div>
+              <ul className="space-y-3 text-sm text-gray-400">
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">7:42am</span>Zillow lead comes in. You're in a showing.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">9:15am</span>You finally see it. Lead has already called two other agents.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">11:00am</span>You send a generic "Thanks for your interest" email.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">No reply.</span>Lead goes cold. Commission lost.</li>
+                <li className="flex gap-2 mt-4"><span className="text-red-400 flex-shrink-0">Also:</span>Your 200 old CRM leads sit untouched. Again.</li>
+              </ul>
+            </div>
+            {/* After */}
+            <div className="p-6 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">With Devobi</span>
+              </div>
+              <ul className="space-y-3 text-sm text-gray-400">
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:42am</span>Zillow lead comes in. System responds in 38 seconds.</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:43am</span>Personalized SMS qualifies them — "Are you pre-approved?"</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">8:10am</span>Lead books a 10am showing directly on your calendar.</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">You:</span>Still in your first showing. Never touched your phone.</li>
+                <li className="flex gap-2 mt-4"><span className="text-emerald-400 flex-shrink-0">Also:</span>12 reactivation emails sent to old leads overnight. 3 replied.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="services" className="py-24 px-6 md:px-12 bg-neutral-900/50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
@@ -89,7 +131,7 @@ const Services: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, idx) => (
-              <div key={idx} className="p-8 glass rounded-sm hover:border-emerald-500/50 transition-all group flex flex-col">
+              <div key={idx} className="p-8 glass rounded-lg hover:border-emerald-500/50 transition-all group flex flex-col">
                 <div className="mb-6 group-hover:scale-110 transition-transform">{service.icon}</div>
                 <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-500/70 mb-1">{service.badge}</span>
                 <h3 className="text-xl font-bold mb-1">{service.title}</h3>
@@ -104,9 +146,9 @@ const Services: React.FC = () => {
             <p className="text-sm text-gray-500 text-center mb-6 uppercase tracking-widest font-semibold">Works with your existing CRM</p>
             <div className="flex flex-wrap justify-center gap-3">
               {crms.map(crm => (
-                <span key={crm} className="px-4 py-2 rounded-sm border border-white/10 text-sm text-gray-400 bg-white/5">{crm}</span>
+                <span key={crm} className="px-4 py-2 rounded-md border border-white/10 text-sm text-gray-400 bg-white/5">{crm}</span>
               ))}
-              <span className="px-4 py-2 rounded-sm border border-white/10 text-sm text-gray-400 bg-white/5">+ more</span>
+              <span className="px-4 py-2 rounded-md border border-white/10 text-sm text-gray-400 bg-white/5">+ more</span>
             </div>
           </div>
         </div>
@@ -118,13 +160,13 @@ const Services: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">How the Lead Reactivation Engine Works</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              From dormant database to booked appointments — completely automated. No manual follow-up. No copying and pasting. 
+              From dormant database to booked appointments — completely automated. No manual follow-up. No copying and pasting.
               Just results.
             </p>
           </div>
 
           <div className="space-y-12">
-            {reactivationSteps.map((step, idx) => (
+            {reactivationSteps.map((step) => (
               <div key={step.number} className="flex gap-6 items-start">
                 <div className="flex-shrink-0 w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                   <span className="text-2xl font-bold text-emerald-500">{step.number}</span>
@@ -137,16 +179,16 @@ const Services: React.FC = () => {
             ))}
           </div>
 
-          <div className="mt-16 p-8 glass rounded-sm border-emerald-500/30">
+          <div className="mt-16 p-8 glass rounded-lg border border-emerald-500/30">
             <div className="flex items-start gap-4">
               <svg className="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h4 className="font-bold text-lg mb-2">Currently Running Pilot Programs</h4>
+                <h4 className="font-bold text-lg mb-2">Currently Running Pilot Programs in DFW</h4>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   We're running free 14-day pilots with select DFW agents to build case studies. If you don't get at least 3 qualified 
-                  responses from your old leads, you pay nothing. Limited spots available.
+                  responses from your old leads, you pay nothing. We're DFW-local — Frisco-based — and spots are limited.
                 </p>
               </div>
             </div>

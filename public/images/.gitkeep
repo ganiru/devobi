@@ -1,0 +1,2 @@
+# This directory stores static assets.
+# Vite serves files in this directory at the root path (/) and copies them to the dist folder as-is.
