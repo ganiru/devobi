@@ -162,7 +162,7 @@ const Chatbot: React.FC = () => {
           },
           onmessage: async (message: LiveServerMessage) => {
             // Audio Output
-            const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+            const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
             if (base64Audio && audioContextRef.current) {
               const ctx = audioContextRef.current.output;
               nextStartTimeRef.current = Math.max(nextStartTimeRef.current, ctx.currentTime);
@@ -301,14 +301,15 @@ const Chatbot: React.FC = () => {
           {/* Header */}
           <div className="bg-emerald-500/10 p-4 border-b border-white/10 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${isVoiceActive ? 'bg-red-500 animate-pulse' : (isConnecting ? 'bg-yellow-500 animate-bounce' : 'bg-emerald-500')}`}></div>
+              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
               <div>
                 <div className="font-bold text-emerald-500 text-sm">
-                  {isConnecting ? 'Initializing Voice...' : (isVoiceActive ? 'Voice Mode Active' : 'Devobi AI Expert')}
+                  Devobi AI Expert
                 </div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Real Estate Automation</div>
               </div>
             </div>
+            {/* Microphone button hidden — voice mode temporarily disabled
             <button 
               onClick={toggleVoice} 
               disabled={isConnecting}
@@ -323,6 +324,7 @@ const Chatbot: React.FC = () => {
                 )}
               </svg>
             </button>
+            */}
           </div>
 
           {/* Messages */}
@@ -364,17 +366,17 @@ const Chatbot: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder={isVoiceActive ? "Speak to AI..." : (isConnecting ? "Connecting..." : "Ask about AI workflows...")}
-              disabled={isVoiceActive || isConnecting}
+              placeholder="Ask about AI workflows..."
+              disabled={false}
               className="flex-grow bg-black/40 border border-white/10 p-2.5 rounded-lg outline-none focus:border-emerald-500/50 transition-all text-sm disabled:opacity-50 placeholder:text-gray-600"
             />
             
             <button 
               onClick={handleSend}
-              disabled={isLoading || !inputValue.trim() || isVoiceActive || isConnecting}
+              disabled={isLoading || !inputValue.trim()}
               className="bg-emerald-500 hover:bg-emerald-400 text-black p-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:grayscale transform active:scale-95 shadow-lg shadow-emerald-500/10"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" style={{ transform: 'rotate(90deg)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </button>

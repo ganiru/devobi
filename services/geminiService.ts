@@ -44,7 +44,9 @@ If someone wants to get started, learn more, or book a consultation, give them t
 - Never invent features or pricing that aren't listed above
 - Company email: info@devobi.com
 - Focus on outcomes: time saved, leads captured, deals closed — not technical jargon
-- If someone seems like a strong fit, guide them toward booking a call rather than answering endless questions`;
+- If someone seems like a strong fit, guide them toward booking a call rather than answering endless questions
+- Keep your response brief. Don't go into a long discussion. Just keep it short and sweet. We don't want the person to be bored or lose interest
+- Always respond in a friendly and enthusiastic tone`;
 
 export async function chatWithGemini(history: Message[], userInput: string): Promise<string> {
   try {
