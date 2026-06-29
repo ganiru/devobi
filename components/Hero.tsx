@@ -19,14 +19,10 @@ const Hero: React.FC = () => {
       <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 max-w-4xl leading-tight">
         Your Old Leads Are{' '}
         <span className="text-emerald-400">Still Worth Money.</span>
-        <br />
-        Let AI Collect It.
       </h1>
 
       <p className="text-lg md:text-xl text-gray-400 max-w-2xl mb-4 leading-relaxed">
-        Devobi builds AI automation systems for DFW real estate agents. We reactivate your cold database,
-        respond to new leads in under 60 seconds, and book appointments on your calendar - with zero manual follow-up.
-      </p>
+        DevObi builds AI automation systems for real estate brokers and wholesalers that reactivate cold leads, qualify new inquiries in seconds, and notify you the moment a lead is hot.      </p>
 
       {/* Scenario hook — makes it visceral and local */}
       <p className="text-sm text-gray-500 max-w-xl mb-10 italic">
