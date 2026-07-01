@@ -9,10 +9,10 @@ import AuthGate from './AuthGate';
 const LeadReactivationForm: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [agentName, setAgentName] = useState('');
-  const [agentPhone, setAgentPhone] = useState('');
-  const [agentEmail, setAgentEmail] = useState('');
-  const [emailSignature, setEmailSignature] = useState('');
+  const [agentName, setAgentName] = useState('John Doe');
+  const [agentPhone, setAgentPhone] = useState('(555) 123-4567');
+  const [agentEmail, setAgentEmail] = useState('john@example.com');
+  const [emailSignature, setEmailSignature] = useState('John Doe, Real Estate Broker');
 
   useEffect(() => {
     document.title = 'Reactivate Leads | Devobi LLC AI Automation';
@@ -52,10 +52,10 @@ const LeadReactivationForm: React.FC = () => {
         setStatus('success');
         // Reset fields
         setCsvFile(null);
-        setAgentName('');
-        setAgentPhone('');
-        setAgentEmail('');
-        setEmailSignature('');
+        setAgentName('John Doe');
+        setAgentPhone('(555) 123-4567');
+        setAgentEmail('john@example.com');
+        setEmailSignature('John Doe, Real Estate Broker');
         // Reset file input value
         (document.getElementById('csv') as HTMLInputElement).value = '';
       } else {
