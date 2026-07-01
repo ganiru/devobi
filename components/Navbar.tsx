@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=navbar&utm_campaign=audit_launch";
+  const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=navbar&utm_campaign=pilot_launch";
 
   return (
     <nav className="w-full glass py-4 px-6 md:px-12 flex justify-between items-center relative">
@@ -21,20 +21,20 @@ const Navbar: React.FC = () => {
       <a
         onClick={(e) => {
           e.preventDefault();
-          navigate('/workflow-audit?utm_source=contact&utm_campaign=audit_launch');
+          navigate('/free-pilot?utm_source=navbar&utm_campaign=pilot_launch');
           window.scrollTo(0, 0);
 
           // Add analytics (if using Google Analytics, Plausible, etc.)
           if (typeof window !== 'undefined' && (window as any).gtag) {
             (window as any).gtag('event', 'click', {
               event_category: 'CTA',
-              event_label: 'Workflow Audit - Homepage',
+              event_label: 'Free Pilot - Navbar',
             });
           }
         }}
         className="bg-emerald-500 cursor-pointer hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
       >
-        Get Your Free Workflow Audit →
+        Start Free 14-Day Pilot →
       </a>
 
     </nav>

@@ -39,7 +39,7 @@ const Contact: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link
-              to="/workflow-audit?utm_source=contact&utm_campaign=pilot_launch"
+              to="/free-pilot?utm_source=contact&utm_campaign=pilot_launch"
               onClick={() => window.scrollTo(0, 0)}
               className="inline-flex cursor-pointer items-center justify-center px-8 py-4 text-base font-semibold text-black bg-emerald-400 rounded-lg hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/20"
             >

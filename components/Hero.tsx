@@ -32,7 +32,7 @@ const Hero: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
-          to="/workflow-audit"
+          to="/free-pilot"
           className="bg-emerald-500 hover:bg-emerald-400 text-black px-8 py-4 rounded-md font-bold text-lg transition-all shadow-lg shadow-emerald-500/25"
         >
           Start Free 14-Day Pilot →
