@@ -10,7 +10,7 @@ const FreePilot: React.FC = () => {
 
     const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=free_pilot&utm_campaign=pilot_launch";
     const FORMSUBMIT_URL = "https://formsubmit.co/ajax/obi@devobi.com";
-    const LOOM_LINK = "https://www.loom.com/share/your-video-here";
+    const LOOM_LINK = "https://www.loom.com/share/5dc35d7b0eea47bab5269cc35c6539ea";
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -52,7 +52,7 @@ const FreePilot: React.FC = () => {
                     Start Your Free 14-Day Pilot
                 </h1>
                 <p className="text-lg text-gray-400 text-center mb-6 max-w-2xl mx-auto">
-                    We'll run our Lead Reactivation Engine on your dormant lead list for 14 days at no cost. 
+                    We'll run our Lead Reactivation Engine on your dormant lead list for 14 days at no cost.
                     No setup fee, no commitment — just watch it work before deciding anything.
                 </p>
                 <div className="mb-4 text-center">
@@ -82,21 +82,17 @@ const FreePilot: React.FC = () => {
                     </div>
                 ) : (
                     <div>
-                        {/* Loom Video Placeholder */}
-                        <div className="aspect-video max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/10 mb-8 flex items-center justify-center bg-white/5">
-                            <div className="text-center">
-                                <p className="text-gray-400 text-sm mb-2">Demo video coming soon</p>
-                                <a
-                                    href={LOOM_LINK}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
-                                >
-                                    Watch on Loom →
-                                </a>
-                            </div>
+                        {/* Loom Video Embed */}
+                        <div className="max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/10 mb-8" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                            <iframe
+                                src="https://www.loom.com/embed/5dc35d7b0eea47bab5269cc35c6539ea"
+                                frameBorder="0"
+                                allowFullScreen
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                title="Free 14-Day Pilot Demo"
+                            ></iframe>
                         </div>
-                        
+
                         {/* What You Get */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
                             <h2 className="font-semibold text-lg mb-4 text-center">You'll get:</h2>
