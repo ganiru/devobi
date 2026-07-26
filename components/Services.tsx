@@ -4,8 +4,8 @@ const services = [
   {
     badge: "ROI Recovery",
     title: "Lead Reactivation Engine",
-    audience: "Agents · Brokers",
-    description: "Your old CRM leads aren't dead — they're dormant. Our AI reads each contact's history, writes personalized reactivation emails, verifies them for accuracy, and automatically follows up to book appointments. No templates. No manual work.",
+    audience: "Roofers · HVAC · Solar",
+    description: "Your old CRM leads aren't dead — they're dormant. Our AI reads each contact's history, writes personalized reactivation emails, verifies them for accuracy, and automatically follows up to book estimates. No templates. No manual work.",
     icon: (
       <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -15,8 +15,8 @@ const services = [
   {
     badge: "Speed-to-Lead",
     title: "24/7 AI Concierge",
-    audience: "Agents · Brokers · Wholesalers",
-    description: "Monitors your Zillow, Realtor.com, and Facebook leads and fires off a qualifying SMS conversation within seconds — day or night. By the time a competitor picks up the phone, your lead is already booked on your calendar.",
+    audience: "Roofers · HVAC · Solar",
+    description: "Monitors your Google Ads, Angi, and Facebook leads and fires off a qualifying SMS conversation within seconds — day or night. By the time a competitor calls back, your lead already has an inspection booked.",
     icon: (
       <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -26,8 +26,8 @@ const services = [
   {
     badge: "Prospecting",
     title: "Ghost Lead Audit",
-    audience: "Brokers · Wholesalers",
-    description: "We scan a target agent's online presence and pinpoint every unanswered inquiry and slow follow-up. The result: a personalized report that opens doors with prospects who are clearly leaving money on the table.",
+    audience: "Roofers · HVAC · Solar",
+    description: "We scan a target contractor's online presence and pinpoint every unanswered inquiry and slow follow-up. The result: a personalized report that opens doors with prospects who are clearly leaving jobs on the table.",
     icon: (
       <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -37,7 +37,7 @@ const services = [
   {
     badge: "Pipeline Automation",
     title: "Survey-to-CRM Intake",
-    audience: "Agents · Brokers · Wholesalers",
+    audience: "Roofers · HVAC · Solar",
     description: "Every inbound prospect is scored instantly, logged in your CRM, and pushed to you via instant mobile alerts — so you always know which leads are hot and ready to move, without touching a spreadsheet.",
     icon: (
       <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,11 +71,11 @@ const reactivationSteps = [
   {
     number: "05",
     title: "Qualified Leads → Your Calendar",
-    description: "Hot leads get booking links sent automatically. You show up to pre-qualified appointments, not cold calls."
+    description: "Hot leads get booking links sent automatically. You show up to pre-qualified estimates, not cold calls."
   }
 ];
 
-const crms = ["Follow Up Boss", "LionDesk", "KvCORE", "Salesforce", "HubSpot", "Chime", "Sierra Interactive"];
+const crms = ["JobNimbus", "ServiceTitan", "GoHighLevel", "Salesforce", "HubSpot", "Podium", "AccuLynx"];
 
 const Services: React.FC = () => {
   return (
@@ -97,11 +97,11 @@ const Services: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-widest text-red-400">Without Devobi</span>
               </div>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">7:42am</span>Zillow lead comes in. You're in a showing.</li>
-                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">9:15am</span>You finally see it. Lead has already called two other agents.</li>
-                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">11:00am</span>You send a generic "Thanks for your interest" email.</li>
-                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">No reply.</span>Lead goes cold. Commission lost.</li>
-                <li className="flex gap-2 mt-4"><span className="text-red-400 flex-shrink-0">Also:</span>Your 200 old CRM leads sit untouched. Again.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">7:42am</span>Storm-damage lead comes in. Your crew is already on a roof.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">6:00pm</span>You finally see it. Homeowner already booked another contractor.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">Next day</span>You send a generic "Thanks for your interest" email.</li>
+                <li className="flex gap-2"><span className="text-red-400 flex-shrink-0">No reply.</span>Lead goes cold. Job lost.</li>
+                <li className="flex gap-2 mt-4"><span className="text-red-400 flex-shrink-0">Also:</span>Your 200 old estimate leads sit untouched. Again.</li>
               </ul>
             </div>
             {/* After */}
@@ -111,10 +111,10 @@ const Services: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">With Devobi</span>
               </div>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:42am</span>Zillow lead comes in. System responds in 38 seconds.</li>
-                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:43am</span>Personalized SMS qualifies them — "Are you pre-approved?"</li>
-                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">8:10am</span>Lead books a 10am showing directly on your calendar.</li>
-                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">You:</span>Still in your first showing. Never touched your phone.</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:42am</span>Storm-damage lead comes in. System responds in 38 seconds.</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">7:43am</span>Personalized SMS qualifies them — "Any visible shingle damage?"</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">8:10am</span>Lead books a 10am inspection directly on your calendar.</li>
+                <li className="flex gap-2"><span className="text-emerald-400 flex-shrink-0">You:</span>Still on the roof. Never touched your phone.</li>
                 <li className="flex gap-2 mt-4"><span className="text-emerald-400 flex-shrink-0">Also:</span>12 reactivation emails sent to old leads overnight. 3 replied.</li>
               </ul>
             </div>
@@ -125,8 +125,8 @@ const Services: React.FC = () => {
       <section id="services" className="py-24 px-6 md:px-12 bg-neutral-900/50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Built for Agents, Brokers & Wholesalers</h2>
-            <p className="text-gray-400 max-w-xl">Four core systems that eliminate the manual work between receiving a lead and booking a meeting — so you can focus on closing.</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Built for Roofing, HVAC & Solar Contractors</h2>
+            <p className="text-gray-400 max-w-xl">Four core systems that eliminate the manual work between receiving a lead and booking an estimate — so you can focus on the job.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -160,7 +160,7 @@ const Services: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">How the Lead Reactivation Engine Works</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              From dormant database to booked appointments — completely automated. No manual follow-up. No copying and pasting.
+              From dormant database to booked estimates — completely automated. No manual follow-up. No copying and pasting.
               Just results.
             </p>
           </div>
@@ -187,7 +187,7 @@ const Services: React.FC = () => {
               <div>
                 <h4 className="font-bold text-lg mb-2">Currently Running Pilot Programs in DFW</h4>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  We're running free 14-day pilots with select DFW agents to build case studies. If you don't get at least 3 qualified 
+                  We're running free 14-day pilots with select DFW roofing, HVAC, and solar companies to build case studies. If you don't get at least 3 qualified 
                   responses from your old leads, you pay nothing. We're DFW-local — Frisco-based — and spots are limited.
                 </p>
               </div>

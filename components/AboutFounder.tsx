@@ -26,8 +26,8 @@ const AboutFounder: React.FC = () => {
               system works before you pay a dollar.
             </p>
             <p className="text-gray-400 leading-relaxed mb-6">
-              I chose real estate because DFW agents are leaving real money on the table — not because
-              they're lazy, but because following up with 200 old leads manually is humanly impossible.
+              I chose roofing, HVAC, and solar because DFW contractors are leaving real money on the table — not because
+              they're lazy, but because following up with 200 old estimates manually is humanly impossible.
               That's exactly the problem AI solves well.
             </p>
 
@@ -70,7 +70,7 @@ const AboutFounder: React.FC = () => {
             {/* Pull quote */}
             <blockquote className="glass rounded-lg p-6 border-l-2 border-emerald-500">
               <p className="text-gray-300 text-sm leading-relaxed italic">
-                "Most agents have 300+ contacts sitting in their CRM that they've completely given up on.
+                "Most contractors have 300+ contacts sitting in their CRM that they've completely given up on.
                 Those leads didn't vanish — life just got in the way. The right message, sent at the
                 right time, still works. That's exactly what this system is built to do."
               </p>

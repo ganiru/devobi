@@ -131,7 +131,7 @@ const FreePilot: React.FC = () => {
                                     type="email"
                                     name="email"
                                     required
-                                    placeholder="john@realty.com"
+                                    placeholder="john@abcroofing.com"
                                     className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
                                 />
                             </div>

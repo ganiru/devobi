@@ -7,11 +7,11 @@ const Founding: React.FC = () => {
             name: "Founding Member",
             price: "$497",
             setup: "Setup fee: WAIVED",
-            audience: "Solo Agents",
+            audience: "Solo Contractors",
             features: [
                 "AI Lead Capture + SMS Automation",
                 "Automated follow-up sequences",
-                "CRM sync (Follow Up Boss, LionDesk, etc.)",
+                "CRM sync (JobNimbus, ServiceTitan, etc.)",
                 "Email + SMS notifications",
                 "Weekly performance summary"
             ],
@@ -23,7 +23,7 @@ const Founding: React.FC = () => {
             name: "VelociLead Pro",
             price: "$997",
             setup: "$497 setup fee",
-            audience: "Active Agents (2-5 closings/month)",
+            audience: "Active Crews (5-15 jobs/month)",
             features: [
                 "Everything in Founding Member",
                 "AI Qualification Engine",
@@ -40,11 +40,11 @@ const Founding: React.FC = () => {
             name: "Performance Partner",
             price: "$1,997+",
             setup: "Custom setup fee",
-            audience: "Teams, Brokerages, High-Volume Agents",
+            audience: "Multi-Crew Companies, High-Volume Shops",
             features: [
                 "Everything in VelociLead Pro",
                 "Unlimited leads processed",
-                "$50 success fee per qualified appointment",
+                "$50 success fee per qualified estimate",
                 "Dedicated automation engineer",
                 "Custom integrations",
                 "White-glove onboarding"
@@ -161,7 +161,7 @@ const Founding: React.FC = () => {
                     >
                         Apply for Free 14-Day Pilot →
                     </Link>
-                    <p className="mt-4 text-sm text-gray-500">DFW agents only • Limited spots available</p>
+                    <p className="mt-4 text-sm text-gray-500">DFW contractors only • Limited spots available</p>
                 </div>
             </div>
         </main>

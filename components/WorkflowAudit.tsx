@@ -129,7 +129,7 @@ const WorkflowAudit: React.FC = () => {
                                     type="email"
                                     name="email"
                                     required
-                                    placeholder="john@realty.com"
+                                    placeholder="john@abcroofing.com"
                                     className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
                                 />
                             </div>
@@ -138,7 +138,7 @@ const WorkflowAudit: React.FC = () => {
                                 <input
                                     type="text"
                                     name="crm"
-                                    placeholder="Follow Up Boss, LionDesk, etc."
+                                    placeholder="JobNimbus, ServiceTitan, etc."
                                     className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
                                 />
                             </div>

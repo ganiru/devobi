@@ -5,6 +5,8 @@ import { GoogleGenAI } from "@google/genai";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import fs from 'fs';
+
 dotenv.config({ path: '.env.local' });
 //dotenv.config(); // fallback to .env
 
@@ -14,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
-const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook-test/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
+const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook-test/mailgun-inbound'; // test - 'https://n8n-production-6955.up.railway.app/webhook-test/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
 const sendMailWebhook = 'https://n8n-production-6955.up.railway.app/webhook/3969361d-c5df-41d0-8db8-265bf071f73d';
 
 // Enable all CORS requests (required for Railway deployment)
@@ -128,13 +130,28 @@ app.get('/survey', (req, res) => {
     res.redirect(301, 'https://forms.gle/vg4MozP4P4skYwSr6');
 });
 
-// Serve static files from the Vite build in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, 'dist')));
+// Serve static files from Vite build if available or in production mode
+const distPath = path.join(__dirname, 'dist');
+const indexPath = path.join(distPath, 'index.html');
+
+if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
+    app.use(express.static(distPath));
 
     // Fallback to index.html for SPA routing
-    app.use((req, res) => {
-        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    app.use((req, res, next) => {
+        if (req.path.startsWith('/api')) {
+            return next();
+        }
+        if (fs.existsSync(indexPath)) {
+            res.sendFile(indexPath);
+        } else {
+            res.status(404).send('Build files not found. Please run `npm run build`.');
+        }
+    });
+} else {
+    app.get('/', (req, res) => {
+        const host = req.headers.host ? req.headers.host.split(':')[0] : 'localhost';
+        res.redirect(`http://${host}:5173`);
     });
 }
 

@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
       {/* Credibility badge — DFW + founder signal */}
       <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-medium">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Built in Frisco, TX — Free 14-Day Pilot Available for DFW Agents
+        Built in Frisco, TX — Free 14-Day Pilot Available for DFW Contractors
       </div>
 
       <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 max-w-4xl leading-tight">
@@ -22,12 +22,12 @@ const Hero: React.FC = () => {
       </h1>
 
       <p className="text-lg md:text-xl text-gray-400 max-w-2xl mb-4 leading-relaxed">
-        DevObi builds AI automation systems for real estate brokers and wholesalers that reactivate cold leads, qualify new inquiries in seconds, and notify you the moment a lead is hot.      </p>
+        DevObi builds AI automation systems for roofing, HVAC, and solar companies that reactivate cold estimates, qualify new inquiries in seconds, and notify you the moment a lead is hot.      </p>
 
       {/* Scenario hook — makes it visceral and local */}
       <p className="text-sm text-gray-500 max-w-xl mb-10 italic">
-        "At 7:42am, a Zillow lead comes in on a Frisco listing. Before you finish your coffee,
-        the system has responded, qualified them, and added a 10am showing to your calendar."
+        "At 7:42am, a storm-damage estimate request comes in from a Google Ads campaign.
+        Before you finish your coffee, the system has responded, qualified the roof size, and added a 10am inspection to your calendar."
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -48,7 +48,7 @@ const Hero: React.FC = () => {
       </div>
 
       <p className="mt-4 text-sm text-gray-500">
-        ✓ Zero risk — 3 qualified responses or you pay nothing &nbsp;·&nbsp; ✓ DFW agents only &nbsp;·&nbsp; ✓ Limited spots
+        ✓ Zero risk — 3 qualified responses or you pay nothing &nbsp;·&nbsp; ✓ DFW contractors only &nbsp;·&nbsp; ✓ Limited spots
       </p>
 
       {/* Stats row — system capabilities, not client results */}
@@ -76,7 +76,7 @@ const Hero: React.FC = () => {
 
       {/* Feature tags */}
       <div className="mt-12 flex flex-wrap justify-center gap-3 opacity-60">
-        {['Dead Lead Revival', 'AI Personalization', 'Auto Follow-Up', 'Reply Classification', 'Calendar Booking', 'CRM Sync'].map(tag => (
+        {['Dead Lead Revival', 'AI Personalization', 'Auto Follow-Up', 'Reply Classification', 'Estimate Booking', 'CRM Sync'].map(tag => (
           <span key={tag} className="px-3 py-1 rounded-full border border-white/10 text-xs font-semibold text-gray-400 tracking-wide">
             {tag}
           </span>

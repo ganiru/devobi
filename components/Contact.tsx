@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const faqs = [
   {
     q: "Does this work with my CRM?",
-    a: "The system is built to integrate with Follow Up Boss, LionDesk, KvCORE, HubSpot, Salesforce, Chime, Sierra Interactive, and most others via API. If you use something else, reach out — if it has an API or CSV export, we can likely work with it."
+    a: "The system is built to integrate with JobNimbus, ServiceTitan, GoHighLevel, HubSpot, Salesforce, Podium, AccuLynx, and most others via API. If you use something else, reach out — if it has an API or CSV export, we can likely work with it."
   },
   {
     q: "How long does setup take?",
@@ -33,7 +33,7 @@ const Contact: React.FC = () => {
             Ready to Find Out What's Still in Your Database?
           </h2>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            We're running free 14-day pilots with select DFW agents right now. You bring the dormant 
+            We're running free 14-day pilots with select DFW roofing, HVAC, and solar companies right now. You bring the dormant 
             lead list — we run the system, you watch it work. No commitment, no setup fees, no risk.
           </p>
 
@@ -55,7 +55,7 @@ const Contact: React.FC = () => {
           </div>
 
           <p className="text-sm text-gray-500">
-            ✓ DFW agents only &nbsp;·&nbsp;
+            ✓ DFW contractors only &nbsp;·&nbsp;
             ✓ Zero risk — pay nothing if it doesn't work &nbsp;·&nbsp;
             ✓ Limited spots available
           </p>

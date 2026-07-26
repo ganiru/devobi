@@ -5,37 +5,41 @@ import React, { useState } from 'react';
  * A premium real estate lead form that posts data to an n8n webhook.
  */
 const DemoLeadForm: React.FC = () => {
-    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [formData, setFormData] = useState({
+    const defaultFormData = {
+        subject: 'New Lead from Demo Form - [EMAIL_ADDRESS]',
+        from: '',
+        to: 'sellerleads@devobi.com',
         name: '',
         email: '',
         phone: '',
         message: '',
         source: 'Facebook'
-    });
+    };
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [formData, setFormData] = useState(defaultFormData);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus('loading');
-
+        const emailBody = {
+            "from": `${formData.email}`,
+            "to": `${formData.to}`,
+            "subject": `${formData.subject}`,
+            "html": `${formData.message}`,
+            "text": `${formData.message}`
+        }
         try {
-            const response = await fetch('/api/submit-lead', {
+            const response = await fetch('/api/send-mail', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(emailBody),
             });
 
             if (response.ok) {
                 setStatus('success');
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    message: '',
-                    source: 'Facebook'
-                });
+                setFormData(defaultFormData);
             } else {
                 setStatus('error');
             }
@@ -162,7 +166,7 @@ const DemoLeadForm: React.FC = () => {
                                 rows={4}
                                 value={formData.message}
                                 onChange={handleChange}
-                                placeholder="Looking for a 3-bedroom luxury villa in Downtown..."
+                                placeholder="Looking for a 3-bedroom luxury villa in Downtown Dallas ASAP..."
                                 className="w-full bg-black border border-white/10 p-4 focus:border-emerald-500 outline-none transition-all resize-none"
                             />
                         </div>

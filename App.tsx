@@ -72,7 +72,7 @@ const App: React.FC = () => {
         </main>
         <footer className="py-12 px-6 border-t border-white/10 text-center text-gray-500">
           <p className="font-semibold text-gray-400">&copy; {new Date().getFullYear()} Devobi LLC. All rights reserved.</p>
-          <p className="mt-2 text-sm italic text-gray-600">AI automation for DFW real estate professionals — built in Frisco, TX.</p>
+          <p className="mt-2 text-sm italic text-gray-600">AI automation for DFW roofing, HVAC & solar companies — built in Frisco, TX.</p>
           <div className="mt-4 flex justify-center gap-6 text-xs text-gray-600">
             <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
             <span>·</span>
