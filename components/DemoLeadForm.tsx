@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 /**
  * DemoLeadForm component
- * A premium real estate lead form that posts data to an n8n webhook.
+ * A premium home services lead form that posts data to an n8n webhook.
  */
 const DemoLeadForm: React.FC = () => {
     const defaultFormData = {
@@ -65,7 +65,7 @@ const DemoLeadForm: React.FC = () => {
                     </div>
                     <h3 className="text-3xl font-bold mb-4 text-white">Inquiry Received!</h3>
                     <p className="text-gray-400 text-lg mb-8 max-w-sm mx-auto">
-                        Thanks for reaching out! One of our real estate specialists will review your details and contact you shortly.
+                        Thanks for reaching out! One of our home services specialists will review your details and contact you shortly.
                     </p>
                     <button
                         onClick={() => setStatus('idle')}
@@ -89,7 +89,7 @@ const DemoLeadForm: React.FC = () => {
             <div className="max-w-xl mx-auto relative z-10">
                 <p className="text-center text-red-400 text-sm py-4">
                     This is just for demo purposes. Enter fake data if you wish.
-                    <br />To see what the agent/broker will see when submitted, use your real email address.
+                    <br />To see what the contractor will see when submitted, use your real email address.
                 </p>
                 <div className="text-center mb-12">
                     <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">

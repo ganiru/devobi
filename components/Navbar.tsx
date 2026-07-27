@@ -1,42 +1,47 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from './ThemeContext';
 
 const Navbar: React.FC = () => {
-  const navigate = useNavigate();
-  const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=navbar&utm_campaign=pilot_launch";
+  const { theme, toggle } = useTheme();
 
   return (
-    <nav className="w-full glass py-4 px-6 md:px-12 flex justify-between items-center relative">
-      <Link to="/" className="flex items-center gap-2" style={{ cursor: "pointer" }}>
-        <div className="w-8 h-8 bg-emerald-500 rounded-sm flex items-center justify-center font-bold text-black text-xl">D</div>
-        <span className="text-xl font-semibold tracking-tighter">Devobi LLC</span>
-      </Link>
-      <div className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-        <Link to="/#services" className="hover:text-emerald-400 transition-colors">Services</Link>
-        <Link to="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
-        <Link to="/#contact" className="hover:text-emerald-400 transition-colors">Contact</Link>
-        <a href="mailto:info@devobi.com" className="hover:text-emerald-400 transition-colors">info@devobi.com</a>
-        <Link to="/demo-lead-form" className="hover:text-emerald-400 transition-colors cursor-pointer">Demo Lead Form</Link>
+    <nav className="sticky top-0 z-50 bg-cream border-b border-line">
+      <div className="max-w-page mx-auto px-6 flex items-center justify-between h-[68px]">
+        <a href="/" className="font-extrabold text-lg tracking-tight no-underline text-ink">
+          Devobi<span className="text-accent">.</span>
+        </a>
+        <div className="hidden md:flex items-center gap-8 list-none">
+          <a href="#how" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">How It Works</a>
+          <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
+          <a href="#pilot" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Pilot</a>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggle}
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-line text-muted hover:text-ink hover:border-ink transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="5" />
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+              </svg>
+            )}
+          </button>
+          <a
+            href="https://calendly.com/obinnae/ai-consultation"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 font-semibold text-sm no-underline rounded-full border border-transparent px-[20px] py-[10px] bg-ink dark:bg-gray-800 text-white hover:bg-accent transition-colors"
+          >
+            Book a Call
+          </a>
+        </div>
       </div>
-      <a
-        onClick={(e) => {
-          e.preventDefault();
-          navigate('/free-pilot?utm_source=navbar&utm_campaign=pilot_launch');
-          window.scrollTo(0, 0);
-
-          // Add analytics (if using Google Analytics, Plausible, etc.)
-          if (typeof window !== 'undefined' && (window as any).gtag) {
-            (window as any).gtag('event', 'click', {
-              event_category: 'CTA',
-              event_label: 'Free Pilot - Navbar',
-            });
-          }
-        }}
-        className="bg-emerald-500 cursor-pointer hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-sm font-bold transition-all transform active:scale-95"
-      >
-        Start Free 14-Day Pilot →
-      </a>
-
     </nav>
   );
 };

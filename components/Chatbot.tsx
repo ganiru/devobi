@@ -59,7 +59,7 @@ function createBlob(data: Float32Array): Blob {
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi! I'm the Devobi assistant. How can I help you automate your real estate business today?" }
+    { role: 'assistant', content: "Hey! I'm the Devobi assistant. How can I help you automate your lead follow-up today?" }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -266,10 +266,10 @@ const Chatbot: React.FC = () => {
           ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3 space-y-1" {...props} />,
           li: ({ ...props }) => <li className="mb-1" {...props} />,
           p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
-          a: ({ ...props }) => <a className="text-emerald-400 hover:text-emerald-300 underline font-medium" target="_blank" rel="noopener noreferrer" {...props} />,
-          strong: ({ ...props }) => <strong className="font-bold text-white" {...props} />,
-          code: ({ ...props }) => <code className="bg-white/10 px-1 rounded text-emerald-300 font-mono text-xs" {...props} />,
-          blockquote: ({ ...props }) => <blockquote className="border-l-2 border-emerald-500 pl-3 italic text-gray-400 my-2" {...props} />,
+          a: ({ ...props }) => <a className="text-accent hover:text-accent-dark underline font-medium" target="_blank" rel="noopener noreferrer" {...props} />,
+          strong: ({ ...props }) => <strong className="font-bold text-ink" {...props} />,
+          code: ({ ...props }) => <code className="bg-line/50 px-1 rounded text-accent font-mono text-xs" {...props} />,
+          blockquote: ({ ...props }) => <blockquote className="border-l-2 border-accent pl-3 italic text-muted my-2" {...props} />,
         }}
       >
         {msg.content}
@@ -282,14 +282,14 @@ const Chatbot: React.FC = () => {
       {/* Chat Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 transform active:scale-90 ${isOpen ? 'bg-red-500 rotate-90' : 'bg-emerald-500 hover:bg-emerald-400'}`}
+        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-90 ${isOpen ? 'bg-accent rotate-90' : 'bg-accent hover:bg-accent-dark'}`}
       >
         {isOpen ? (
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
         )}
@@ -297,16 +297,16 @@ const Chatbot: React.FC = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="absolute bottom-20 right-0 w-[350px] md:w-[400px] h-[550px] bg-[#0f0f0f] border border-white/10 rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+        <div className="absolute bottom-20 right-0 w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-gray-900 border border-line rounded-xl shadow-2xl flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-emerald-500/10 p-4 border-b border-white/10 flex items-center justify-between shrink-0">
+          <div className="bg-accent p-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <div className="w-3 h-3 rounded-full bg-white/70"></div>
               <div>
-                <div className="font-bold text-emerald-500 text-sm">
-                  Devobi AI Expert
+                <div className="font-bold text-white text-sm">
+                  Devobi Expert
                 </div>
-                <div className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Real Estate Automation</div>
+                <div className="text-[10px] text-white/70 uppercase tracking-widest font-semibold">Lead Reactivation</div>
               </div>
             </div>
             {/* Microphone button hidden — voice mode temporarily disabled
@@ -314,7 +314,7 @@ const Chatbot: React.FC = () => {
               onClick={toggleVoice} 
               disabled={isConnecting}
               title={isVoiceActive ? "Stop Voice Mode" : "Start Voice Mode"}
-              className={`p-2 rounded-full transition-all duration-200 ${isVoiceActive ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : (isConnecting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 text-gray-400')}`}
+              className={`p-2 rounded-full transition-all duration-200 ${isVoiceActive ? 'bg-accent text-white shadow-lg shadow-accent/20' : (isConnecting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 text-white/70')}`}
             >
               <svg className={`w-5 h-5 ${isConnecting ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isConnecting ? (
@@ -337,8 +337,8 @@ const Chatbot: React.FC = () => {
                 <div 
                   className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user' 
-                      ? 'bg-emerald-600 text-white rounded-br-none shadow-lg' 
-                      : 'bg-white/5 text-gray-200 border border-white/5 rounded-bl-none'
+                      ? 'bg-accent text-white rounded-br-none shadow-lg' 
+                      : 'bg-gray-100 dark:bg-gray-800 text-ink border border-line rounded-bl-none'
                   }`}
                 >
                   {renderMessageContent(msg)}
@@ -347,11 +347,11 @@ const Chatbot: React.FC = () => {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white/5 p-4 rounded-2xl rounded-bl-none border border-white/5">
+                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-2xl rounded-bl-none border border-line">
                   <div className="flex gap-1.5">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce [animation-delay:0.4s]"></div>
                   </div>
                 </div>
               </div>
@@ -360,21 +360,21 @@ const Chatbot: React.FC = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-white/10 flex gap-2 items-center shrink-0 bg-[#121212]">
+          <div className="p-4 border-t border-line flex gap-2 items-center shrink-0 bg-cream dark:bg-gray-900">
             <input 
               type="text" 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask about AI workflows..."
+              placeholder="Ask about lead reactivation..."
               disabled={false}
-              className="flex-grow bg-black/40 border border-white/10 p-2.5 rounded-lg outline-none focus:border-emerald-500/50 transition-all text-sm disabled:opacity-50 placeholder:text-gray-600"
+              className="flex-grow bg-white/80 dark:bg-black/20 border border-line p-2.5 rounded-lg outline-none focus:border-accent/50 transition-all text-sm text-ink placeholder:text-muted/50 disabled:opacity-50"
             />
             
             <button 
               onClick={handleSend}
               disabled={isLoading || !inputValue.trim()}
-              className="bg-emerald-500 hover:bg-emerald-400 text-black p-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:grayscale transform active:scale-95 shadow-lg shadow-emerald-500/10"
+              className="bg-accent hover:bg-accent-dark text-white p-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:grayscale active:scale-95 shadow-lg shadow-accent/10"
             >
               <svg className="w-5 h-5" style={{ transform: 'rotate(90deg)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -391,11 +391,11 @@ const Chatbot: React.FC = () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
+          background: var(--color-line);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(16, 185, 129, 0.3);
+          background: var(--color-muted);
         }
       `}</style>
     </div>

@@ -15,7 +15,7 @@ const OptIn: React.FC = () => {
                     <p>
                         Devobi LLC ("Devobi," "we," "us," or "our") offers an SMS text messaging program to provide
                         clients and prospective clients with important updates, appointment reminders, service notifications,
-                        and promotional information related to our AI automation consulting services for real estate professionals.
+                        and promotional information related to our AI automation consulting services for home service contractors.
                     </p>
                 </section>
 

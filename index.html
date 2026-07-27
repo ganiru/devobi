@@ -11,13 +11,21 @@
 
         gtag('config', 'G-LC7MK9JZ5R');
     </script>
+    <script>
+        (function () {
+            try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devobi LLC | AI Automation for Real Estate Agents — Close More Deals in Less Time</title>
-    <meta name="description"
-        content="Devobi LLC builds custom AI automation systems for real estate agents. Respond to leads in 60 seconds, auto-generate listings, and eliminate CRM data entry. Save 15+ hours a week.">
-    <meta name="keywords"
-        content="AI automation for real estate agents, real estate workflow automation, automated lead follow-up, CRM automation real estate, AI listing descriptions, real estate AI tools, lead scoring real estate">
+    <title>Devobi — AI Lead Reactivation for Home Services</title>
+    <meta name="description" content="Devobi's AI reactivates dormant leads for roofers, HVAC pros, and solar installers — turning old CRM contacts into booked estimates automatically.">
+    <meta name="keywords" content="AI lead reactivation, home services AI, roofing lead generation, HVAC lead follow-up, solar lead reactivation, dormant CRM leads, automated estimate booking, ServiceTitan AI">
     <meta name="author" content="Obinna Ezeilo">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://devobi.com/" />
@@ -25,17 +33,15 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://devobi.com/">
-    <meta property="og:title" content="Devobi LLC | AI Automation for Real Estate Agents">
-    <meta property="og:description"
-        content="Custom AI systems that respond to leads in 60 seconds, write listings in 5 minutes, and eliminate CRM data entry — so you can focus on closing deals.">
+    <meta property="og:title" content="Devobi — AI Lead Reactivation for Home Services">
+    <meta property="og:description" content="Your old leads aren't dead. They're dormant. Devobi's AI reads every old quote, writes personalized follow-ups, and books estimates straight onto your calendar.">
     <meta property="og:image" content="https://devobi.com/archive/images/robot-no-bg.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://devobi.com/">
-    <meta property="twitter:title" content="Devobi LLC | AI Automation for Real Estate Agents">
-    <meta property="twitter:description"
-        content="Custom AI systems that respond to leads in 60 seconds, write listings in 5 minutes, and eliminate CRM data entry — so you can focus on closing deals.">
+    <meta property="twitter:title" content="Devobi — AI Lead Reactivation for Home Services">
+    <meta property="twitter:description" content="Your old leads aren't dead. They're dormant. Devobi's AI reactivates dormant leads for roofers, HVAC pros, and solar installers.">
     <meta property="twitter:image" content="https://devobi.com/archive/images/robot-no-bg.png">
 
     <!-- JSON-LD Structured Data -->
@@ -43,23 +49,22 @@
     {
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
-      "name": "Devobi LLC",
+      "name": "Devobi",
       "url": "https://devobi.com",
-      "description": "AI automation consultancy specializing in custom workflows for real estate agents. We help agents respond to leads instantly, generate listings in minutes, and eliminate manual CRM data entry.",
+      "description": "AI lead reactivation for roofers, HVAC pros, and solar installers — turning old CRM contacts into booked estimates automatically.",
       "email": "info@devobi.com",
       "founder": {
         "@type": "Person",
         "name": "Obinna Ezeilo"
       },
       "areaServed": "US",
-      "serviceType": ["AI Automation", "Real Estate Technology", "Workflow Automation", "CRM Integration"],
-      "sameAs": []
+      "serviceType": ["AI Lead Reactivation", "Home Services Automation", "CRM Integration", "Lead Follow-Up"]
     }
     </script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%2310b981%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2260%22 font-weight=%22bold%22 fill=%22black%22>D</text></svg>">
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23E4572E%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2260%22 font-weight=%22bold%22 fill=%22white%22>D</text></svg>">
 
     <!-- Security Header (Recommended for Static Sites) -->
     <meta http-equiv="Content-Security-Policy"
@@ -78,7 +83,7 @@
     <link rel="stylesheet" href="/index.css">
 </head>
 
-<body class="bg-[#0a0a0a] text-gray-100">
+<body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

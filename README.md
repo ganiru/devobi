@@ -47,7 +47,7 @@ These updates shift the website from "generic AI automation" to "dead lead react
 - **Dual CTA buttons:**
   - Primary: "Apply for Free Pilot" (links to /workflow-audit)
   - Secondary: "View Pricing" (links to /founding)
-- **Updated subtext:** "✓ DFW agents only • Zero risk — pay nothing if it doesn't work • Limited spots available"
+- **Updated subtext:** "✓ DFW contractors only • Zero risk — pay nothing if it doesn't work • Limited spots available"
 
 **Why:**
 - Original CTA was "Get Your Free Workflow Audit" — too vague
@@ -80,7 +80,7 @@ These updates shift the website from "generic AI automation" to "dead lead react
 ## What These Changes Accomplish
 
 ### Before (Old Site):
-- Generic "AI automation for real estate" positioning
+- Generic "AI automation for home services" positioning
 - Buried lead reactivation offering (4th out of 4 workflows)
 - Pricing hidden behind Calendly bookings or single-tier page
 - No clear pilot/trial entry point

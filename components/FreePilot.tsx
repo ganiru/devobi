@@ -45,13 +45,14 @@ const FreePilot: React.FC = () => {
     };
 
     return (
-        <main className="min-h-screen pt-32 pb-16 px-6">
-            <div className="max-w-3xl mx-auto">
+        <main className="min-h-screen pt-[68px] bg-cream text-ink font-sans antialiased">
+      <section className="py-[88px] max-lg:py-[72px]">
+        <div className="wrap">
                 {/* Header */}
                 <h1 className="text-3xl md:text-4xl font-bold text-center mb-2">
                     Start Your Free 14-Day Pilot
                 </h1>
-                <p className="text-lg text-gray-400 text-center mb-6 max-w-2xl mx-auto">
+                <p className="text-lg text-muted text-center mb-6 max-w-2xl mx-auto">
                     We'll run our Lead Reactivation Engine on your dormant lead list for 14 days at no cost.
                     No setup fee, no commitment — just watch it work before deciding anything.
                 </p>
@@ -60,7 +61,7 @@ const FreePilot: React.FC = () => {
                         href={LOOM_LINK}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+                        className="inline-flex items-center gap-2 text-accent hover:text-accent-dark text-sm font-medium transition-colors"
                     >
                         <span>🎥</span>
                         Watch demo in new tab
@@ -68,13 +69,13 @@ const FreePilot: React.FC = () => {
                 </div>
                 {submitted ? (
                     <div className="text-center py-12">
-                        <h3 className="text-2xl font-bold text-emerald-500">Application received!</h3>
-                        <p className="text-gray-400 mt-6">
+                        <h3 className="text-2xl font-bold text-accent">Application received!</h3>
+                        <p className="text-muted mt-6">
                             <a
                                 href={CALENDLY_LINK}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-sm text-lg font-bold transition-all transform active:scale-95"
+                                className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors"
                             >
                                 Schedule your kickoff call
                             </a>
@@ -83,7 +84,7 @@ const FreePilot: React.FC = () => {
                 ) : (
                     <div>
                         {/* Loom Video Embed */}
-                        <div className="max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/10 mb-8" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                        <div className="max-w-2xl mx-auto rounded-xl overflow-hidden border border-line mb-8" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                             <iframe
                                 src="https://www.loom.com/embed/5dc35d7b0eea47bab5269cc35c6539ea"
                                 frameBorder="0"
@@ -94,19 +95,19 @@ const FreePilot: React.FC = () => {
                         </div>
 
                         {/* What You Get */}
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
-                            <h2 className="font-semibold text-lg mb-4 text-center">You'll get:</h2>
-                            <ul className="space-y-3 text-gray-300">
+                        <div className="bg-white dark:bg-gray-800 border border-line rounded-2xl p-6 mb-10">
+                            <h2 className="font-semibold text-lg mb-4 text-center text-ink">You'll get:</h2>
+                            <ul className="space-y-3 text-muted">
                                 <li className="flex items-start gap-3">
-                                    <span className="text-emerald-400 mt-1">✓</span>
+                                    <span className="text-accent mt-1">✓</span>
                                     <span>Your old leads getting re-engaged automatically — see real responses happen in real time</span>
                                 </li>
                                 <li className="flex items-start gap-3">
-                                    <span className="text-emerald-400 mt-1">✓</span>
+                                    <span className="text-accent mt-1">✓</span>
                                     <span>At least 3 qualified responses from your database — or you pay nothing</span>
                                 </li>
                                 <li className="flex items-start gap-3">
-                                    <span className="text-emerald-400 mt-1">✓</span>
+                                    <span className="text-accent mt-1">✓</span>
                                     <span>A quick recap call after the pilot to review results and next steps</span>
                                 </li>
                             </ul>
@@ -116,27 +117,27 @@ const FreePilot: React.FC = () => {
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <input type="text" name="_honey" style={{ display: 'none' }} />
                             <div className="space-y-2">
-                                <label className="text-xs uppercase font-bold text-gray-500 tracking-wider">Full Name</label>
+                                <label className="text-xs uppercase font-bold text-muted tracking-wider">Full Name</label>
                                 <input
                                     type="text"
                                     name="name"
                                     required
                                     placeholder="John Doe"
-                                    className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
+                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs uppercase font-bold text-gray-500 tracking-wider">Email Address</label>
+                                <label className="text-xs uppercase font-bold text-muted tracking-wider">Email Address</label>
                                 <input
                                     type="email"
                                     name="email"
                                     required
                                     placeholder="john@abcroofing.com"
-                                    className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
+                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                                 />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <label className="text-xs uppercase font-bold text-gray-500 tracking-wider">
+                                <label className="text-xs uppercase font-bold text-muted tracking-wider">
                                     Approximately how many dormant/old leads do you have?
                                 </label>
                                 <select
@@ -144,19 +145,19 @@ const FreePilot: React.FC = () => {
                                     value={selectedLeads}
                                     onChange={(e) => setSelectedLeads(e.target.value)}
                                     required
-                                    className="w-full bg-black border border-white/10 p-4 rounded-sm focus:border-emerald-500 outline-none transition-all"
+                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink outline-none focus:ring-2 focus:ring-accent transition-all appearance-none"
                                 >
-                                    <option value="" className="bg-gray-900">Select a range...</option>
-                                    <option value="50-100" className="bg-gray-900">50 - 100 leads</option>
-                                    <option value="100-500" className="bg-gray-900">100 - 500 leads</option>
-                                    <option value="500-1000" className="bg-gray-900">500 - 1,000 leads</option>
-                                    <option value="1000+" className="bg-gray-900">1,000+ leads</option>
+                                    <option value="" className="bg-white dark:bg-gray-800">Select a range...</option>
+                                    <option value="50-100" className="bg-white dark:bg-gray-800">50 – 100 leads</option>
+                                    <option value="100-500" className="bg-white dark:bg-gray-800">100 – 500 leads</option>
+                                    <option value="500-1000" className="bg-white dark:bg-gray-800">500 – 1,000 leads</option>
+                                    <option value="1000+" className="bg-white dark:bg-gray-800">1,000+ leads</option>
                                 </select>
                             </div>
                             <button
                                 type="submit"
                                 disabled={!selectedLeads || isLoading}
-                                className="md:col-span-2 cursor-pointer bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-600 disabled:cursor-not-allowed text-black py-4 rounded-sm font-bold text-lg transition-all"
+                                className="md:col-span-2 cursor-pointer font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors w-full"
                             >
                                 {isLoading ? "Submitting..." : "Apply for Free Pilot"}
                             </button>
@@ -165,12 +166,12 @@ const FreePilot: React.FC = () => {
                                     {error}
                                 </p>
                             )}
-                            <p className="md:col-span-2 text-center text-xs text-gray-600">
+                            <p className="md:col-span-2 text-center text-xs text-muted/60">
                                 We respect your privacy. Your information is never shared or sold.
                             </p>
                         </form>
                         {/* Post-submit note */}
-                        <p className="mt-6 text-sm text-gray-500 text-center">
+                        <p className="mt-6 text-sm text-muted/60 text-center">
                             After applying, you'll get access to schedule your kickoff call and we'll set up your pilot within 5-7 days.
                         </p>
                     </div>
@@ -184,12 +185,13 @@ const FreePilot: React.FC = () => {
                             navigate('/');
                             window.scrollTo(0, 0);
                         }}
-                        className="text-emerald-400 hover:text-emerald-300 transition-colors text-sm font-medium"
+                        className="text-muted hover:text-ink transition-colors text-sm font-medium"
                     >
                         ← Back to home
                     </button>
                 </div>
             </div>
+            </section>
         </main>
     );
 };

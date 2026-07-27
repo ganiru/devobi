@@ -3,7 +3,7 @@ import AuthGate from './AuthGate';
 
 /**
  * LeadReactivationForm component
- * A premium form for uploading a CSV of leads and providing agent details.
+ * A premium form for uploading a CSV of leads and providing contractor details.
  * Submits data to an n8n webhook via multipart/form-data.
  */
 const LeadReactivationForm: React.FC = () => {
@@ -12,7 +12,7 @@ const LeadReactivationForm: React.FC = () => {
   const [agentName, setAgentName] = useState('John Doe');
   const [agentPhone, setAgentPhone] = useState('(555) 123-4567');
   const [agentEmail, setAgentEmail] = useState('john@example.com');
-  const [emailSignature, setEmailSignature] = useState('John Doe, Real Estate Broker');
+  const [emailSignature, setEmailSignature] = useState('John Doe, Home Service Contractor');
 
   useEffect(() => {
     document.title = 'Reactivate Leads | Devobi LLC AI Automation';
@@ -55,7 +55,7 @@ const LeadReactivationForm: React.FC = () => {
         setAgentName('John Doe');
         setAgentPhone('(555) 123-4567');
         setAgentEmail('john@example.com');
-        setEmailSignature('John Doe, Real Estate Broker');
+        setEmailSignature('John Doe, Home Service Contractor');
         // Reset file input value
         (document.getElementById('csv') as HTMLInputElement).value = '';
       } else {
@@ -173,7 +173,7 @@ const LeadReactivationForm: React.FC = () => {
                     rows={3}
                     value={emailSignature}
                     onChange={e => setEmailSignature(e.target.value)}
-                    placeholder="Best, John\nReal Estate Agent"
+                    placeholder="Best, John\nHome Service Contractor"
                     className="w-full bg-black border border-white/10 p-4 focus:border-emerald-500 outline-none transition-all resize-none"
                   />
                 </div>

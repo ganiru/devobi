@@ -4,13 +4,57 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #FAF9F6;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F5F2E9;
+  --color-cream: #FAF9F6;
+  --color-cream-alt: #F5F2E9;
+  --color-ink: #191713;
+  --color-muted: #6F6A5D;
+  --color-line: #E8E5DC;
+  --color-accent: #E4572E;
+  --color-accent-dark: #C6481F;
+  --color-accent-soft: #FCEAE2;
+  --color-dark: #17140F;
+}
+
+.dark {
+  --color-bg: #0f1117;
+  --color-surface: #17141a;
+  --color-surface-alt: #0f1117;
+  --color-cream: #0f1117;
+  --color-cream-alt: #17141a;
+  --color-ink: #f3f4f6;
+  --color-muted: #9CA3AF;
+  --color-line: #374151;
+  --color-accent: #E4572E;
+  --color-accent-dark: #d04a26;
+  --color-accent-soft: #2d1a14;
+  --color-dark: #17140F;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', sans-serif;
-  scroll-behavior: smooth;
-  /* Lightened from #0a0a0a — deep charcoal with a hint of warmth, 
-     more "serious professional" than "crypto launchpad" */
-  background-color: #0f1117;
-  color: #f3f4f6;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: inherit;
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 .glass {
@@ -19,7 +63,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
-/* Slightly warmer section alternation */
 .section-alt {
   background-color: #131720;
 }
