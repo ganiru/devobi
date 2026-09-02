@@ -111,7 +111,7 @@ const SendMail: React.FC = () => {
 
             if (response.ok) {
                 setStatus('success');
-                setFormData({ to: '', subject: '', message: '' });
+                setFormData({ to: '', subject: formData.subject, message: formData.message });
             } else {
                 setStatus('error');
             }
