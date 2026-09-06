@@ -130,6 +130,20 @@ app.get('/survey', (req, res) => {
     res.redirect(301, 'https://forms.gle/vg4MozP4P4skYwSr6');
 });
 
+// Serve medspa app at /medspa
+const medspaPath = path.join(__dirname, 'public', 'medspa');
+const medspaIndexPath = path.join(medspaPath, 'index.html');
+
+if (fs.existsSync(medspaIndexPath)) {
+    // Serve static files from medspa folder
+    app.use('/medspa', express.static(medspaPath));
+
+    // Handle SPA routing for medspa app
+    app.get('/medspa', (req, res) => {
+        res.sendFile(medspaIndexPath);
+    });
+}
+
 // Serve static files from Vite build if available or in production mode
 const distPath = path.join(__dirname, 'dist');
 const indexPath = path.join(distPath, 'index.html');
@@ -139,7 +153,7 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
 
     // Fallback to index.html for SPA routing
     app.use((req, res, next) => {
-        if (req.path.startsWith('/api')) {
+        if (req.path.startsWith('/api') || req.path.startsWith('/medspa')) {
             return next();
         }
         if (fs.existsSync(indexPath)) {
