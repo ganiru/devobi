@@ -114,15 +114,19 @@ async function createConsultationEvent(event: any) {
     const endDate = new Date(`${event.date}T${event.time}:00Z`);
     endDate.setUTCHours(endDate.getUTCHours() + 1);
     const endDateTime = `${endDate.toISOString().slice(0, 19)}`;
+    const description = [
+        event.description || '',
+        event.guestEmail ? `Guest email: ${event.guestEmail}` : '',
+        'Calendar invitation email was not sent because service accounts cannot invite attendees without Domain-Wide Delegation.',
+    ].filter(Boolean).join('\n');
     const created = await calendar.events.insert({
         calendarId: event.calendarId || googleCalendarId,
-        sendUpdates: 'all',
+        sendUpdates: 'none',
         requestBody: {
             summary: event.title || 'VISIA Consultation',
-            description: event.description || '',
+            description,
             start: { dateTime: startDateTime, timeZone: schedulingTimeZone },
             end: { dateTime: endDateTime, timeZone: schedulingTimeZone },
-            attendees: event.guestEmail?.includes('@') ? [{ email: event.guestEmail }] : undefined,
         },
     });
 
@@ -131,6 +135,7 @@ async function createConsultationEvent(event: any) {
         eventId: created.data.id,
         eventLink: created.data.htmlLink,
         startTime: created.data.start?.dateTime,
+        inviteSent: false,
     };
 }
 
