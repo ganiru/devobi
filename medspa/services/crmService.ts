@@ -75,9 +75,8 @@ export async function createCalendarEvent({ name, email, phone, preferredDate, p
  * Convenience: saves to CRM and creates calendar event in parallel.
  */
 export async function bookConsultation(params) {
-  const [crm, calendar] = await Promise.all([
-    saveClientToCRM(params),
-    createCalendarEvent(params)
-  ]);
-  return { crm, calendar };
+  return postBookingAction({
+    action: 'book_consultation',
+    data: params
+  });
 }

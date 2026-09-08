@@ -25,6 +25,28 @@ const googleSheetId = process.env.GOOGLE_SHEET_ID || process.env.VITE_GOOGLE_SHE
 const googleCalendarId = process.env.GOOGLE_CALENDAR_ID || process.env.VITE_GOOGLE_CALENDAR_ID || 'primary';
 const schedulingTimeZone = 'America/Chicago';
 
+type EmailPayload = {
+    to: string;
+    subject: string;
+    html: string;
+    text: string;
+};
+
+async function sendEmail(payload: EmailPayload) {
+    const response = await fetch(sendMailWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+        throw new Error(`Email provider returned HTTP ${response.status}: ${responseText}`);
+    }
+
+    return { success: true };
+}
+
 function getGoogleAuth() {
     const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
     const serviceAccount = serviceAccountJson
@@ -137,6 +159,55 @@ async function createConsultationEvent(event: any) {
         startTime: created.data.start?.dateTime,
         inviteSent: false,
     };
+}
+
+async function bookConsultation(data: any) {
+    const crm = await addCRMLead(data);
+    const calendar = await createConsultationEvent({
+        title: `VISIA Consultation - ${data.name}`,
+        date: data.preferredDate,
+        time: data.preferredTime,
+        guestEmail: data.email,
+        description: [
+            `Client: ${data.name}`,
+            `Phone: ${data.phone}`,
+            `Email: ${data.email}`,
+            `Treatment Interest: ${data.treatmentInterest || ''}`,
+            '',
+            'Booked via Aura AI Voice Concierge - ELEVATION MedSpa',
+        ].join('\n'),
+    });
+
+    let email: { success: boolean; error?: string } = { success: false, error: 'Email was not attempted.' };
+    try {
+        email = await sendEmail({
+            to: data.email,
+            subject: 'Your ELEVATION consultation is reserved',
+            text: [
+                `Hello ${data.name},`,
+                '',
+                'Your ELEVATION consultation has been reserved.',
+                `Date: ${data.preferredDate}`,
+                `Time: ${data.preferredTime} (Central Time)`,
+                `Calendar event: ${calendar.eventLink || 'available on your calendar'}`,
+                '',
+                'Our team will follow up with any additional details.',
+            ].join('\n'),
+            html: `<div>
+                <p>Hello ${data.name},</p>
+                <p>Your ELEVATION consultation has been reserved.</p>
+                <p><strong>Date:</strong> ${data.preferredDate}<br>
+                <strong>Time:</strong> ${data.preferredTime} (Central Time)</p>
+                ${calendar.eventLink ? `<p><a href="${calendar.eventLink}">View calendar event</a></p>` : ''}
+                <p>Our team will follow up with any additional details.</p>
+            </div>`,
+        });
+    } catch (error: any) {
+        console.error('Consultation confirmation email error:', error);
+        email = { success: false, error: error.message || 'Failed to send confirmation email.' };
+    }
+
+    return { crm, calendar, email };
 }
 
 // Enable all CORS requests (required for Railway deployment)
@@ -320,22 +391,10 @@ app.post('/api/submit-lead', async (req, res) => {
 // Proxy route for send-mail webhook (avoids browser CORS restrictions)
 app.post('/api/send-mail', async (req, res) => {
     try {
-        const n8nResponse = await fetch(sendMailWebhook, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body),
-        });
-
-        if (n8nResponse.ok) {
-            res.status(200).json({ success: true });
-        } else {
-            const errorText = await n8nResponse.text();
-            console.error('n8n send-mail webhook error:', n8nResponse.status, errorText);
-            res.status(n8nResponse.status).json({ success: false, error: errorText });
-        }
+        res.status(200).json(await sendEmail(req.body));
     } catch (error) {
         console.error('Send-mail proxy error:', error);
-        res.status(500).json({ success: false, error: 'Failed to forward email to n8n.' });
+        res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to send email.' });
     }
 });
 
@@ -343,6 +402,8 @@ app.post('/api/send-mail', async (req, res) => {
 app.post('/api/medspa/crm', async (req, res) => {
     try {
         switch (req.body.action) {
+            case 'book_consultation':
+                return res.json(await bookConsultation(req.body.data));
             case 'add_crm_lead':
                 return res.json(await addCRMLead(req.body.data));
             case 'create_calendar_event':

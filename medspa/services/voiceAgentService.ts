@@ -67,7 +67,7 @@ When a client expresses any interest in scheduling, booking, a consultation, or 
 5. Confirm the details back to the client naturally (e.g., "Wonderful, [Name] — I have your number as [phone] and email as [email], and I'll reserve your VISIA consultation for [date/time].").
 6. Before calling the booking tool, repeat the exact weekday, calendar date, and time and obtain a clear confirmation.
 7. Call the book_consultation tool only after confirmation, with the date as YYYY-MM-DD and the time as HH:mm in the clinic's local time. Do NOT pass relative dates, weekdays, "morning", or "afternoon".
-8. After the tool returns success, warmly confirm that the reservation is secured. If the tool says no email invitation was sent, tell the client that the team will follow up with confirmation separately.
+8. After the tool returns success, warmly confirm that the reservation is secured. Mention that a confirmation email was sent only when the tool reports email success; otherwise say the team will follow up separately.
 
 IMPORTANT: Never ask for more than one piece of information at a time. Collect name → phone → email → date/time sequentially.`;
 
@@ -762,7 +762,7 @@ class VoiceAgentService {
         return 'Booking not created. The appointment date and time must be confirmed and supplied as YYYY-MM-DD and HH:mm.';
       }
 
-      const { crm, calendar } = await bookConsultation({
+      const { crm, calendar, email: confirmationEmail } = await bookConsultation({
         name: clientName,
         phone,
         email,
@@ -773,6 +773,7 @@ class VoiceAgentService {
 
       const crmOk  = crm?.success;
       const calOk  = calendar?.success;
+      const emailOk = confirmationEmail?.success;
 
       if (crmOk || calOk) {
         // Emit a UI event so the modal can show a success toast / confirmation card
@@ -790,9 +791,11 @@ class VoiceAgentService {
         if (crmOk) parts.push(`contact saved to CRM (row ${crm.row})`);
         if (calOk) {
           parts.push(calendar.inviteSent === false
-            ? 'calendar event created; no email invitation was sent'
+            ? 'calendar event created'
             : 'calendar event created');
         }
+        if (emailOk) parts.push('confirmation email sent');
+        else if (confirmationEmail?.error) parts.push('confirmation email could not be sent; the team will follow up separately');
         return `Success: ${parts.join(' and ')}. Client: ${clientName}, ${email}, ${phone}.`;
       } else {
         const err = crm?.error || calendar?.error || 'unknown error';
