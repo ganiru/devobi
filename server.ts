@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from "@google/genai";
+import { google } from 'googleapis';
+import { createServer } from 'http';
+import { WebSocket, WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,11 +21,217 @@ const port = process.env.PORT || 3001;
 
 const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook-test/mailgun-inbound'; // test - 'https://n8n-production-6955.up.railway.app/webhook-test/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
 const sendMailWebhook = 'https://n8n-production-6955.up.railway.app/webhook/3969361d-c5df-41d0-8db8-265bf071f73d';
+const googleSheetId = process.env.GOOGLE_SHEET_ID || process.env.VITE_GOOGLE_SHEET_ID;
+const googleCalendarId = process.env.GOOGLE_CALENDAR_ID || process.env.VITE_GOOGLE_CALENDAR_ID || 'primary';
+const schedulingTimeZone = 'America/Chicago';
+
+function getGoogleAuth() {
+    const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    const serviceAccount = serviceAccountJson
+        ? JSON.parse(serviceAccountJson)
+        : {
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        };
+
+    if (!serviceAccount.client_email || !serviceAccount.private_key) {
+        throw new Error('Google service account credentials are not configured on the server.');
+    }
+
+    return new google.auth.JWT({
+        email: serviceAccount.client_email,
+        key: serviceAccount.private_key,
+        scopes: [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/calendar',
+        ],
+    });
+}
+
+async function addCRMLead(data: any) {
+    if (!googleSheetId) throw new Error('GOOGLE_SHEET_ID is not configured on the server.');
+    const auth = getGoogleAuth();
+    const sheets = google.sheets({ version: 'v4', auth });
+    const headers = ['Timestamp', 'Name', 'Phone', 'Email', 'Treatment Interest', 'Source'];
+    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: googleSheetId });
+    let leadsSheet = spreadsheet.data.sheets?.find((sheet) => sheet.properties?.title === 'Leads');
+
+    if (!leadsSheet) {
+        const created = await sheets.spreadsheets.batchUpdate({
+            spreadsheetId: googleSheetId,
+            requestBody: { requests: [{ addSheet: { properties: { title: 'Leads' } } }] },
+        });
+        leadsSheet = created.data.replies?.[0]?.addSheet;
+    }
+
+    if (!leadsSheet?.properties?.title) throw new Error('Unable to create or find the Leads sheet.');
+    const sheetTitle = leadsSheet.properties.title;
+    const existingHeaders = await sheets.spreadsheets.values.get({
+        spreadsheetId: googleSheetId,
+        range: `${sheetTitle}!A1:F1`,
+    });
+
+    if (!existingHeaders.data.values?.length) {
+        await sheets.spreadsheets.values.update({
+            spreadsheetId: googleSheetId,
+            range: `${sheetTitle}!A1:F1`,
+            valueInputOption: 'RAW',
+            requestBody: { values: [headers] },
+        });
+    }
+
+    const appended = await sheets.spreadsheets.values.append({
+        spreadsheetId: googleSheetId,
+        range: `${sheetTitle}!A:F`,
+        valueInputOption: 'RAW',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: {
+            values: [[
+                data.timestamp || new Date().toISOString(),
+                data.name || '',
+                data.phone || '',
+                data.email || '',
+                data.treatmentInterest || '',
+                data.source || 'Aura Voice AI',
+            ]],
+        },
+    });
+
+    const updatedRange = appended.data.updates?.updatedRange || '';
+    const rowMatch = updatedRange.match(/![A-Z]+(\d+):/);
+    return { success: true, row: rowMatch ? Number(rowMatch[1]) : undefined, sheetId: googleSheetId };
+}
+
+async function createConsultationEvent(event: any) {
+    if (!event) throw new Error('event is required');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(event.date || '') || !/^\d{2}:\d{2}$/.test(event.time || '')) {
+        throw new Error('Appointment date/time must use YYYY-MM-DD and HH:mm format');
+    }
+
+    const auth = getGoogleAuth();
+    const calendar = google.calendar({ version: 'v3', auth });
+    const startDateTime = `${event.date}T${event.time}:00`;
+    const endDate = new Date(`${event.date}T${event.time}:00Z`);
+    endDate.setUTCHours(endDate.getUTCHours() + 1);
+    const endDateTime = `${endDate.toISOString().slice(0, 19)}`;
+    const created = await calendar.events.insert({
+        calendarId: event.calendarId || googleCalendarId,
+        sendUpdates: 'all',
+        requestBody: {
+            summary: event.title || 'VISIA Consultation',
+            description: event.description || '',
+            start: { dateTime: startDateTime, timeZone: schedulingTimeZone },
+            end: { dateTime: endDateTime, timeZone: schedulingTimeZone },
+            attendees: event.guestEmail?.includes('@') ? [{ email: event.guestEmail }] : undefined,
+        },
+    });
+
+    return {
+        success: true,
+        eventId: created.data.id,
+        eventLink: created.data.htmlLink,
+        startTime: created.data.start?.dateTime,
+    };
+}
 
 // Enable all CORS requests (required for Railway deployment)
 app.use(cors());
 
 app.use(express.json());
+
+// Relay Gemini Live traffic so the browser never receives the server API key.
+const medspaLiveWss = new WebSocketServer({ noServer: true });
+
+medspaLiveWss.on('connection', (client) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        client.close(1011, 'Gemini API key is not configured on the server.');
+        return;
+    }
+
+    const upstream = new WebSocket(
+        `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`
+    );
+    const pendingMessages: WebSocket.RawData[] = [];
+
+    const closeConnections = (code = 1011, reason = 'Gemini Live upstream connection closed.') => {
+        if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
+            client.close(code, reason.slice(0, 123));
+        }
+        if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) {
+            upstream.close();
+        }
+    };
+
+    client.on('message', (message) => {
+        if (upstream.readyState === WebSocket.OPEN) {
+            upstream.send(message);
+        } else if (upstream.readyState === WebSocket.CONNECTING) {
+            pendingMessages.push(message);
+        }
+    });
+
+    upstream.on('open', () => {
+        console.log('[GeminiProxy] Upstream connection opened');
+        for (const message of pendingMessages.splice(0)) {
+            if (client.readyState !== WebSocket.OPEN) break;
+            upstream.send(message);
+        }
+    });
+
+    upstream.on('message', (message) => {
+        try {
+            // Forward raw message directly to client
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        } catch (error) {
+            console.error('[GeminiProxy] Error forwarding message to client:', error);
+            // Forward parsing error to client
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    error: {
+                        message: 'Failed to parse Gemini response',
+                        code: 'PARSE_ERROR'
+                    }
+                }));
+            }
+        }
+    });
+
+    client.on('close', () => closeConnections(1000, 'Browser session closed.'));
+    client.on('error', (error) => {
+        console.error('[GeminiProxy] Client WebSocket error:', error);
+        closeConnections();
+    });
+    upstream.on('close', (code, reason) => {
+        const upstreamReason = reason.toString() || `Gemini closed the connection with code ${code}.`;
+        console.error('[GeminiProxy] Medspa Gemini Live upstream closed:', code, upstreamReason);
+        // Forward the error to the client
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                error: {
+                    message: upstreamReason,
+                    code: code
+                }
+            }));
+        }
+        closeConnections(1011, upstreamReason);
+    });
+    upstream.on('error', (error) => {
+        console.error('[GeminiProxy] Medspa Gemini Live proxy error:', error.message);
+        // Forward the error to the client
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                error: {
+                    message: error.message,
+                    code: 1011
+                }
+            }));
+        }
+        closeConnections(1011, error.message);
+    });
+});
 
 
 // API Route for Gemini
@@ -125,24 +334,27 @@ app.post('/api/send-mail', async (req, res) => {
     }
 });
 
+// Native Google Sheets and Calendar booking endpoint.
+app.post('/api/medspa/crm', async (req, res) => {
+    try {
+        switch (req.body.action) {
+            case 'add_crm_lead':
+                return res.json(await addCRMLead(req.body.data));
+            case 'create_calendar_event':
+                return res.json(await createConsultationEvent(req.body.event));
+            default:
+                return res.status(400).json({ success: false, error: `Unknown action: ${req.body.action}` });
+        }
+    } catch (error: any) {
+        console.error('Google booking error:', error);
+        res.status(500).json({ success: false, error: error.message || 'Failed to complete booking.' });
+    }
+});
+
 // Redirect route for survey
 app.get('/survey', (req, res) => {
     res.redirect(301, 'https://forms.gle/vg4MozP4P4skYwSr6');
 });
-
-// Serve medspa app at /medspa
-const medspaPath = path.join(__dirname, 'public', 'medspa');
-const medspaIndexPath = path.join(medspaPath, 'index.html');
-
-if (fs.existsSync(medspaIndexPath)) {
-    // Serve static files from medspa folder
-    app.use('/medspa', express.static(medspaPath));
-
-    // Handle SPA routing for medspa app
-    app.get('/medspa', (req, res) => {
-        res.sendFile(medspaIndexPath);
-    });
-}
 
 // Serve static files from Vite build if available or in production mode
 const distPath = path.join(__dirname, 'dist');
@@ -153,8 +365,12 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
 
     // Fallback to index.html for SPA routing
     app.use((req, res, next) => {
-        if (req.path.startsWith('/api') || req.path.startsWith('/medspa')) {
+        if (req.path.startsWith('/api')) {
             return next();
+        }
+        if (req.path.startsWith('/medspa')) {
+            res.sendFile(indexPath);
+            return;
         }
         if (fs.existsSync(indexPath)) {
             res.sendFile(indexPath);
@@ -169,6 +385,31 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(port, () => {
+const httpServer = createServer(app);
+
+httpServer.on('upgrade', (request, socket, head) => {
+    const requestUrl = new URL(request.url || '/', `http://${request.headers.host}`);
+    console.log('[WebSocket] Upgrade request received:', requestUrl.pathname);
+    
+    if (requestUrl.pathname !== '/api/medspa/live') {
+        console.log('[WebSocket] Pathname does not match, rejecting:', requestUrl.pathname);
+        socket.destroy();
+        return;
+    }
+
+    console.log('[WebSocket] Pathname matches, handling upgrade for /api/medspa/live');
+    
+    // Add error handler to the socket for debugging
+    socket.on('error', (err) => {
+        console.error('[WebSocket] Socket error:', err);
+    });
+
+    medspaLiveWss.handleUpgrade(request, socket, head, (client) => {
+        console.log('[WebSocket] WebSocket connection established successfully');
+        medspaLiveWss.emit('connection', client, request);
+    });
+});
+
+httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

@@ -97,6 +97,21 @@ These updates shift the website from "generic AI automation" to "dead lead react
 
 ## Installation Instructions
 
+### Native Medspa Booking
+
+Medspa booking now uses Google Sheets and Calendar directly from `server.ts`; the browser and production bundle do not call Google Apps Script. Configure these server environment variables:
+
+```bash
+GOOGLE_SHEET_ID=your_sheet_id
+GOOGLE_CALENDAR_ID=your_calendar_id
+GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@project.iam.gserviceaccount.com
+GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Share the target Google Sheet with the service-account email as an editor, and grant that account permission to create events on the target Calendar. Alternatively, provide the complete service-account JSON in `GOOGLE_SERVICE_ACCOUNT_JSON`.
+
+The endpoint is `POST /api/medspa/crm` with either `add_crm_lead` or `create_calendar_event`. It is intentionally generic so the main-site voice chatbot can reuse the same booking tools later.
+
 1. **Back up your current components:**
    ```bash
    cd ~/devobi.com
