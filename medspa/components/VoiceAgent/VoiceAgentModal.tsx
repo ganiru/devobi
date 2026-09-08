@@ -310,10 +310,10 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
         <div className="voice-visualizer-container">
           <AudioVisualizer state={agentState} color="#C5A880" />
           <div className="visualizer-hint">
-            {agentState === 'listening' ? '🟢 Live microphone streaming to Gemini...' :
-             agentState === 'speaking' ? '🔊 Gemini Live is speaking...' :
-             agentState === 'thinking' ? '✨ Gemini is reasoning...' :
-             agentState === 'connecting' ? 'Connecting to Gemini WebSocket...' :
+            {agentState === 'listening' ? '🟢 Live microphone streaming...' :
+             agentState === 'speaking' ? '🔊 Speaking...' :
+             agentState === 'thinking' ? '✨ Reasoning...' :
+             agentState === 'connecting' ? 'Connecting ...' :
              'Tap the microphone to start real-time conversation'}
           </div>
         </div>
