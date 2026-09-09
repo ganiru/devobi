@@ -4,7 +4,7 @@ import {
   X, Mic, MicOff, Volume2, Sparkles, Settings, Send, 
   Cpu, Check
 } from 'lucide-react';
-import voiceAgent, { VOICE_PROVIDERS, GEMINI_VOICES, GEMINI_MODELS, DEFAULT_GEMINI_MODEL } from '../../services/voiceAgentService';
+import voiceAgent, { VOICE_PROVIDERS, GEMINI_VOICES, GEMINI_MODELS, DEFAULT_GEMINI_MODEL, OPENAI_VOICES, DEFAULT_OPENAI_MODEL } from '../../services/voiceAgentService';
 import AudioVisualizer from './AudioVisualizer';
 
 export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
@@ -14,9 +14,10 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
   ]);
   const [inputText, setInputText] = useState('');
   const [showConfig, setShowConfig] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState(voiceAgent.provider || VOICE_PROVIDERS.GEMINI_LIVE);
-  const [geminiVoice, setGeminiVoice] = useState(voiceAgent.config.geminiVoice || 'Aoede');
-  const [geminiModel, setGeminiModel] = useState(voiceAgent.config.geminiModel || DEFAULT_GEMINI_MODEL);
+  const [selectedProvider, setSelectedProvider] = useState(voiceAgent.provider || VOICE_PROVIDERS.OPENAI_REALTIME);
+  const [geminiVoice, setGeminiVoice] = useState(voiceAgent.runtimeConfig?.geminiVoice || 'Aoede');
+  const [geminiModel, setGeminiModel] = useState(voiceAgent.runtimeConfig?.geminiModel || DEFAULT_GEMINI_MODEL);
+  const [openaiVoice, setOpenaiVoice] = useState(voiceAgent.runtimeConfig?.openaiVoice || 'marin');
   const [keySaved, setKeySaved] = useState(false);
   const chatBottomRef = useRef(null);
   // Track which bubble ID is currently being streamed into per sender
@@ -110,12 +111,13 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
 
   useEffect(() => {
     if (isOpen) {
-      // If Gemini Live is selected and key is present from env, start session
-      if (selectedProvider === VOICE_PROVIDERS.BROWSER_MOCK) {
-        voiceAgent.startSession();
-      } else {
-        voiceAgent.startSession();
-      }
+      // Ensure the service uses the provider selected in the UI, then start.
+      voiceAgent.configureProvider(selectedProvider, {
+        geminiVoice,
+        geminiModel,
+        openaiVoice
+      });
+      voiceAgent.startSession();
     }
     // Cleanup: end session when modal closes
     return () => {
@@ -167,7 +169,8 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
   const handleSaveConfig = () => {
     voiceAgent.configureProvider(selectedProvider, {
       geminiVoice: geminiVoice,
-      geminiModel: geminiModel
+      geminiModel: geminiModel,
+      openaiVoice: openaiVoice
     });
     setKeySaved(true);
     setTimeout(() => setKeySaved(false), 2000);
@@ -200,8 +203,8 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
                 <span className={`status-dot ${agentState}`}></span>
                 {agentState === 'speaking' ? 'Aura is speaking...' :
                  agentState === 'listening' ? 'Listening to your voice...' :
-                 agentState === 'thinking' ? 'Gemini 3.1 is processing...' :
-                 agentState === 'connecting' ? 'Connecting to Gemini Live...' :
+                 agentState === 'thinking' ? 'Aura is processing...' :
+                 agentState === 'connecting' ? 'Connecting to Aura...' :
                  'Live Voice Ready'}
               </p>
             </div>
@@ -237,7 +240,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
           <div className="voice-config-drawer">
             <div className="config-drawer-header">
               <Cpu size={16} className="text-gold" />
-              <h4>Google Gemini Live Voice Settings</h4>
+              <h4>Voice AI Settings</h4>
             </div>
             
             <div className="provider-select-group">
@@ -247,6 +250,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
                 onChange={(e) => setSelectedProvider(e.target.value)}
                 className="config-select"
               >
+                <option value={VOICE_PROVIDERS.OPENAI_REALTIME}>OpenAI Realtime (WebRTC, Marin/Cedar)</option>
                 <option value={VOICE_PROVIDERS.GEMINI_LIVE}>Google Gemini Multimodal Live (Real-Time Audio)</option>
                 <option value={VOICE_PROVIDERS.BROWSER_MOCK}>Browser Web Speech (Local Fallback Demo)</option>
               </select>
@@ -291,8 +295,40 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
               </div>
             )}
 
+            {selectedProvider === VOICE_PROVIDERS.OPENAI_REALTIME && (
+              <div className="provider-fields">
+                <div className="field-group">
+                  <div className="api-key-status">
+                    <span className="status-text success">✓ Connected via WebRTC using a short-lived server token</span>
+                  </div>
+                  <span className="field-hint">The browser talks to OpenAI directly over WebRTC; your API key never leaves the Devobi server.</span>
+                </div>
+
+                <div className="field-group">
+                  <label><Cpu size={12} /> OpenAI Realtime Model</label>
+                  <select value={DEFAULT_OPENAI_MODEL} disabled className="config-select">
+                    <option value={DEFAULT_OPENAI_MODEL}>{DEFAULT_OPENAI_MODEL}</option>
+                  </select>
+                  <span className="field-hint">Model is fixed server-side for this demo.</span>
+                </div>
+
+                <div className="field-group">
+                  <label><Volume2 size={12} /> OpenAI Voice Persona</label>
+                  <select 
+                    value={openaiVoice} 
+                    onChange={(e) => setOpenaiVoice(e.target.value)}
+                    className="config-select"
+                  >
+                    {OPENAI_VOICES.map((v) => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
             <div className="config-footer">
-              <span className="file-hint">Model: <code>{geminiModel.replace('models/', '')}</code></span>
+              <span className="file-hint">Model: <code>{selectedProvider === VOICE_PROVIDERS.OPENAI_REALTIME ? DEFAULT_OPENAI_MODEL : geminiModel.replace('models/', '')}</code></span>
               <button onClick={handleSaveConfig} className="btn-save-config">
                 {keySaved ? (
                   <>
@@ -333,7 +369,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
             <div className="transcript-bubble-wrap aura">
               <div className="transcript-bubble thinking-bubble">
                 <span className="dot-flashing"></span>
-                <span className="thinking-text">Gemini Live is thinking...</span>
+                <span className="thinking-text">Aura is thinking...</span>
               </div>
             </div>
           )}
@@ -378,7 +414,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
           <form onSubmit={handleSendText} className="voice-text-input-form">
             <input 
               type="text" 
-              placeholder="Type or speak to Gemini Live..."
+              placeholder="Type or speak to Aura..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="voice-text-input"
@@ -387,7 +423,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
               type="submit" 
               className="voice-send-btn" 
               disabled={!inputText.trim()}
-              aria-label="Send message to Gemini"
+              aria-label="Send message to Aura"
             >
               <Send size={16} />
             </button>

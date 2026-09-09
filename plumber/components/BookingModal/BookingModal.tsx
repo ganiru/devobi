@@ -35,7 +35,7 @@ export default function BookingModal({ isOpen, onClose, defaultService = '' }) {
         email,
         preferredDate: scheduledDate,
         preferredTime: time,
-        serviceInterest: service
+        notes: service
       });
       setIsSubmitted(true);
     } catch (err) {

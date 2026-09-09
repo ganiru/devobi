@@ -13,8 +13,9 @@ export interface CustomerData {
   email: string;
   preferredDate: string; // YYYY-MM-DD
   preferredTime: string; // HH:mm (24-hour format)
-  serviceInterest?: string; // Emergency repair, drain cleaning, etc.
+  notes?: string; // Emergency repair, drain cleaning, etc.
   plumberNote?: string; // Comments for the team
+  companyName?: string; // Reflected in the calendar event title and confirmation email
 }
 
 export interface CRMResponse {
@@ -46,7 +47,10 @@ export async function bookConsultation(customerData: CustomerData): Promise<CRMR
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'book_consultation',
-        data: customerData
+        data: {
+          companyName: "Joe's Reliable Plumbing",
+          ...customerData
+        }
       })
     });
 

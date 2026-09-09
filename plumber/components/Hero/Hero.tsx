@@ -152,7 +152,7 @@ export default function Hero({ onOpenVoice, onOpenBooking }) {
         <div className="hero-visual-wrapper">
           <div className="hero-image-frame">
             <img 
-              src="https://unsplash.com/photos/man-wearing-black-pullover-hoodie-holding-tool-NfG4rXmceFM?auto=format&fit=crop&w=1200&q=80" 
+              src="/images/plumber-hero.jpeg" 
               alt="Professional plumbing service technician working" 
               className="hero-main-img"
             />

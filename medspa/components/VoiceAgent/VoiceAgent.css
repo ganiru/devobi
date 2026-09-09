@@ -243,8 +243,8 @@
 }
 
 .status-dot.speaking {
-  background: #60A5FA;
-  box-shadow: 0 0 8px #60A5FA;
+  background: var(--gold-primary);
+  box-shadow: 0 0 8px var(--gold-primary);
 }
 
 .status-dot.thinking {

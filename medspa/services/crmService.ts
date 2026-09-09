@@ -11,7 +11,10 @@
  * Internal POST helper – sends booking actions to the server proxy.
  */
 async function postBookingAction(payload) {
-  const proxyUrl = window.location.hostname === 'localhost' ? 'http://localhost:3001/api/medspa/crm' : '/api/medspa/crm';
+  // Use a relative path so the request stays same-origin and passes the
+  // Content-Security-Policy (connect-src 'self'). The Vite dev server and
+  // the production host both proxy /api to the backend on port 3001.
+  const proxyUrl = '/api/medspa/crm';
 
   try {
     const response = await fetch(proxyUrl, {
@@ -34,14 +37,14 @@ async function postBookingAction(payload) {
 /**
  * Append a new client lead row to the Google Sheet CRM.
  */
-export async function saveClientToCRM({ name, phone, email, treatmentInterest = '' }) {
+export async function saveClientToCRM({ name, phone, email, notes = '' }) {
   return postBookingAction({
     action: 'add_crm_lead',
     data: {
       name,
       phone,
       email,
-      treatmentInterest,
+      notes,
       source: 'Aura Voice AI',
       timestamp: new Date().toISOString()
     }
@@ -51,7 +54,7 @@ export async function saveClientToCRM({ name, phone, email, treatmentInterest = 
 /**
  * Create a consultation event on Google Calendar.
  */
-export async function createCalendarEvent({ name, email, phone, preferredDate, preferredTime, treatmentInterest = '' }) {
+export async function createCalendarEvent({ name, email, phone, preferredDate, preferredTime, notes = '' }) {
   return postBookingAction({
     action: 'create_calendar_event',
     event: {
@@ -63,7 +66,7 @@ export async function createCalendarEvent({ name, email, phone, preferredDate, p
         `Client: ${name}`,
         `Phone: ${phone}`,
         `Email: ${email}`,
-        `Treatment Interest: ${treatmentInterest}`,
+        `Notes: ${notes || ''}`,
         '',
         'Booked via Aura AI Voice Concierge – ÉLÉVATION MedSpa'
       ].join('\n')
@@ -77,6 +80,9 @@ export async function createCalendarEvent({ name, email, phone, preferredDate, p
 export async function bookConsultation(params) {
   return postBookingAction({
     action: 'book_consultation',
-    data: params
+    data: {
+      companyName: 'ÉLÉVATION MedSpa',
+      ...params
+    }
   });
 }

@@ -1,17 +1,20 @@
 // @ts-nocheck Transitional conversion: Gemini Live payloads remain runtime-shaped until protocol types are introduced.
 /**
- * VoiceAgentService - Google Gemini Multimodal Live Voice AI Service & Joe's Reliable Plumbing Concierge
- * 
- * Capabilities:
- * 1. Google Gemini Multimodal Live API (Bi-directional real-time audio streaming over WebSockets)
- *    - Model: models/gemini-2.5-flash-native-audio-latest
- *    - Endpoint: wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent
+ * Shared VoiceAgentService - reusable across all demo sites (plumber, medspa,
+ * and future HVAC). Each site instantiates the service with a config object
+ * describing its persona, booking tool, backend endpoints, and CRM function.
+ *
+ * Providers:
+ *  1. OpenAI Realtime (WebRTC) - DEFAULT. Browser connects directly to OpenAI
+ *     over WebRTC using a short-lived token minted by our backend. Favored
+ *     over Gemini because it is lower-latency and simpler (no PCM chunking).
+ *  2. Google Gemini Multimodal Live (WebSocket) - proxied through our server.
+ *  3. Browser Web Speech (local fallback, no network).
  */
-
-import { bookConsultation } from './crmService.js';
 
 export const VOICE_PROVIDERS = {
   GEMINI_LIVE: 'gemini_live',
+  OPENAI_REALTIME: 'openai_realtime',
   BROWSER_MOCK: 'browser_mock'
 };
 
@@ -32,90 +35,15 @@ export const GEMINI_VOICES = [
   { id: 'Charon', name: 'Charon (Informative & Deep)' }
 ];
 
-const localDate = new Date();
-const today = [localDate.getFullYear(), String(localDate.getMonth() + 1).padStart(2, '0'), String(localDate.getDate()).padStart(2, '0')].join('-');
+// --- OpenAI Realtime (WebRTC) provider constants -------------------------
+export const DEFAULT_OPENAI_MODEL = 'gpt-realtime-2';
 
-const AURA_SYSTEM_INSTRUCTION = `You are Aura, a knowledgeable, professional, friendly, and approachable AI plumbing expert for Joe's Reliable Plumbing. 
-Today's date is ${today}. Resolve relative dates against today's date. "Next Tuesday" means the next calendar Tuesday after today.
-
-Specialize in residential and commercial plumbing services including:
-- Emergency Leak Repair: 24/7 rapid response for burst pipes, overflow emergencies, flooding. Guaranteed within hours.
-- Drain Cleaning & Clog Removal: snaking, hydro-jetting, camera inspections to clear stubborn blockages fast.
-- Water Heater Installation & Repair: tankless and traditional units, thermostat calibration, pressure relief valve checks.
-- Toilet, Sink & Faucet Repair: running toilets, leaky valves, dripping faucets, fixture updates.
-- Pipe Replacement & Repair: copper, PEX, PVC pipe work, old house repiping for lead/galvanized issues or corrosion.
-- Sewer Line Inspection & Repair: trenchless options, root removal, camera inspections to assess damage and solve backups.
-- Garbage Disposal Fixes: resetting overloads, blade sharpening, jam clearing with parts replacement as needed.
-- Sump Pump & Basement Waterproofing: pump activation testing, check valve installation for flood prevention.
-- Gas Line Installation & Inspection: licensed certified work for stoves, fireplaces, furnaces and dryers.
-
-Tone & Style:
-- Approachable and helpful with no-nonsense expertise and emergency readiness.
-- Direct about urgency for leaks that demand immediate attention.
-- Professional for appointments, pricing inquiries, service availability and booking flow.
-- Confident in 24/7 same-day service commitment across residential and commercial locations.
-
-Consultation Booking Flow (CRITICAL — follow this exact order):
-When a customer expresses interest in scheduling, booking an appointment or fixing something:
-1. Warmly acknowledge their plumbing concern and confirm interest.
-2. Request their FULL NAME immediately.
-3. Follow with PHONE NUMBER for same-day dispatch confirmation.
-4. Then EMAIL ADDRESS to send estimate details and work order info.
-5. Determine if this is URGENT/emergency or scheduled maintenance, then ask PREFERRED DATE and time (e.g., "Mornings or afternoons do you prefer?").
-6. Confirm the complete booking details back: name, phone number, email, preferred date/time window.
-7. If emergency service needed, emphasize that same-day service can be dispatched within 2-4 hours for most areas.
-8. If not urgent, offer 3-5 available time slots and get confirmation before calling the booking tool.
-9. After tool returns success, warmly confirm the service appointment is secured and dispatch scheduled.
-10. Reassure them about same-day availability and punctual arrivals.
-
-IMPORTANT: Never ask for more than one piece of information at a time. Collect name → phone → email → date/time sequentially.`;
-
-// Comprehensive plumbing knowledge base with emergency escalation logic
-const PLUMBING_KNOWLEDGE = [
-  {
-    keywords: ['leak', 'burst', 'emergency', 'overflow', 'flood'],
-    response: "I understand - you have a plumbing emergency. Let me dispatch our emergency crew to your location immediately. We guarantee same-day service for emergencies. Can I get your name and phone number so we can prioritize getting someone out there right away?"
-  },
-  {
-    keywords: ['drain', 'clog', 'blocked', 'slow', 'not draining'],
-    response: "I can help with that drain issue! We use hydro-jetting and camera inspections to clear the most stubborn blockages quickly. Are you dealing with a kitchen sink, shower drain, or main sewer line?"
-  },
-  {
-    keywords: ['water heater', 'heater', 'tankless', 'pilot light'],
-    response: "Water heaters are essential for comfortable living! We service both traditional tank-style and modern tankless systems. Common issues include temperature fluctuations and sediment buildup that we can resolve quickly."
-  },
-  {
-    keywords: ['toilet', 'running', 'flush', 'tank'],
-    response: "Running toilets waste gallons of water per day! A simple flapper replacement or fill valve adjustment can fix most running toilet problems. Would you like an estimate before we proceed with the repair?"
-  },
-  {
-    keywords: ['pipe', 'piping', 'repiping', 'old pipes', 'corrosion'],
-    response: "Old piping systems in homes over 40 years can present serious issues, and repiping can be a great long-term solution for your plumbing infrastructure. We use modern materials like PEX that resist corrosion and won't freeze as easily."
-  },
-  {
-    keywords: ['sewer', 'main line', 'backup'],
-    response: "Sewer line concerns need prompt attention! We offer trenchless sewer repair where possible, or traditional methods if needed. Our camera inspection technology shows us exactly what's causing your sewer issue."
-  },
-  {
-    keywords: ['gas', 'gas line', 'stove', 'range'],
-    response: "Gas line work requires licensed professionals for safe installation and inspection. We'll check for proper venting, pressure requirements, and current safety codes before recommending any gas system adjustments."
-  },
-  {
-    keywords: ['garbage disposal', 'grinder', 'sink garbage'],
-    response: "Garbage disposals have a simple design when it comes to repairs! Most issues - whether jammed blades or overloads - can be resolved with proper troubleshooting, though some units may need replacement."
-  },
-  {
-    keywords: ['sump pump', 'basement water', 'flood'],
-    response: "Sump pump maintenance is essential for protecting your basement! We test pump activation and check valves regularly. For serious flooding emergencies, we dispatch same-day service to restore drainage immediately."
-  },
-  {
-    keywords: ['bathroom remodel', 'master bath', 'kitchen remodel'],
-    response: "Great choice on remodeling! We handle complete bathroom and kitchen pipe rough-ins, fixture installation, and upgrades to modern code-compliant systems. Should I walk you through our plumbing packages?"
-  },
-  {
-    keywords: ['book', 'consult', 'appointment', 'schedule'],
-    response: "Our scheduling system is ready for your appointment! Let me get your contact information so I can book this for the optimal time slot. Could I start with your full name?"
-  }
+export const OPENAI_VOICES = [
+  { id: 'marin', name: 'Marin (Most natural - Recommended)' },
+  { id: 'cedar', name: 'Cedar (Warm & Natural)' },
+  { id: 'alloy', name: 'Alloy (Neutral & Balanced)' },
+  { id: 'ballad', name: 'Ballad (Smooth & Expressive)' },
+  { id: 'coral', name: 'Coral (Bright & Friendly)' }
 ];
 
 function normalizeAppointmentTime(value) {
@@ -132,16 +60,30 @@ function normalizeAppointmentTime(value) {
   return `${String(hour).padStart(2, '0')}:${twelveHour[2]}`;
 }
 
-const PLUMBING_WORKHOURS = {
-  earlyMorning: [6, 9],   // 6:00-9:00 AM - emergency start
-  morning: [9, 15],       // 9:00 AM-3:00 PM
-  afternoon: [12, 17],    // lunch and early afternoon overlap
-  lateAfternoon: [15, 18] // 3:00-6:00 PM
-};
+/**
+ * @typedef {Object} VoiceAgentConfig
+ * @property {string} siteKey            localStorage namespace, e.g. 'joes' | 'elevation'
+ * @property {string} brandName          e.g. "Joe's Reliable Plumbing"
+ * @property {string} systemInstruction  persona + booking flow prompt
+ * @property {Array}  knowledgeBase      keyword->response pairs for browser mock
+ * @property {string} toolName           e.g. 'book_service_appointment' | 'book_consultation'
+ * @property {string} toolDescription
+ * @property {Object} toolParameters     JSON schema properties
+ * @property {string[]} toolRequired
+ * @property {string} openaiSessionEndpoint  e.g. '/api/plumber/realtime-session'
+ * @property {string} geminiWsPath           e.g. '/api/plumber/live'
+ * @property {string} workletPath            e.g. '/plumber/worklets/audioProcessor.js'
+ * @property {string} welcomeMessage
+ * @property {string} [defaultProvider]      defaults to OPENAI_REALTIME
+ * @property {string} [defaultOpenAIVoice]   defaults to 'marin'
+ * @property {string} [defaultGeminiVoice]   defaults to 'Aoede'
+ * @property {Function} executeTool          (name, args) => Promise<string>
+ */
 
 class VoiceAgentService {
-  constructor() {
-    this.provider = VOICE_PROVIDERS.GEMINI_LIVE;
+  constructor(config) {
+    this.config = config;
+    this.provider = config.defaultProvider || VOICE_PROVIDERS.OPENAI_REALTIME;
     this.state = 'idle'; // 'idle' | 'connecting' | 'listening' | 'thinking' | 'speaking'
     this.listeners = new Set();
     this.audioContext = null;
@@ -160,6 +102,14 @@ class VoiceAgentService {
     this.synth = null;
     this.selectedVoice = null;
 
+    // OpenAI Realtime (WebRTC) state
+    this.rtcPeerConnection = null;
+    this.rtcDataChannel = null;
+    this.rtcDataChannelOpen = false;
+    this.openaiMicStream = null;
+    this.remoteAudioElement = null;
+    this.currentOpenAIResponseId = null;
+
     // Live turn transcript streaming buffers
     this.currentModelTurnId = null;
     this.currentModelText = '';
@@ -167,13 +117,18 @@ class VoiceAgentService {
     this.currentUserText = '';
     this.outputTranscriptionReceivedThisTurn = false;
 
-    const savedVoice = typeof window !== 'undefined' ? localStorage.getItem('joes_gemini_voice') : '';
-    const configuredVoice = GEMINI_VOICES.some(v => v.id === savedVoice) ? savedVoice : 'Aoede';
+    const savedGeminiVoice = typeof window !== 'undefined' ? localStorage.getItem(`${config.siteKey}_gemini_voice`) : '';
+    const configuredGeminiVoice = GEMINI_VOICES.some(v => v.id === savedGeminiVoice) ? savedGeminiVoice : (config.defaultGeminiVoice || 'Aoede');
 
-    this.config = {
-      geminiApiKey: '', // Handled server-side
-      geminiVoice: configuredVoice,
-      geminiModel: DEFAULT_GEMINI_MODEL
+    const savedOpenAIVoice = typeof window !== 'undefined' ? localStorage.getItem(`${config.siteKey}_openai_voice`) : '';
+    const configuredOpenAIVoice = OPENAI_VOICES.some(v => v.id === savedOpenAIVoice) ? savedOpenAIVoice : (config.defaultOpenAIVoice || 'marin');
+
+    this.runtimeConfig = {
+      geminiVoice: configuredGeminiVoice,
+      geminiModel: DEFAULT_GEMINI_MODEL,
+      openaiVoice: configuredOpenAIVoice,
+      openaiModel: DEFAULT_OPENAI_MODEL,
+      openaiSessionEndpoint: config.openaiSessionEndpoint
     };
 
     this.initBrowserSpeech();
@@ -276,15 +231,21 @@ class VoiceAgentService {
 
   configureProvider(providerName, config = {}) {
     this.provider = providerName;
-    this.config = { ...this.config, ...config };
+    this.runtimeConfig = { ...this.runtimeConfig, ...config };
     if (typeof window !== 'undefined') {
       if (config.geminiVoice) {
-        localStorage.setItem('joes_gemini_voice', config.geminiVoice);
+        localStorage.setItem(`${this.config.siteKey}_gemini_voice`, config.geminiVoice);
+      }
+      if (config.openaiVoice) {
+        localStorage.setItem(`${this.config.siteKey}_openai_voice`, config.openaiVoice);
       }
     }
     this.emit('providerChange', { provider: this.provider });
   }
 
+  // =========================================================================
+  // GOOGLE GEMINI MULTIMODAL LIVE (WebSocket, proxied via server)
+  // =========================================================================
   async startGeminiLiveSession() {
     if (this.state === 'connecting' || (this.sessionActive && this.geminiSocket?.readyState === WebSocket.OPEN)) {
       console.log('[GeminiLive] Session already active or connecting');
@@ -318,7 +279,7 @@ class VoiceAgentService {
 
       const serverHost = window.location.hostname === 'localhost' ? 'localhost:3001' : window.location.host;
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${serverHost}/api/plumber/live`;
+      const wsUrl = `${protocol}//${serverHost}${this.config.geminiWsPath}`;
 
       console.log('[GeminiLive] Connecting to:', wsUrl);
 
@@ -327,7 +288,7 @@ class VoiceAgentService {
           console.error('[GeminiLive] Connection timeout');
           this.emit('transcript', {
             sender: 'aura',
-            text: "Connection timeout. Let me try connecting to our plumbing dispatch system...",
+            text: "Connection timeout. Let me try connecting again...",
             isFinal: true
           });
           this.setState('idle');
@@ -344,41 +305,31 @@ class VoiceAgentService {
 
         const setupMessage = {
           setup: {
-            model: this.config.geminiModel || DEFAULT_GEMINI_MODEL,
+            model: this.runtimeConfig.geminiModel || DEFAULT_GEMINI_MODEL,
             generationConfig: {
               responseModalities: ['AUDIO'],
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
-                    voiceName: this.config.geminiVoice || 'Aoede'
+                    voiceName: this.runtimeConfig.geminiVoice || 'Aoede'
                   }
                 }
               },
               thinkingConfig: { thinkingLevel: 'minimal' }
             },
             systemInstruction: {
-              parts: [{ text: AURA_SYSTEM_INSTRUCTION }]
+              parts: [{ text: this.config.systemInstruction }]
             },
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             tools: [{
               functionDeclarations: [{
-                name: 'book_service_appointment',
-                description: 'Books a plumbing service appointment in the work order queue. Call after collecting name, phone, email, and preferred date/time.',
+                name: this.config.toolName,
+                description: this.config.toolDescription,
                 parameters: {
                   type: 'OBJECT',
-                  properties: {
-                    name: { type: 'STRING' },
-                    phone: { type: 'STRING' },
-                    email: { type: 'STRING' },
-                    scheduledDate: { type: 'STRING' },
-                    scheduledTime: { type: 'STRING' },
-                    serviceType: {
-                      type: 'STRING',
-                      description: 'Emergency repair, drain cleaning, water heater replacement, etc.'
-                    }
-                  },
-                  required: ['name', 'phone', 'email', 'scheduledDate', 'scheduledTime']
+                  properties: this.config.toolParameters,
+                  required: this.config.toolRequired
                 }
               }]
             }]
@@ -407,7 +358,7 @@ class VoiceAgentService {
 
             this.emit('transcript', {
               sender: 'aura',
-              text: "Joe's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura, your AI plumbing dispatch expert. Tell me about your plumbing issue - leaks, water heater problems, drain concerns or emergencies.",
+              text: this.config.welcomeMessage,
               isFinal: true
             });
             return;
@@ -445,6 +396,322 @@ class VoiceAgentService {
     }
   }
 
+  // =========================================================================
+  // OPENAI REALTIME (WebRTC) - DEFAULT provider
+  // =========================================================================
+  async startOpenAIRealtimeSession() {
+    if (this.state === 'connecting' || (this.sessionActive && this.rtcDataChannelOpen)) {
+      console.log('[OpenAIRealtime] Session already active or connecting');
+      return;
+    }
+
+    this.endOpenAIRealtimeSession(); // clean slate if a stale session exists
+
+    this.setState('connecting');
+    this.playChime('connect');
+
+    const connectTimeout = setTimeout(() => {
+      if (!this.rtcDataChannelOpen) {
+        console.error('[OpenAIRealtime] Connection timeout');
+        this.emit('transcript', {
+          sender: 'aura',
+          text: "Connection timeout. Let me try connecting again...",
+          isFinal: true
+        });
+        this.endOpenAIRealtimeSession();
+        this.setState('idle');
+      }
+    }, 10000);
+
+    try {
+      // 1. Mint a short-lived client secret via our backend.
+      const tokenResponse = await fetch(this.runtimeConfig.openaiSessionEndpoint, { method: 'POST' });
+      if (!tokenResponse.ok) {
+        throw new Error(`Failed to get realtime session token (HTTP ${tokenResponse.status})`);
+      }
+      const { clientSecret, model } = await tokenResponse.json();
+      if (!clientSecret) throw new Error('No client secret returned by server.');
+
+      // 2. Set up the peer connection + local mic track.
+      const pc = new RTCPeerConnection();
+      this.rtcPeerConnection = pc;
+      this.sessionActive = true;
+
+      if (!this.remoteAudioElement) {
+        this.remoteAudioElement = document.createElement('audio');
+        this.remoteAudioElement.autoplay = true;
+      }
+      pc.ontrack = (event) => {
+        this.remoteAudioElement.srcObject = event.streams[0];
+      };
+
+      this.openaiMicStream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      this.openaiMicStream.getTracks().forEach((track) => pc.addTrack(track, this.openaiMicStream));
+
+      // 3. Data channel for session config, transcripts, and tool calls.
+      const dc = pc.createDataChannel('oai-events');
+      this.rtcDataChannel = dc;
+
+      dc.onopen = () => {
+        clearTimeout(connectTimeout);
+        this.rtcDataChannelOpen = true;
+        console.log('[OpenAIRealtime] Data channel open, sending session.update');
+
+        this.sendOpenAIEvent({
+          type: 'session.update',
+          session: {
+            type: 'realtime',
+            output_modalities: ['audio'],
+            instructions: this.config.systemInstruction,
+            audio: {
+              input: {
+                transcription: { model: 'gpt-realtime-whisper' },
+                turn_detection: { type: 'server_vad', silence_duration_ms: 500 }
+              },
+              output: {
+                voice: this.runtimeConfig.openaiVoice || 'marin'
+              }
+            },
+            tools: [{
+              type: 'function',
+              name: this.config.toolName,
+              description: this.config.toolDescription,
+              parameters: {
+                type: 'object',
+                properties: this.config.toolParameters,
+                required: this.config.toolRequired
+              }
+            }]
+          }
+        });
+
+        this.setState('listening');
+        this.emit('transcript', {
+          sender: 'aura',
+          text: this.config.welcomeMessage,
+          isFinal: true
+        });
+      };
+
+      dc.onmessage = (event) => {
+        try {
+          this.handleOpenAIServerEvent(JSON.parse(event.data));
+        } catch (err) {
+          console.warn('[OpenAIRealtime] Event parsing error:', err);
+        }
+      };
+
+      dc.onerror = (err) => {
+        console.error('[OpenAIRealtime] Data channel error:', err);
+      };
+
+      dc.onclose = () => {
+        this.rtcDataChannelOpen = false;
+        if (this.sessionActive) {
+          this.setState('idle');
+        }
+      };
+
+      // 4. SDP offer/answer exchange directly against OpenAI's Realtime endpoint.
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const sdpResponse = await fetch(
+        `https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(model || this.runtimeConfig.openaiModel)}`,
+        {
+          method: 'POST',
+          body: offer.sdp,
+          headers: {
+            Authorization: `Bearer ${clientSecret}`,
+            'Content-Type': 'application/sdp'
+          }
+        }
+      );
+
+      if (!sdpResponse.ok) {
+        throw new Error(`OpenAI SDP exchange failed (HTTP ${sdpResponse.status})`);
+      }
+
+      const answerSdp = await sdpResponse.text();
+      await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+
+    } catch (err) {
+      clearTimeout(connectTimeout);
+      console.error('[OpenAIRealtime] Failed to start session:', err);
+      this.emit('transcript', { sender: 'aura', text: `Failed to initialize: ${err.message}`, isFinal: true });
+      this.endOpenAIRealtimeSession();
+      this.setState('idle');
+    }
+  }
+
+  sendOpenAIEvent(eventObj) {
+    if (this.rtcDataChannel && this.rtcDataChannel.readyState === 'open') {
+      this.rtcDataChannel.send(JSON.stringify(eventObj));
+    }
+  }
+
+  handleOpenAIServerEvent(msg) {
+    switch (msg.type) {
+      case 'input_audio_buffer.speech_started':
+        if (this.currentModelTurnId && this.currentModelText) {
+          this.emit('transcript', {
+            turnId: this.currentModelTurnId,
+            sender: 'aura',
+            text: this.currentModelText,
+            isFinal: true
+          });
+        }
+        this.currentModelTurnId = null;
+        this.currentModelText = '';
+
+        // IMMEDIATELY show the user's speech bubble so they see their
+        // message appear before the AI starts responding.
+        this.currentUserTurnId = 'user-' + Date.now();
+        this.currentUserText = '(listening...)';
+        this.emit('transcript', {
+          turnId: this.currentUserTurnId,
+          sender: 'user',
+          text: this.currentUserText,
+          isFinal: false
+        });
+
+        this.setState('listening');
+        break;
+
+      case 'conversation.item.input_audio_transcription.completed':
+        const finalTurnId = this.currentUserTurnId || ('user-' + Date.now());
+        if (!this.currentUserTurnId) {
+          this.currentUserTurnId = finalTurnId;
+        }
+        this.currentUserText = msg.transcript || '';
+        this.emit('transcript', {
+          turnId: finalTurnId,
+          sender: 'user',
+          text: this.currentUserText,
+          isFinal: true
+        });
+        this.currentUserTurnId = null;
+        this.currentUserText = '';
+        break;
+
+      case 'response.created':
+        this.currentOpenAIResponseId = msg.response?.id || null;
+        this.setState('thinking');
+        break;
+
+      case 'response.output_audio_transcript.delta':
+      case 'response.audio_transcript.delta':
+        if (!this.currentModelTurnId) {
+          this.currentModelTurnId = 'aura-' + Date.now();
+          this.currentModelText = '';
+        }
+        this.currentModelText = this.appendWithSmartSpacing(this.currentModelText, msg.delta || '');
+        this.setState('speaking');
+        this.emit('transcript', {
+          turnId: this.currentModelTurnId,
+          sender: 'aura',
+          text: this.currentModelText,
+          isFinal: false
+        });
+        break;
+
+      case 'response.function_call_arguments.done':
+        this.handleOpenAIFunctionCall(msg.call_id, msg.name, msg.arguments);
+        break;
+
+      case 'response.done':
+        if (this.currentModelTurnId) {
+          this.emit('transcript', {
+            turnId: this.currentModelTurnId,
+            sender: 'aura',
+            text: this.currentModelText || ' ',
+            isFinal: true
+          });
+        }
+        this.currentModelTurnId = null;
+        this.currentModelText = '';
+        this.currentOpenAIResponseId = null;
+        if (this.state === 'speaking' || this.state === 'thinking') {
+          this.setState('listening');
+        }
+        break;
+
+      case 'error':
+        console.error('[OpenAIRealtime] Server error event:', msg.error);
+        this.emit('transcript', { sender: 'aura', text: `Error: ${msg.error?.message || 'Unknown error'}`, isFinal: true });
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  async handleOpenAIFunctionCall(callId, name, argsJsonString) {
+    let args = {};
+    try {
+      args = argsJsonString ? JSON.parse(argsJsonString) : {};
+    } catch (err) {
+      console.error('[OpenAIRealtime] Failed to parse function call arguments:', err);
+      this.sendOpenAIEvent({
+        type: 'conversation.item.create',
+        item: {
+          type: 'function_call_output',
+          call_id: callId,
+          output: `Error: Failed to parse arguments: ${err.message}`
+        }
+      });
+      this.sendOpenAIEvent({ type: 'response.create' });
+      return;
+    }
+
+    console.log(`[OpenAIRealtime] Tool call: ${name}`, JSON.stringify(args, null, 2));
+
+    let output;
+    try {
+      output = await this.config.executeTool(name, args);
+    } catch (err) {
+      console.error('[OpenAIRealtime] executeTool error:', err);
+      output = `Error: ${err.message}`;
+    }
+
+    console.log(`[OpenAIRealtime] Tool result:`, output);
+
+    this.sendOpenAIEvent({
+      type: 'conversation.item.create',
+      item: {
+        type: 'function_call_output',
+        call_id: callId,
+        output: typeof output === 'string' ? output : JSON.stringify(output)
+      }
+    });
+    this.sendOpenAIEvent({ type: 'response.create' });
+  }
+
+  endOpenAIRealtimeSession() {
+    if (this.rtcDataChannel) {
+      try { this.rtcDataChannel.close(); } catch (_) { }
+      this.rtcDataChannel = null;
+    }
+    this.rtcDataChannelOpen = false;
+    if (this.rtcPeerConnection) {
+      try { this.rtcPeerConnection.close(); } catch (_) { }
+      this.rtcPeerConnection = null;
+    }
+    if (this.openaiMicStream) {
+      this.openaiMicStream.getTracks().forEach((t) => t.stop());
+      this.openaiMicStream = null;
+    }
+    if (this.remoteAudioElement) {
+      this.remoteAudioElement.srcObject = null;
+    }
+    this.currentOpenAIResponseId = null;
+  }
+
+  // =========================================================================
+  // MICROPHONE CAPTURE (Gemini Live only - OpenAI uses WebRTC tracks)
+  // =========================================================================
   async startMicrophoneCapture() {
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -455,9 +722,8 @@ class VoiceAgentService {
       this.inputAudioContext = new AudioCtx({ sampleRate: 16000 });
       const source = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
 
-      // Load AudioWorklet processor
       try {
-        await this.inputAudioContext.audioWorklet.addModule('/plumber/worklets/audioProcessor.js');
+        await this.inputAudioContext.audioWorklet.addModule(this.config.workletPath);
       } catch (err) {
         console.warn('[GeminiLive] AudioWorklet load failed, falling back to ScriptProcessor:', err);
         this.startScriptProcessorFallback(source);
@@ -465,7 +731,7 @@ class VoiceAgentService {
       }
 
       this.audioWorklet = new AudioWorkletNode(this.inputAudioContext, 'audio-processor');
-      
+
       this.audioWorklet.port.onmessage = (event) => {
         if (event.data.type === 'audio-data' && this.sessionActive) {
           if (!this.geminiSocket || this.geminiSocket.readyState !== WebSocket.OPEN) return;
@@ -503,7 +769,7 @@ class VoiceAgentService {
 
     for (const call of functionCalls) {
       try {
-        const result = await this.executeTool(call.name, call.args);
+        const result = await this.config.executeTool(call.name, call.args);
         functionResponses.push({ id: call.id, name: call.name, response: { output: result } });
       } catch (err) {
         functionResponses.push({ id: call.id, name: call.name, response: { output: `Error: ${err.message}` } });
@@ -511,49 +777,6 @@ class VoiceAgentService {
     }
 
     this.geminiSocket.send(JSON.stringify({ toolResponse: { functionResponses } }));
-  }
-
-  async executeTool(name, args) {
-    if (name === 'book_service_appointment') {
-      const { name, phone, email, scheduledDate, scheduledTime, serviceType = '' } = args;
-
-      const normalizedTime = this.isValid24HourFormat(scheduledTime) ? scheduledTime : '';
-      if (!this.isValidDateFormat(scheduledDate) || !normalizedTime) {
-        return 'Booking failed. Please provide date as YYYY-MM-DD and time in HH:mm format.';
-      }
-
-      const result = await bookConsultation({
-        name, phone, email, preferredDate: scheduledDate, preferredTime: normalizedTime, notes: serviceType
-      });
-
-      this.emit('bookingConfirmed', {
-        name, phone, email, scheduledDate, scheduledTime: normalizedTime,
-        serviceType, crmRow: result?.row, eventId: result?.calendar?.eventId
-      });
-
-      const parts = [];
-      if (result?.success) parts.push(`appointment entered in dispatch queue`);
-      if (calendar?.success) {
-        parts.push('calendar event created');
-        if (serviceType?.toLowerCase().includes('emergency')) parts.push('Priority Dispatch Alert sent to crew');
-      }
-
-      return `Success: ${parts.slice(0, 2).join(', ')}. ${name} - Joe's Reliable Plumbing has you scheduled.`;
-    }
-
-    return `Unknown tool: ${name}`;
-  }
-
-  isValidDateFormat(date) {
-    return /^(\d{4})-(\d{2})-(\d{2})$/.test(date);
-  }
-
-  isValid24HourFormat(time) {
-    const t = time.trim();
-    if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(t)) return true;
-    // Also accept "anytime" for flexible scheduling
-    if (t.toLowerCase() === 'anytime' || t.toLowerCase() === 'flexible') return false;
-    return /^(\d{1,2})(?:am|pm)$/i.test(t);
   }
 
   startScriptProcessorFallback(source) {
@@ -695,13 +918,11 @@ class VoiceAgentService {
   }
 
   handleGeminiServerMessage(msg) {
-    // Tool Call – Gemini wants to invoke a function (e.g. book_service_appointment)
     if (msg.toolCall?.functionCalls?.length) {
       this.handleToolCall(msg.toolCall.functionCalls);
       return;
     }
 
-    // Barge-in / Turn Interruption (user spoke while Gemini was speaking)
     if (msg.serverContent?.interrupted) {
       if (this.currentModelTurnId && this.currentModelText) {
         this.emit('transcript', {
@@ -719,7 +940,6 @@ class VoiceAgentService {
       return;
     }
 
-    // User Speech Transcription streamed by Gemini Live
     if (msg.serverContent?.inputTranscription?.text) {
       const userChunk = msg.serverContent.inputTranscription.text;
       if (userChunk) {
@@ -741,7 +961,6 @@ class VoiceAgentService {
       }
     }
 
-    // Model Spoken Output Transcription streamed by Gemini Live
     if (msg.serverContent?.outputTranscription?.text) {
       const auraChunk = msg.serverContent.outputTranscription.text;
       if (auraChunk) {
@@ -772,7 +991,6 @@ class VoiceAgentService {
       }
     }
 
-    // Model Turn Chunks (24kHz PCM audio and optional inline text parts)
     if (msg.serverContent?.modelTurn) {
       if (this.currentUserTurnId) {
         this.emit('transcript', {
@@ -811,7 +1029,6 @@ class VoiceAgentService {
       }
     }
 
-    // Turn Completion
     if (msg.serverContent?.turnComplete) {
       if (this.currentModelTurnId) {
         this.emit('transcript', {
@@ -837,15 +1054,19 @@ class VoiceAgentService {
     }
   }
 
+  // =========================================================================
+  // SESSION CONTROLS
+  // =========================================================================
   async startSession() {
     if (this.provider === VOICE_PROVIDERS.GEMINI_LIVE) {
       await this.startGeminiLiveSession();
+    } else if (this.provider === VOICE_PROVIDERS.OPENAI_REALTIME) {
+      await this.startOpenAIRealtimeSession();
     } else {
       this.playChime('connect');
       this.setState('connecting');
       setTimeout(() => {
-        const welcome = "Joe's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura. Describe your plumbing concern or ask about our services, emergency dispatch times, or service areas.";
-        this.speakBrowser(welcome);
+        this.speakBrowser(this.config.welcomeMessage);
       }, 400);
     }
   }
@@ -856,6 +1077,7 @@ class VoiceAgentService {
     this.geminiSocket?.close();
     this.stopMicrophoneCapture();
     this.clearAudioQueue();
+    this.endOpenAIRealtimeSession();
     this.currentModelTurnId = null; this.currentModelText = ''; this.currentUserTurnId = null; this.currentUserText = '';
     this.outputTranscriptionReceivedThisTurn = false;
     this.hasToolCallPending = false;
@@ -870,6 +1092,12 @@ class VoiceAgentService {
       } else {
         this.startGeminiLiveSession();
       }
+    } else if (this.provider === VOICE_PROVIDERS.OPENAI_REALTIME) {
+      if (this.sessionActive && this.rtcDataChannelOpen) {
+        this.setState('listening');
+      } else {
+        this.startOpenAIRealtimeSession();
+      }
     } else {
       if (this.recognition && this.state !== 'listening') {
         try { this.recognition.start(); } catch (_) { this.setState('listening'); }
@@ -880,7 +1108,7 @@ class VoiceAgentService {
   }
 
   stopListening() {
-    if (this.provider === VOICE_PROVIDERS.GEMINI_LIVE) {
+    if (this.provider === VOICE_PROVIDERS.GEMINI_LIVE || this.provider === VOICE_PROVIDERS.OPENAI_REALTIME) {
       this.setState('idle');
     } else {
       this.recognition?.stop();
@@ -891,7 +1119,6 @@ class VoiceAgentService {
   handleUserVoiceInput(text) {
     if (!text || text.trim().length === 0) return;
 
-    // Reset turn buffers for new exchange
     this.currentModelTurnId = null;
     this.currentModelText = '';
     this.currentUserTurnId = null;
@@ -903,6 +1130,13 @@ class VoiceAgentService {
       this.setState('thinking');
       const realtimeInputMessage = { realtimeInput: { text } };
       this.geminiSocket.send(JSON.stringify(realtimeInputMessage));
+    } else if (this.provider === VOICE_PROVIDERS.OPENAI_REALTIME && this.rtcDataChannelOpen) {
+      this.setState('thinking');
+      this.sendOpenAIEvent({
+        type: 'conversation.item.create',
+        item: { type: 'message', role: 'user', content: [{ type: 'input_text', text }] }
+      });
+      this.sendOpenAIEvent({ type: 'response.create' });
     } else {
       this.handleBrowserMockInput(text);
     }
@@ -910,21 +1144,16 @@ class VoiceAgentService {
 
   handleBrowserMockInput(text) {
     this.setState('thinking');
-    
-    const lower = text.toLowerCase();
-    let matched: typeof PLUMBING_KNOWLEDGE[number] | undefined;
-    
-    // First check emergency escalation keywords - these take priority over regular services
-    const emergencyKeywords = ['leak', 'burst', 'emergency', 'overflow', 'flood'];
-    if (emergencyKeywords.some(k => lower.includes(k))) {
-      matched = PLUMBING_KNOWLEDGE[0]; // Emergency handling first
-    } else {
-      matched = PLUMBING_KNOWLEDGE.find(item => item.keywords.some(k => lower.includes(k)));
-    }
 
-    const reply = matched 
-      ? matched.response 
-      : `I'm here to help! At Joe's Reliable Plumbing, we provide same-day service for residential and commercial work. Could I get your full name so I can assist you?`;
+    const lower = text.toLowerCase();
+    let matched;
+
+    const kb = this.config.knowledgeBase || [];
+    matched = kb.find(item => item.keywords.some(k => lower.includes(k)));
+
+    const reply = matched
+      ? matched.response
+      : `I'm here to help! At ${this.config.brandName}, we're ready to assist you. Could I get your full name so I can help?`;
 
     this.speakBrowser(reply);
   }
@@ -941,7 +1170,6 @@ class VoiceAgentService {
       utterance.pitch = 1.02;
 
       utterance.onend = () => {
-        // Wait for natural pause before checking interruption
         setTimeout(() => {
           if (this.state === 'speaking' && !this.isPlayingAudio) {
             this.setState('idle');
@@ -959,7 +1187,6 @@ class VoiceAgentService {
 
   setState(newState) {
     if (this.state === 'speaking' && newState !== 'speaking') {
-      // Don't interrupt when transitioning mid-sentence unless going idle
       if (!['idle', 'listening'].includes(newState)) return;
     }
     this.state = newState;
@@ -982,5 +1209,4 @@ class VoiceAgentService {
   }
 }
 
-export const voiceAgent = new VoiceAgentService();
-export default voiceAgent;
+export default VoiceAgentService;

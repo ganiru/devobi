@@ -17,9 +17,9 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
   const [inputText, setInputText] = useState('');
   const [showConfig, setShowConfig] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(voiceAgent.provider || VOICE_PROVIDERS.OPENAI_REALTIME);
-  const [geminiVoice, setGeminiVoice] = useState(voiceAgent.config.geminiVoice || 'Aoede');
-  const [geminiModel, setGeminiModel] = useState(voiceAgent.config.geminiModel || DEFAULT_GEMINI_MODEL);
-  const [openaiVoice, setOpenaiVoice] = useState(voiceAgent.config.openaiVoice || 'marin');
+  const [geminiVoice, setGeminiVoice] = useState(voiceAgent.runtimeConfig?.geminiVoice || 'Aoede');
+  const [geminiModel, setGeminiModel] = useState(voiceAgent.runtimeConfig?.geminiModel || DEFAULT_GEMINI_MODEL);
+  const [openaiVoice, setOpenaiVoice] = useState(voiceAgent.runtimeConfig?.openaiVoice || 'marin');
   const [keySaved, setKeySaved] = useState(false);
   const chatBottomRef = useRef(null);
   const streamingBubbleRef = useRef({});
@@ -92,6 +92,11 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
 
   useEffect(() => {
     if (isOpen) {
+      voiceAgent.configureProvider(selectedProvider, {
+        geminiVoice,
+        geminiModel,
+        openaiVoice
+      });
       voiceAgent.startSession();
     }
     return () => {

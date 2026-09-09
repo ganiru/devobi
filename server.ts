@@ -121,18 +121,18 @@ function getGoogleAuth() {
     });
 }
 
-async function addCRMLead(data: any) {
+async function addCRMLead(data: any, sheetName: string = 'Leads') {
     if (!googleSheetId) throw new Error('GOOGLE_SHEET_ID is not configured on the server.');
     const auth = getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
-    const headers = ['Timestamp', 'Name', 'Phone', 'Email', 'Treatment Interest', 'Source'];
+    const headers = ['Timestamp', 'Name', 'Phone', 'Email', 'Notes', 'Source'];
     const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: googleSheetId });
-    let leadsSheet = spreadsheet.data.sheets?.find((sheet) => sheet.properties?.title === 'Leads');
+    let leadsSheet = spreadsheet.data.sheets?.find((sheet) => sheet.properties?.title === sheetName);
 
     if (!leadsSheet) {
         const created = await sheets.spreadsheets.batchUpdate({
             spreadsheetId: googleSheetId,
-            requestBody: { requests: [{ addSheet: { properties: { title: 'Leads' } } }] },
+            requestBody: { requests: [{ addSheet: { properties: { title: sheetName } } }] },
         });
         leadsSheet = created.data.replies?.[0]?.addSheet;
     }
@@ -164,7 +164,7 @@ async function addCRMLead(data: any) {
                 data.name || '',
                 data.phone || '',
                 data.email || '',
-                data.treatmentInterest || '',
+                data.notes || '',
                 data.source || 'Aura Voice AI',
             ]],
         },
@@ -212,10 +212,11 @@ async function createConsultationEvent(event: any) {
     };
 }
 
-async function bookConsultation(data: any) {
-    const crm = await addCRMLead(data);
+async function bookConsultation(data: any, sheetName: string = 'Leads') {
+    const companyName = data.companyName || data.title || 'Aura AI Voice Concierge';
+    const crm = await addCRMLead(data, sheetName);
     const calendar = await createConsultationEvent({
-        title: `VISIA Consultation - ${data.name}`,
+        title: `${companyName} Consultation - ${data.name}`,
         date: data.preferredDate,
         time: data.preferredTime,
         guestEmail: data.email,
@@ -223,9 +224,9 @@ async function bookConsultation(data: any) {
             `Client: ${data.name}`,
             `Phone: ${data.phone}`,
             `Email: ${data.email}`,
-            `Treatment Interest: ${data.treatmentInterest || ''}`,
+            `Notes: ${data.notes || ''}`,
             '',
-            'Booked via Aura AI Voice Concierge - ELEVATION MedSpa',
+            `Booked via Aura AI Voice Concierge - ${companyName}`,
         ].join('\n'),
     });
 
@@ -233,11 +234,11 @@ async function bookConsultation(data: any) {
     try {
         email = await sendEmail({
             to: data.email,
-            subject: 'Your ELEVATION consultation is reserved',
+            subject: `Your ${companyName} consultation is reserved`,
             text: [
                 `Hello ${data.name},`,
                 '',
-                'Your ELEVATION consultation has been reserved.',
+                `Your ${companyName} consultation has been reserved.`,
                 `Date: ${data.preferredDate}`,
                 `Time: ${data.preferredTime} (Central Time)`,
                 `Calendar event: ${calendar.eventLink || 'available on your calendar'}`,
@@ -246,7 +247,7 @@ async function bookConsultation(data: any) {
             ].join('\n'),
             html: `<div>
                 <p>Hello ${data.name},</p>
-                <p>Your ELEVATION consultation has been reserved.</p>
+                <p>Your ${companyName} consultation has been reserved.</p>
                 <p><strong>Date:</strong> ${data.preferredDate}<br>
                 <strong>Time:</strong> ${data.preferredTime} (Central Time)</p>
                 ${calendar.eventLink ? `<p><a href="${calendar.eventLink}">View calendar event</a></p>` : ''}
@@ -449,7 +450,32 @@ app.post('/api/send-mail', async (req, res) => {
     }
 });
 
-// Plumbing CRM booking endpoint (similar to medspa)
+// Medspa CRM booking endpoint -- leads land in the Medspa_Leads worksheet
+app.post('/api/medspa/crm', async (req, res) => {
+    try {
+        switch (req.body.action) {
+            case 'book_consultation':
+                return res.json(await bookConsultation({
+                    ...req.body.data,
+                    companyName: req.body.data.companyName || 'ÉLÉVATION MedSpa'
+                }, 'Medspa_Leads'));
+            case 'add_crm_lead':
+                return res.json(await addCRMLead({
+                    ...req.body.data,
+                    source: 'Aura Voice AI'
+                }, 'Medspa_Leads'));
+            case 'create_calendar_event':
+                return res.json(await createConsultationEvent(req.body.event));
+            default:
+                return res.status(400).json({ success: false, error: `Unknown action: ${req.body.action}` });
+        }
+    } catch (error: any) {
+        console.error('Medspa booking error:', error);
+        res.status(500).json({ success: false, error: error.message || 'Failed to complete booking.' });
+    }
+});
+
+// Plumbing CRM booking endpoint -- leads land in the Plumber_Leads worksheet
 app.post('/api/plumber/crm', async (req, res) => {
     try {
         switch (req.body.action) {
@@ -457,14 +483,14 @@ app.post('/api/plumber/crm', async (req, res) => {
                 // Reuse medspa booking logic but with plumber-specific branding
                 return res.json(await bookConsultation({
                     ...req.body.data,
-                    serviceInterest: req.body.data.serviceInterest || 'General plumbing',
-                    treatmentInterest: req.body.data.serviceType
-                }));
+                    notes: req.body.data.notes || 'General plumbing',
+                    companyName: req.body.data.companyName || "Joe's Reliable Plumbing"
+                }, 'Plumber_Leads'));
             case 'add_crm_lead':
                 return res.json(await addCRMLead({
                     ...req.body.data,
                     source: 'Aura Voice AI'
-                }));
+                }, 'Plumber_Leads'));
             case 'create_calendar_event':
                 return res.json(await createConsultationEvent(req.body.event));
             default:
