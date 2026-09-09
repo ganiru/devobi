@@ -14,6 +14,7 @@ import LeadReactivationForm from './components/LeadReactivationForm';
 import FreePilot from './components/FreePilot';
 import DemoVideo from './components/DemoVideo';
 import MedspaApp from './medspa/App';
+import PlumberApp from './plumber/App';
 
 const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -52,7 +53,9 @@ const AppRoutes: React.FC = () => {
   if (pathname.startsWith('/medspa')) {
     return <MedspaApp />;
   }
-
+  if (pathname.startsWith('/plumber')) {
+    return <PlumberApp />;
+  }
   return (
     <div className="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black bg-cream text-ink">
       <header className="fixed top-0 left-0 w-full z-50">

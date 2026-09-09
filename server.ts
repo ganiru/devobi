@@ -25,6 +25,57 @@ const googleSheetId = process.env.GOOGLE_SHEET_ID || process.env.VITE_GOOGLE_SHE
 const googleCalendarId = process.env.GOOGLE_CALENDAR_ID || process.env.VITE_GOOGLE_CALENDAR_ID || 'primary';
 const schedulingTimeZone = 'America/Chicago';
 
+// --- OpenAI Realtime (WebRTC) config -------------------------------------
+// Swap-in alternative to the Gemini Live WebSocket proxy below. The browser
+// talks to OpenAI directly over WebRTC once it has this short-lived token,
+// so this endpoint's only job is to mint that token server-side (the real
+// OPENAI_API_KEY never reaches the browser). Session persona/tools/voice
+// are still owned by the client (see voiceAgentService.ts), matching how
+// the Gemini `setup` message is sent client-side today.
+const OPENAI_REALTIME_MODEL = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime-2';
+const OPENAI_CLIENT_SECRET_TTL_SECONDS = 300; // short-lived on purpose; re-minted per session
+
+async function createOpenAIRealtimeClientSecret() {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+        throw new Error('OPENAI_API_KEY is not configured on the server.');
+    }
+
+    // NOTE: this hits OpenAI's `POST /v1/realtime/client_secrets` endpoint.
+    // Schema here reflects the GA Realtime API as documented in 2026 --
+    // re-check https://platform.openai.com/docs/api-reference/realtime-sessions
+    // if OpenAI has revised the session config shape since.
+    const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            expires_after: { anchor: 'created_at', seconds: OPENAI_CLIENT_SECRET_TTL_SECONDS },
+            session: {
+                type: 'realtime',
+                model: OPENAI_REALTIME_MODEL,
+                output_modalities: ['audio'],
+                // Deliberately no instructions/voice/tools here -- the client
+                // sends a `session.update` event over the WebRTC data channel
+                // right after connecting, the same way it sends Gemini's
+                // `setup` message today. Keeps persona/tool config in one
+                // place (the client) instead of duplicated server + client.
+            },
+        }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI client secret request failed: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    // GA response shape: { value: "ek_...", expires_at, session: {...} }
+    return { clientSecret: data.value, expiresAt: data.expires_at, model: OPENAI_REALTIME_MODEL };
+}
+
 type EmailPayload = {
     to: string;
     subject: string;
@@ -398,28 +449,142 @@ app.post('/api/send-mail', async (req, res) => {
     }
 });
 
-// Native Google Sheets and Calendar booking endpoint.
-app.post('/api/medspa/crm', async (req, res) => {
+// Plumbing CRM booking endpoint (similar to medspa)
+app.post('/api/plumber/crm', async (req, res) => {
     try {
         switch (req.body.action) {
             case 'book_consultation':
-                return res.json(await bookConsultation(req.body.data));
+                // Reuse medspa booking logic but with plumber-specific branding
+                return res.json(await bookConsultation({
+                    ...req.body.data,
+                    serviceInterest: req.body.data.serviceInterest || 'General plumbing',
+                    treatmentInterest: req.body.data.serviceType
+                }));
             case 'add_crm_lead':
-                return res.json(await addCRMLead(req.body.data));
+                return res.json(await addCRMLead({
+                    ...req.body.data,
+                    source: 'Aura Voice AI'
+                }));
             case 'create_calendar_event':
                 return res.json(await createConsultationEvent(req.body.event));
             default:
                 return res.status(400).json({ success: false, error: `Unknown action: ${req.body.action}` });
         }
     } catch (error: any) {
-        console.error('Google booking error:', error);
+        console.error('Plumber booking error:', error);
         res.status(500).json({ success: false, error: error.message || 'Failed to complete booking.' });
+    }
+});
+
+// OpenAI Realtime (WebRTC) ephemeral token endpoints -- swap-in alternative
+// to the Gemini Live WebSocket proxies below. One shared helper, two thin
+// routes to match the existing /api/medspa/* and /api/plumber/* convention.
+app.post('/api/medspa/realtime-session', async (req, res) => {
+    try {
+        res.json(await createOpenAIRealtimeClientSecret());
+    } catch (error: any) {
+        console.error('[OpenAI Realtime] Medspa token mint error:', error.message);
+        res.status(500).json({ success: false, error: error.message || 'Failed to create realtime session.' });
+    }
+});
+
+app.post('/api/plumber/realtime-session', async (req, res) => {
+    try {
+        res.json(await createOpenAIRealtimeClientSecret());
+    } catch (error: any) {
+        console.error('[OpenAI Realtime] Plumber token mint error:', error.message);
+        res.status(500).json({ success: false, error: error.message || 'Failed to create realtime session.' });
     }
 });
 
 // Redirect route for survey
 app.get('/survey', (req, res) => {
     res.redirect(301, 'https://forms.gle/vg4MozP4P4skYwSr6');
+});
+
+// Plumber-specific Gemini Live WebSocket endpoint
+const plumberLiveWss = new WebSocketServer({ noServer: true });
+
+medspaLiveWss.on('error', () => { /* medspa errors handled inline */ });
+
+plumberLiveWss.on('connection', (client) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || !GoogleGenAI) {
+        client.close(1011, 'Plumber Gemini API not configured.');
+        return;
+    }
+
+    const upstream = new WebSocket(
+        `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`
+    );
+    const pendingMessages: WebSocket.RawData[] = [];
+
+    const closeConnections = (code = 1011, reason = 'Gemini Live upstream closed.') => {
+        if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
+            client.close(code, reason.slice(0, 123));
+        }
+        if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) {
+            upstream.close();
+        }
+    };
+
+    client.on('message', (message) => {
+        if (upstream.readyState === WebSocket.OPEN) {
+            upstream.send(message);
+        } else if (upstream.readyState === WebSocket.CONNECTING) {
+            pendingMessages.push(message);
+        }
+    });
+
+    upstream.on('open', () => {
+        console.log('[GeminiProxy] Plumber: Upstream opened');
+        for (const message of pendingMessages.splice(0)) {
+            if (client.readyState !== WebSocket.OPEN) break;
+            upstream.send(message);
+        }
+    });
+
+    upstream.on('message', (message) => {
+        try {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        } catch (error) {
+            console.error('[GeminiProxy] Plumber error forwarding:', error);
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    error: { message: 'Failed to parse response', code: 'PARSE_ERROR' }
+                }));
+            }
+        }
+    });
+
+    upstream.on('close', (code, reason) => {
+        const upstreamReason = reason.toString() || `Plumber upstream closed with code ${code}.`;
+        console.error('[GeminiProxy]', upstreamReason);
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                error: { message: upstreamReason, code }
+            }));
+        }
+        closeConnections(code, upstreamReason);
+    });
+
+    upstream.on('error', (error) => {
+        console.error('[GeminiProxy] Plumber upstream error:', error.message);
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                error: { message: error.message, code: 1011 }
+            }));
+        }
+        closeConnections(1011, error.message);
+    });
+
+    client.on('close', () => closeConnections());
+    client.on('error', (err) => {
+        console.error('[GeminiProxy] Plumber connection error:', err);
+        closeConnections(4404, 'Client closed unexpectedly.');
+    });
 });
 
 // Serve static files from Vite build if available or in production mode
@@ -434,7 +599,7 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
         if (req.path.startsWith('/api')) {
             return next();
         }
-        if (req.path.startsWith('/medspa')) {
+        if (req.path.startsWith('/medspa') || req.path === '/plumber') {
             res.sendFile(indexPath);
             return;
         }
@@ -456,7 +621,14 @@ const httpServer = createServer(app);
 httpServer.on('upgrade', (request, socket, head) => {
     const requestUrl = new URL(request.url || '/', `http://${request.headers.host}`);
     console.log('[WebSocket] Upgrade request received:', requestUrl.pathname);
-    
+
+    if (requestUrl.pathname === '/api/plumber/live') {
+        plumberLiveWss.handleUpgrade(request, socket, head, (client) => {
+            plumberLiveWss.emit('connection', client, request);
+        });
+        return;
+    }
+
     if (requestUrl.pathname !== '/api/medspa/live') {
         console.log('[WebSocket] Pathname does not match, rejecting:', requestUrl.pathname);
         socket.destroy();
@@ -478,4 +650,8 @@ httpServer.on('upgrade', (request, socket, head) => {
 
 httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
+    console.log('Routes enabled:');
+    console.log('  / -> Devobi LLC homepage');
+    console.log('  /medspa -> ELEVATION MedSpa');
+    console.log('  /plumber -> Joe\'s Reliable Plumbing');
 });

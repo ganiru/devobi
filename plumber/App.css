@@ -1,0 +1,14 @@
+/* Plumber-specific overrides */
+.plumber-app {
+  min-height: 100vh;
+}
+
+/* Recommendations / small polish */
+.plumber-app ::selection {
+  background: rgba(47, 166, 255, 0.3);
+  color: #fff;
+}
+
+.plumber-app input[type="date"].config-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
