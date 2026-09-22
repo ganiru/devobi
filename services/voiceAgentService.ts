@@ -63,7 +63,7 @@ function normalizeAppointmentTime(value) {
 /**
  * @typedef {Object} VoiceAgentConfig
  * @property {string} siteKey            localStorage namespace, e.g. 'joes' | 'elevation'
- * @property {string} brandName          e.g. "Joe's Reliable Plumbing"
+ * @property {string} brandName          e.g. "Joe Demo's Reliable Plumbing"
  * @property {string} systemInstruction  persona + booking flow prompt
  * @property {Array}  knowledgeBase      keyword->response pairs for browser mock
  * @property {string} toolName           e.g. 'book_service_appointment' | 'book_consultation'

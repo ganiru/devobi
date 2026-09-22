@@ -15,6 +15,7 @@ import FreePilot from './components/FreePilot';
 import DemoVideo from './components/DemoVideo';
 import MedspaApp from './medspa/App';
 import PlumberApp from './plumber/App';
+import PlumbersLandingPage from './components/PlumbersLandingPage';
 
 const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -74,6 +75,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/free-pilot" element={<FreePilot />} />
           <Route path="/demovideo" element={<DemoVideo />} />
           <Route path="*" element={<LandingPage />} />
+          <Route path="/for-plumbers" element={<PlumbersLandingPage />} />
         </Routes>
       </main>
       <footer className="border-t border-line py-9 px-6 text-[0.85rem] text-muted bg-cream">

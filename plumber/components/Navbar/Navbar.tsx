@@ -8,7 +8,7 @@ export default function Navbar({ onOpenBooking }) {
         {/* Logo / Brand */}
         <a href="/plumber" className="nav-logo">
           <Wrench size={28} className="text-blue" />
-          <span><span className="brand-accent">Joe's</span> Reliable Plumbing</span>
+          <span><span className="brand-accent">Joe Demo's</span> Reliable Plumbing</span>
         </a>
 
         {/* Desktop Navigation Links */}
@@ -20,9 +20,9 @@ export default function Navbar({ onOpenBooking }) {
 
         {/* CTA Buttons */}
         <div className="nav-actions">
-          <a href="tel:1-555-PLUMBING" className="btn nav-call-btn">
+          <a href="tel:1-469-0963" className="btn nav-call-btn">
             <Phone size={18} />
-            <span>(555) 247-5346</span>
+            <span>(469) 606-0963</span>
           </a>
 
           <button onClick={onOpenBooking} className="btn btn-primary" style={{ padding: '0.8rem 1.4rem', fontSize: '0.92rem' }}>

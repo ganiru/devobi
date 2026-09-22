@@ -1,6 +1,6 @@
 // @ts-nocheck Transitional conversion: Gemini Live payloads remain runtime-shaped until protocol types are introduced.
 /**
- * VoiceAgentService - Google Gemini Multimodal Live Voice AI Service & Joe's Reliable Plumbing Concierge
+ * VoiceAgentService - Google Gemini Multimodal Live Voice AI Service & Joe Demo's Reliable Plumbing Concierge
  * 
  * Capabilities:
  * 1. Google Gemini Multimodal Live API (Bi-directional real-time audio streaming over WebSockets)
@@ -35,7 +35,7 @@ export const GEMINI_VOICES = [
 const localDate = new Date();
 const today = [localDate.getFullYear(), String(localDate.getMonth() + 1).padStart(2, '0'), String(localDate.getDate()).padStart(2, '0')].join('-');
 
-const AURA_SYSTEM_INSTRUCTION = `You are Aura, a knowledgeable, professional, friendly, and approachable AI plumbing expert for Joe's Reliable Plumbing. 
+const AURA_SYSTEM_INSTRUCTION = `You are Aura, a knowledgeable, professional, friendly, and approachable AI plumbing expert for Joe Demo's Reliable Plumbing. 
 Today's date is ${today}. Resolve relative dates against today's date. "Next Tuesday" means the next calendar Tuesday after today.
 
 Specialize in residential and commercial plumbing services including:
@@ -407,7 +407,7 @@ class VoiceAgentService {
 
             this.emit('transcript', {
               sender: 'aura',
-              text: "Joe's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura, your AI plumbing dispatch expert. Tell me about your plumbing issue - leaks, water heater problems, drain concerns or emergencies.",
+              text: "Joe Demo's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura, your AI plumbing dispatch expert. Tell me about your plumbing issue - leaks, water heater problems, drain concerns or emergencies.",
               isFinal: true
             });
             return;
@@ -538,7 +538,7 @@ class VoiceAgentService {
         if (serviceType?.toLowerCase().includes('emergency')) parts.push('Priority Dispatch Alert sent to crew');
       }
 
-      return `Success: ${parts.slice(0, 2).join(', ')}. ${name} - Joe's Reliable Plumbing has you scheduled.`;
+      return `Success: ${parts.slice(0, 2).join(', ')}. ${name} - Joe Demo's Reliable Plumbing has you scheduled.`;
     }
 
     return `Unknown tool: ${name}`;
@@ -844,7 +844,7 @@ class VoiceAgentService {
       this.playChime('connect');
       this.setState('connecting');
       setTimeout(() => {
-        const welcome = "Joe's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura. Describe your plumbing concern or ask about our services, emergency dispatch times, or service areas.";
+        const welcome = "Joe Demo's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura. Describe your plumbing concern or ask about our services, emergency dispatch times, or service areas.";
         this.speakBrowser(welcome);
       }, 400);
     }
@@ -924,7 +924,7 @@ class VoiceAgentService {
 
     const reply = matched 
       ? matched.response 
-      : `I'm here to help! At Joe's Reliable Plumbing, we provide same-day service for residential and commercial work. Could I get your full name so I can assist you?`;
+      : `I'm here to help! At Joe Demo's Reliable Plumbing, we provide same-day service for residential and commercial work. Could I get your full name so I can assist you?`;
 
     this.speakBrowser(reply);
   }

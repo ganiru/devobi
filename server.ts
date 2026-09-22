@@ -484,7 +484,7 @@ app.post('/api/plumber/crm', async (req, res) => {
                 return res.json(await bookConsultation({
                     ...req.body.data,
                     notes: req.body.data.notes || 'General plumbing',
-                    companyName: req.body.data.companyName || "Joe's Reliable Plumbing"
+                    companyName: req.body.data.companyName || "Joe Demo's Reliable Plumbing"
                 }, 'Plumber_Leads'));
             case 'add_crm_lead':
                 return res.json(await addCRMLead({

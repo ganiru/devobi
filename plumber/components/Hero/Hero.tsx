@@ -36,7 +36,7 @@ export default function Hero({ onOpenVoice, onOpenBooking }) {
           </div>
 
           <h1 className="hero-title">
-            Joe's Reliable <br />
+            Joe Demo's Reliable <br />
             <span className="text-blue-gradient">Plumbing Services</span> & <br />
             Emergency Response.
           </h1>

@@ -1,6 +1,6 @@
 // @ts-nocheck Transitional conversion: preserve the existing component API.
 /**
- * CRM Service for Joe's Reliable Plumbing - Browser Proxy
+ * CRM Service for Joe Demo's Reliable Plumbing - Browser Proxy
  * 
  * All Google Calendar / Sheets / Email operations run server-side via
  * /api/plumber/crm. This module simply serializes the request and returns
@@ -48,7 +48,7 @@ export async function bookConsultation(customerData: CustomerData): Promise<CRMR
       body: JSON.stringify({
         action: 'book_consultation',
         data: {
-          companyName: "Joe's Reliable Plumbing",
+          companyName: "Joe Demo's Reliable Plumbing",
           ...customerData
         }
       })

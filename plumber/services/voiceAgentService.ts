@@ -1,6 +1,6 @@
 // @ts-nocheck Transitional conversion: Gemini Live payloads remain runtime-shaped until protocol types are introduced.
 /**
- * Plumber VoiceAgentService - Joe's Reliable Plumbing concierge.
+ * Plumber VoiceAgentService - Joe Demo's Reliable Plumbing concierge.
  *
  * Thin site-specific wrapper around the shared VoiceAgentService
  * (services/voiceAgentService.ts). Supplies the plumbing persona, booking
@@ -29,7 +29,7 @@ export {
 const localDate = new Date();
 const today = [localDate.getFullYear(), String(localDate.getMonth() + 1).padStart(2, '0'), String(localDate.getDate()).padStart(2, '0')].join('-');
 
-const AURA_SYSTEM_INSTRUCTION = `You are Aura, a knowledgeable, professional, friendly, and approachable AI plumbing expert for Joe's Reliable Plumbing. 
+const AURA_SYSTEM_INSTRUCTION = `You are Aura, a knowledgeable, professional, friendly, and approachable AI plumbing expert for Joe Demo's Reliable Plumbing. 
 Today's date is ${today}. Resolve relative dates against today's date. "Next Tuesday" means the next calendar Tuesday after today.
 
 Specialize in residential and commercial plumbing services including:
@@ -153,7 +153,7 @@ async function executePlumberTool(name, args) {
       if (serviceType?.toLowerCase().includes('emergency')) parts.push('Priority Dispatch Alert sent to crew');
     }
 
-    return `Success: ${parts.slice(0, 2).join(', ')}. ${clientName} - Joe's Reliable Plumbing has you scheduled.`;
+    return `Success: ${parts.slice(0, 2).join(', ')}. ${clientName} - Joe Demo's Reliable Plumbing has you scheduled.`;
   }
 
   return `Unknown tool: ${name}`;
@@ -161,7 +161,7 @@ async function executePlumberTool(name, args) {
 
 const plumberConfig = {
   siteKey: 'joes',
-  brandName: "Joe's Reliable Plumbing",
+  brandName: "Joe Demo's Reliable Plumbing",
   systemInstruction: AURA_SYSTEM_INSTRUCTION,
   knowledgeBase: PLUMBING_KNOWLEDGE,
   toolName: 'book_service_appointment',
@@ -181,7 +181,7 @@ const plumberConfig = {
   openaiSessionEndpoint: '/api/plumber/realtime-session',
   geminiWsPath: '/api/plumber/live',
   workletPath: '/plumber/worklets/audioProcessor.js',
-  welcomeMessage: "Joe's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura, your AI plumbing dispatch expert. Tell me about your plumbing issue - leaks, water heater problems, drain concerns or emergencies.",
+  welcomeMessage: "Joe Demo's Reliable Plumbing - Home of America's #1 Trusted Plumber. I'm Aura, your AI plumbing dispatch expert. Tell me about your plumbing issue - leaks, water heater problems, drain concerns or emergencies.",
   defaultProvider: VOICE_PROVIDERS.OPENAI_REALTIME,
   defaultOpenAIVoice: 'marin',
   defaultGeminiVoice: 'Aoede',
