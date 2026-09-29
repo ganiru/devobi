@@ -9,7 +9,7 @@ const FreePilot: React.FC = () => {
     const [error, setError] = useState('');
 
     const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=free_pilot&utm_campaign=pilot_launch";
-    const FORMSUBMIT_URL = "https://formsubmit.co/ajax/obi@devobi.com";
+    const SEND_MAIL_URL = "/api/send-mail";
     const LOOM_LINK = "https://www.loom.com/share/5dc35d7b0eea47bab5269cc35c6539ea";
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,12 +24,31 @@ const FreePilot: React.FC = () => {
             return;
         }
 
+        const name = String(formData.get("name") || "");
+        const email = String(formData.get("email") || "");
+        const leadCount = String(formData.get("lead_count") || "");
+
         setIsLoading(true);
 
         try {
-            const response = await fetch(FORMSUBMIT_URL, {
+            const response = await fetch(SEND_MAIL_URL, {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    to: "obi@devobi.com",
+                    subject: "New Free Pilot Application",
+                    text: [
+                        `Name: ${name}`,
+                        `Email: ${email}`,
+                        `Dormant leads: ${leadCount}`,
+                    ].join("\n"),
+                    html: `<div>
+                        <h2>New Free Pilot Application</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Dormant leads:</strong> ${leadCount}</p>
+                    </div>`,
+                }),
             });
             if (response.ok) {
                 setSubmitted(true);

@@ -36,7 +36,7 @@ export const GEMINI_VOICES = [
 ];
 
 // --- OpenAI Realtime (WebRTC) provider constants -------------------------
-export const DEFAULT_OPENAI_MODEL = 'gpt-realtime-2';
+export const DEFAULT_OPENAI_MODEL = 'gpt-realtime-2.1-mini';
 
 export const OPENAI_VOICES = [
   { id: 'marin', name: 'Marin (Most natural - Recommended)' },

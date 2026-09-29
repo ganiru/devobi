@@ -9,7 +9,7 @@ const WorkflowAudit: React.FC = () => {
     const [error, setError] = useState('');
 
     const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=workflowaudit&utm_campaign=audit_launch";
-    const FORMSUBMIT_URL = "https://formsubmit.co/ajax/obi@devobi.com";
+    const SEND_MAIL_URL = "/api/send-mail";
     const VIMEO_LINK = "https://vimeo.com/1174179749?utm_source=devobi_website&utm_medium=audit_page";
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,10 +24,37 @@ const WorkflowAudit: React.FC = () => {
             return;
         }
 
+        const name = String(formData.get("name") || "");
+        const email = String(formData.get("email") || "");
+        const crm = String(formData.get("crm") || "");
+        const bottleneck = String(formData.get("bottleneck") || "");
+        const message = String(formData.get("message") || "");
+
+        setIsLoading(true);
+
         try {
-            const response = await fetch(FORMSUBMIT_URL, {
+            const response = await fetch(SEND_MAIL_URL, {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    to: "obi@devobi.com",
+                    subject: "New Workflow Audit Request",
+                    text: [
+                        `Name: ${name}`,
+                        `Email: ${email}`,
+                        `Primary CRM: ${crm}`,
+                        `Biggest bottleneck: ${bottleneck}`,
+                        message ? `Details: ${message}` : "",
+                    ].filter(Boolean).join("\n"),
+                    html: `<div>
+                        <h2>New Workflow Audit Request</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Primary CRM:</strong> ${crm}</p>
+                        <p><strong>Biggest bottleneck:</strong> ${bottleneck}</p>
+                        ${message ? `<p><strong>Details:</strong> ${message}</p>` : ""}
+                    </div>`,
+                }),
             });
             if (response.ok) {
                 setSubmitted(true);

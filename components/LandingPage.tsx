@@ -362,11 +362,30 @@ const LandingPage: React.FC = () => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const data = new FormData(form);
-                  const payload = Object.fromEntries(data);
-                  const res = await fetch('https://formsubmit.co/ajax/obi@devobi.com', {
+                  const name = String(data.get("name") || "");
+                  const email = String(data.get("email") || "");
+                  const industry = String(data.get("industry") || "");
+                  const leads = String(data.get("leads") || "");
+                  const res = await fetch('/api/send-mail', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      to: 'obi@devobi.com',
+                      subject: 'New Free Pilot Application',
+                      text: [
+                        `Name: ${name}`,
+                        `Email: ${email}`,
+                        `Industry: ${industry}`,
+                        `Dormant leads: ${leads}`,
+                      ].join('\n'),
+                      html: `<div>
+                        <h2>New Free Pilot Application</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Industry:</strong> ${industry}</p>
+                        <p><strong>Dormant leads:</strong> ${leads}</p>
+                      </div>`,
+                    }),
                   });
                   if (res.ok) setSubmitted(true);
                 }}
