@@ -35,6 +35,66 @@ const LandingPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [calcLeads, setCalcLeads] = useState(2000);
   const [calcJobValue, setCalcJobValue] = useState(15000);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get("name") || "");
+    const email = String(data.get("email") || "");
+    const industry = String(data.get("industry") || "");
+    const leads = String(data.get("leads") || "");
+    const res = await fetch('/api/send-mail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: 'obi@devobi.com',
+        subject: 'New Free Pilot Application',
+        text: [
+          `Name: ${name}`,
+          `Email: ${email}`,
+          `Industry: ${industry}`,
+          `Dormant leads: ${leads}`,
+        ].join('\n'),
+        html: `<div>
+          <h2>New Free Pilot Application</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Industry:</strong> ${industry}</p>
+          <p><strong>Dormant leads:</strong> ${leads}</p>
+        </div>`,
+      }),
+    });
+    if (res.ok) {
+      setSubmitted(true);
+      // Show the submit button again after 5 seconds
+      setTimeout(() => setSubmitted(false), 5000);
+    }
+
+    // Send the user a calendar invite or link to schedule a meeting
+    // Example: Send a calendar invite link via email
+    if (res.ok) {
+      const calendarInviteLink = `https://calendly.com/obinnae/ai-consultation`;
+      await fetch('/api/send-mail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: email,
+          subject: 'Your Free Pilot Meeting Invite',
+          text: `Hi ${name},\n\nThank you for your interest in our free pilot. Please schedule your meeting here: ${calendarInviteLink}\n\nBest regards,\nDevobi`,
+          html: `<div>
+            Hi ${name},
+            <p>Thanks for submitting a Free Pilot request for our Lead Reactivation workflow. I'm excited to learn more about your business.</p>
+            <p>The next step is a quick 30-minute consultation call. We'll go over how you currently handle leads, see where dormant contacts might be turning into missed revenue, and figure out whether the pilot is a good fit for you.</p>
+            <p>You can pick a time that works best for you here: ${calendarInviteLink}</p>
+            <p>If none of the available slots work, just reply to this email and we'll find a time that does.</p>
+            <p>Looking forward to talking with you.</p>
+          </div>`,
+        }),
+      });
+    }
+  };
+
   return (
     <div className="bg-cream text-ink font-sans antialiased pt-[68px]">
       <section className="py-[88px] max-lg:py-[72px]">
@@ -358,37 +418,7 @@ const LandingPage: React.FC = () => {
               <div className="text-[1.4rem] font-extrabold tracking-[-0.02em] mb-2 text-white">Ready when you are.</div>
               <p className="text-[0.88rem] text-[#B7B1A4] mb-6">Spots are limited so we can protect your market from competitors.</p>
               <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  const data = new FormData(form);
-                  const name = String(data.get("name") || "");
-                  const email = String(data.get("email") || "");
-                  const industry = String(data.get("industry") || "");
-                  const leads = String(data.get("leads") || "");
-                  const res = await fetch('/api/send-mail', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      to: 'obi@devobi.com',
-                      subject: 'New Free Pilot Application',
-                      text: [
-                        `Name: ${name}`,
-                        `Email: ${email}`,
-                        `Industry: ${industry}`,
-                        `Dormant leads: ${leads}`,
-                      ].join('\n'),
-                      html: `<div>
-                        <h2>New Free Pilot Application</h2>
-                        <p><strong>Name:</strong> ${name}</p>
-                        <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Industry:</strong> ${industry}</p>
-                        <p><strong>Dormant leads:</strong> ${leads}</p>
-                      </div>`,
-                    }),
-                  });
-                  if (res.ok) setSubmitted(true);
-                }}
+                onSubmit={handleSubmit}
                 className="flex flex-col gap-3"
               >
                 <input
@@ -425,7 +455,9 @@ const LandingPage: React.FC = () => {
                   <option value="1000+">1,000+ leads</option>
                 </select>
                 {submitted ? (
-                  <p className="text-green-600 dark:text-green-400 text-[0.9rem] font-medium">Thanks! We'll be in touch within 24 hours.</p>
+                  <p className="text-green-600 dark:text-green-400 text-[0.9rem] font-medium">
+                    Thanks! You should be receiving a meeting invite shortly.
+                  </p>
                 ) : (
                   <button type="submit" className="font-semibold text-[0.95rem] rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors w-full">
                     Apply for the Pilot →
