@@ -52,6 +52,31 @@ const FreePilot: React.FC = () => {
             });
             if (response.ok) {
                 setSubmitted(true);
+                // Send the user a calendar invite or link to schedule a meeting
+                const calendarInviteLink = `https://calendly.com/obinnae/ai-consultation`;
+                await fetch('/api/send-mail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Your Free Pilot Meeting Invite',
+                        text: `Hi ${name},\n\nThank you for your interest in our free pilot. 
+The next step is a quick 30-minute consultation call. We'll go over how you currently handle leads, see where dormant contacts might be turning into missed revenue, and figure out whether the pilot is a good fit for you.
+You can pick a time that works best for you here: ${calendarInviteLink}
+If none of the available slots work, just reply to this email and we'll find a time that does.
+Looking forward to talking with you.`,
+                        html: `<div>
+                            Hi ${name},
+                            <p>Thanks for submitting a Free Pilot request for our Lead Reactivation workflow. I'm excited to learn more about your business.</p>
+                            <p>The next step is a quick 30-minute consultation call. We'll go over how you currently handle leads, see where dormant contacts might be turning into missed revenue, and figure out whether the pilot is a good fit for you.</p>
+                            <p>You can pick a time that works best for you here: <a href='${CALENDLY_LINK}' target="_blank" rel="noopener noreferrer">${calendarInviteLink}</a></p>
+                            <p>If none of the available slots work, just reply to this email and we'll find a time that does.</p>
+                            <p>Looking forward to talking with you.</p>
+                        </div>`,
+                    }),
+                }).catch((error) => {
+                    console.error('Error sending calendar invite:', error);
+                });
                 form.reset();
             } else {
                 setError("Something went wrong. Please try again or email us directly.");
@@ -88,22 +113,13 @@ const FreePilot: React.FC = () => {
                 </div>
                 {submitted ? (
                     <div className="text-center py-12">
-                        <h3 className="text-2xl font-bold text-accent">Application received!</h3>
-                        <p className="text-muted mt-6">
-                            <a
-                                href={CALENDLY_LINK}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors"
-                            >
-                                Schedule your kickoff call
-                            </a>
-                        </p>
+                        <h3 className="text-2xl font-bold text-accent mb-4">We've received your submission!</h3>
+                        <h5 className="text-accent">You should be receiving a meeting invite shortly. Please check your spam and trash folders as well.</h5>
                     </div>
                 ) : (
                     <div>
                         {/* Loom Video Embed */}
-                        <div className="max-w-2xl mx-auto rounded-xl overflow-hidden border border-line mb-8" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                        <div className="max-w-2xl mx-auto rounded-md overflow-hidden border border-line mb-8" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                             <iframe
                                 src="https://www.loom.com/embed/5dc35d7b0eea47bab5269cc35c6539ea"
                                 frameBorder="0"
@@ -113,8 +129,10 @@ const FreePilot: React.FC = () => {
                             ></iframe>
                         </div>
 
+                        {/* What You Get + Short Form — side by side on desktop, stacked on mobile */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                         {/* What You Get */}
-                        <div className="bg-white dark:bg-gray-800 border border-line rounded-2xl p-6 mb-10">
+                        <div className="bg-white dark:bg-gray-800 border border-line rounded-md p-6">
                             <h2 className="font-semibold text-lg mb-4 text-center text-ink">You'll get:</h2>
                             <ul className="space-y-3 text-muted">
                                 <li className="flex items-start gap-3">
@@ -142,7 +160,7 @@ const FreePilot: React.FC = () => {
                                     name="name"
                                     required
                                     placeholder="John Doe"
-                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
+                                    className="w-full px-5 py-[13px] text-[0.95rem] bg-transparent dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -152,7 +170,7 @@ const FreePilot: React.FC = () => {
                                     name="email"
                                     required
                                     placeholder="john@abcroofing.com"
-                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
+                                    className="w-full px-5 py-[13px] text-[0.95rem] bg-transparent dark:bg-black/20 border border-line text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                                 />
                             </div>
                             <div className="md:col-span-2 space-y-2">
@@ -164,7 +182,7 @@ const FreePilot: React.FC = () => {
                                     value={selectedLeads}
                                     onChange={(e) => setSelectedLeads(e.target.value)}
                                     required
-                                    className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-line text-ink outline-none focus:ring-2 focus:ring-accent transition-all appearance-none"
+                                    className="w-full px-5 py-[13px] text-[0.95rem] bg-transparent dark:bg-black/20 border border-line text-ink outline-none focus:ring-2 focus:ring-accent transition-all appearance-none"
                                 >
                                     <option value="" className="bg-white dark:bg-gray-800">Select a range...</option>
                                     <option value="50-100" className="bg-white dark:bg-gray-800">50 – 100 leads</option>
@@ -176,7 +194,7 @@ const FreePilot: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={!selectedLeads || isLoading}
-                                className="md:col-span-2 cursor-pointer font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors w-full"
+                                className="md:col-span-2 cursor-pointer font-semibold text-[0.95rem] no-underline px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors w-full"
                             >
                                 {isLoading ? "Submitting..." : "Apply for Free Pilot"}
                             </button>
@@ -189,9 +207,10 @@ const FreePilot: React.FC = () => {
                                 We respect your privacy. Your information is never shared or sold.
                             </p>
                         </form>
+                        </div>
                         {/* Post-submit note */}
                         <p className="mt-6 text-sm text-muted/60 text-center">
-                            After applying, you'll get access to schedule your kickoff call and we'll set up your pilot within 5-7 days.
+                            After applying, you'll get a notification to schedule your kickoff call and we'll set up your pilot within 5-7 days.
                         </p>
                     </div>
                 )}
