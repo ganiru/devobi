@@ -31,6 +31,37 @@ const Eyebrow = ({ children, dark }: { children: React.ReactNode; dark?: boolean
   </span>
 );
 
+/**
+ * FAQ content. These Q&A pairs must stay identical to FAQ_SCHEMA in
+ * `seo/schema.ts` — Google requires structured data to match visible content.
+ */
+const FAQ_ITEMS = [
+  {
+    q: 'What is lead reactivation?',
+    a: 'Lead reactivation is contacting old, unresponsive leads who previously requested a quote or estimate but never converted. These contacts are already in your CRM, already know your business, and cost nothing to reach — unlike buying new leads.',
+  },
+  {
+    q: 'How does Devobi reactivate dormant leads?',
+    a: 'We export your dormant leads, use AI to write a personalized follow-up to each one referencing their original quote or inquiry, verify and sort the replies we get back, and book qualified jobs directly onto your calendar.',
+  },
+  {
+    q: 'Which CRM platforms does Devobi work with?',
+    a: 'Devobi integrates with ServiceTitan, Housecall Pro, Jobber, FieldEdge, Service Fusion, HubSpot, and Salesforce, among others. We work with your existing CRM, so there is nothing to migrate.',
+  },
+  {
+    q: 'Does Devobi cost anything to get started?',
+    a: 'The first 14 days are a free pilot. Hand us your 500 coldest leads and if you do not get at least 3 qualified responses, you pay nothing. There are no contracts and no setup fees.',
+  },
+  {
+    q: 'Who owns the leads that Devobi reactivates?',
+    a: 'You keep every lead we reactivate. The contacts already belong to your business and remain in your CRM.',
+  },
+  {
+    q: 'Which trades does Devobi work with?',
+    a: 'Devobi serves home service contractors, with dedicated playbooks for roofers, HVAC companies, solar installers, and plumbers.',
+  },
+];
+
 const LandingPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [calcLeads, setCalcLeads] = useState(2000);
@@ -465,6 +496,46 @@ const LandingPage: React.FC = () => {
                 )}
               </form>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ — kept in sync with FAQ_SCHEMA in seo/schema.ts. Answer Engine
+          Optimization depends on these questions matching the JSON-LD exactly. */}
+      <section id="faq" className="py-[88px] max-lg:py-[72px]" aria-labelledby="faq-heading">
+        <div className="wrap">
+          <h2
+            id="faq-heading"
+            className="text-ink text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] mt-[18px] mb-[14px]"
+          >
+            Frequently asked questions
+          </h2>
+          <p className="text-muted max-w-[62ch] leading-relaxed mb-10">
+            Everything contractors ask us before handing over their old lead database.
+            Roofing, HVAC and solar contractors can also{' '}
+            <a href="/for-plumbers" className="text-ink underline no-underline hover:underline">see the plumbing playbook</a>
+            {' '}or{' '}
+            <a href="/free-pilot" className="text-ink underline no-underline hover:underline">apply for the free pilot</a>.
+          </p>
+
+          <div className="max-w-[760px] flex flex-col gap-3">
+            {FAQ_ITEMS.map(item => (
+              <details
+                key={item.q}
+                className="group bg-white dark:bg-gray-800 border border-line rounded-xl px-6 py-5"
+              >
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-ink font-extrabold text-[1.05rem] tracking-[-0.01em]">
+                  <span>{item.q}</span>
+                  <span
+                    aria-hidden="true"
+                    className="shrink-0 text-accent text-xl font-bold transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="text-muted leading-relaxed mt-3">{item.a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

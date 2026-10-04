@@ -23,63 +23,21 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devobi — AI Lead Reactivation for Home Services</title>
-    <meta name="description" content="Devobi's AI reactivates dormant leads for roofers, HVAC pros, and solar installers — turning old CRM contacts into booked estimates automatically.">
-    <meta name="keywords" content="AI lead reactivation, home services AI, roofing lead generation, HVAC lead follow-up, solar lead reactivation, dormant CRM leads, automated estimate booking, ServiceTitan AI">
+
+    <!--
+      NOTE: <title>, meta description, robots, canonical, Open Graph, Twitter and
+      JSON-LD are intentionally NOT hardcoded here. They are generated per-route
+      by seo/head.ts and injected by the prerender step (vite.config.ts) and by
+      server.ts at request time. Keeping one hardcoded <head> caused every route
+      to declare the homepage canonical, which de-indexed the whole site.
+    -->
     <meta name="author" content="Obinna Ezeilo">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://devobi.com/" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://devobi.com/">
-    <meta property="og:title" content="Devobi — AI Lead Reactivation for Home Services">
-    <meta property="og:description" content="Your old leads aren't dead. They're dormant. Devobi's AI reads every old quote, writes personalized follow-ups, and books estimates straight onto your calendar.">
-    <meta property="og:image" content="https://devobi.com/archive/images/robot-no-bg.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://devobi.com/">
-    <meta property="twitter:title" content="Devobi — AI Lead Reactivation for Home Services">
-    <meta property="twitter:description" content="Your old leads aren't dead. They're dormant. Devobi's AI reactivates dormant leads for roofers, HVAC pros, and solar installers.">
-    <meta property="twitter:image" content="https://devobi.com/archive/images/robot-no-bg.png">
-
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "ProfessionalService",
-      "name": "Devobi",
-      "url": "https://devobi.com",
-      "description": "AI lead reactivation for roofers, HVAC pros, and solar installers — turning old CRM contacts into booked estimates automatically.",
-      "email": "info@devobi.com",
-      "founder": {
-        "@type": "Person",
-        "name": "Obinna Ezeilo"
-      },
-      "areaServed": "US",
-      "serviceType": ["AI Lead Reactivation", "Home Services Automation", "CRM Integration", "Lead Follow-Up"]
-    }
-    </script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23E4572E%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2260%22 font-weight=%22bold%22 fill=%22white%22>D</text></svg>">
+    <link rel="apple-touch-icon" href="/images/og-default.png">
 
-    <!-- Security Header (Recommended for Static Sites) -->
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.tailwindcss.com https://esm.sh https://player.vimeo.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://unsplash.com https://images.unsplash.com https://*.vimeocdn.com https://*.loom.com; frame-src https://player.vimeo.com https://www.loom.com; connect-src 'self' ws: wss: https://generativelanguage.googleapis.com https://www.google-analytics.com https://n8n-production-6955.up.railway.app https://vimeo.com https://*.vimeo.com https://api.openai.com;">
-    <script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "react-markdown": "https://esm.sh/react-markdown@^9.0.1"
-  }
-}
-</script>
     <link rel="stylesheet" href="/index.css">
 </head>
 

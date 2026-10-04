@@ -1,6 +1,33 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { spawnSync } from 'child_process';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+/**
+ * Emits static HTML per route after the bundle is written.
+ *
+ * Runs as a separate `tsx` process rather than inside the Vite plugin hook:
+ * the SSR entry needs React + the component tree compiled for Node, which is a
+ * different target from the client bundle. It is still the same `seo/` source,
+ * so prerendered output and runtime output cannot drift.
+ */
+function prerenderPlugin(): Plugin {
+  return {
+    name: 'devobi-prerender',
+    apply: 'build',
+    closeBundle() {
+      const outDir = path.resolve(__dirname, 'dist');
+      const result = spawnSync(
+        process.execPath,
+        [path.resolve(__dirname, 'node_modules/tsx/dist/cli.mjs'), 'scripts/prerender.ts', outDir],
+        { stdio: 'inherit', cwd: __dirname },
+      );
+      if (result.status !== 0) {
+        this.error(`prerender step failed with exit code ${result.status}`);
+      }
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -14,6 +41,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      prerenderPlugin(),
       {
         name: 'survey-redirect',
         configureServer(server) {

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width:1200px; height:630px;
+    font-family:'Inter',sans-serif;
+    background:#FAF9F6;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 70px; position:relative; overflow:hidden;
+  }
+  .accentbar { position:absolute; left:0; top:0; width:14px; height:630px; background:#E4572E; }
+  .left { max-width:700px; z-index:2; }
+  .brand { font-size:28px; font-weight:800; letter-spacing:-0.02em; color:#191713; margin-bottom:30px; }
+  .brand span { color:#E4572E; }
+  h1 { font-size:58px; font-weight:800; letter-spacing:-0.035em; line-height:1.05; color:#191713; margin-bottom:22px; }
+  p.sub { font-size:24px; line-height:1.4; color:#6B6559; max-width:620px; margin-bottom:30px; }
+  .pills { display:flex; gap:11px; flex-wrap:wrap; }
+  .pill {
+    font-size:18px; font-weight:600; color:#191713;
+    background:#fff; border:1.5px solid #E3DED2; border-radius:999px;
+    padding:9px 19px;
+  }
+  .pill.hot { background:#E4572E; color:#fff; border-color:#E4572E; }
+  .right { text-align:center; flex-shrink:0; width:250px; z-index:1; }
+  .right img { width:250px; display:block; }
+  .cta { margin-top:4px; font-size:19px; font-weight:700; color:#191713; }
+</style>
+</head>
+<body>
+  <div class="accentbar"></div>
+  <div class="left">
+    <div class="brand">Devobi<span>.</span></div>
+    <h1>Your old leads aren't dead.<br>They're dormant.</h1>
+    <p class="sub">AI reactivates the dormant leads already in your CRM and books estimates on your calendar.</p>
+    <div class="pills">
+      <div class="pill hot">Free 14-Day Pilot</div>
+      <div class="pill">Roofers</div>
+      <div class="pill">HVAC</div>
+      <div class="pill">Solar</div>
+      <div class="pill">Plumbers</div>
+    </div>
+  </div>
+  <div class="right">
+    <img src="robot-source.png" alt="">
+    <div class="cta">devobi.com</div>
+  </div>
+</body>
+</html>

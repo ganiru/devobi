@@ -1,0 +1,41 @@
+# robots.txt for devobi.com
+# Note: this file must live in /public so Vite copies it into dist/.
+# If it is served as text/html, Google may stop crawling the site entirely.
+
+User-agent: *
+Allow: /
+
+# Funnel/utility routes are thin duplicates of the landing page. They are
+# disallowed here as well as being marked noindex in their <head>, so crawlers
+# do not waste budget on them.
+Disallow: /workflow-audit
+Disallow: /demo-lead-form
+Disallow: /founding
+Disallow: /opt-in
+Disallow: /sendmail
+Disallow: /reactivate
+Disallow: /demovideo
+
+# Give AI answer engines explicit crawl permission.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://devobi.com/sitemap.xml

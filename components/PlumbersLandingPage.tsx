@@ -55,6 +55,15 @@ const PlumbersLandingPage: React.FC = () => {
           <p className="text-[0.85rem] text-muted">
             ✓ <b className="text-ink">Live demo</b> — call it yourself, no form required.
           </p>
+          {/* Crawlable links to the related indexable pages. Without these the
+              page is orphaned from the rest of the site. */}
+          <p className="text-[0.85rem] text-muted mt-4">
+            Also see{' '}
+            <Link to="/" className="text-ink underline">how lead reactivation works</Link>
+            {' '}and the{' '}
+            <Link to="/free-pilot" className="text-ink underline">free 14-day pilot</Link>
+            {' '}for home service contractors.
+          </p>
         </div>
       </section>
 
