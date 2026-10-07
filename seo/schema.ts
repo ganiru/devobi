@@ -178,6 +178,29 @@ export const PLUMBER_SCHEMA = {
   areaServed: { '@type': 'Country', name: 'United States' },
 } as const;
 
+/** AI voice agent service, surfaced on /voice for voice-agent queries. */
+export const VOICE_SCHEMA = {
+  '@type': 'Service',
+  '@id': `${SITE_URL}/voice#service`,
+  name: 'AI Voice Agent for Home Service Businesses',
+  serviceType: 'AI Voice Agent',
+  description:
+    'Devobi builds AI voice agents that answer inbound calls, qualify prospects, book appointments, and follow up 24/7 for home service businesses. Natural-sounding responses without adding staff.',
+  provider: { '@id': `${SITE_URL}/#organization` },
+  areaServed: { '@type': 'Country', name: 'United States' },
+  offers: {
+    '@type': 'Offer',
+    '@id': `${SITE_URL}/voice#free-pilot-offer`,
+    name: 'Free 14-Day AI Voice Agent Pilot',
+    description:
+      'Try the AI voice agent for 14 days at no cost. No contracts, no setup fees.',
+    price: '0',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/LimitedAvailability',
+    seller: { '@id': `${SITE_URL}/#organization` },
+  },
+} as const;
+
 /** Wraps the whole graph so entities can reference each other via @id. */
 export function buildGraph(extra: object[] = []) {
   return {

@@ -16,6 +16,7 @@ import DemoVideo from './components/DemoVideo';
 import MedspaApp from './medspa/App';
 import PlumberApp from './plumber/App';
 import PlumbersLandingPage from './components/PlumbersLandingPage';
+import VoiceLandingPage from './components/VoiceLandingPage';
 
 export const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -82,6 +83,7 @@ export const AppRoutes = () => {
           <Route path="/reactivate" element={<LeadReactivationForm />} />
           <Route path="/free-pilot" element={<FreePilot />} />
           <Route path="/demovideo" element={<DemoVideo />} />
+          <Route path="/voice" element={<VoiceLandingPage />} />
           <Route path="*" element={<LandingPage />} />
           <Route path="/for-plumbers" element={<PlumbersLandingPage />} />
         </Routes>
@@ -91,6 +93,7 @@ export const AppRoutes = () => {
           <span>&copy; {new Date().getFullYear()} Devobi LLC · AI Lead Reactivation for Home Services</span>
           <nav aria-label="Footer" className="flex gap-4 flex-wrap items-center">
             <Link to="/for-plumbers" className="text-muted no-underline hover:text-ink transition-colors">For Plumbers</Link>
+            <Link to="/voice" className="text-muted no-underline hover:text-ink transition-colors">Voice AI</Link>
             <Link to="/free-pilot" className="text-muted no-underline hover:text-ink transition-colors">Free Pilot</Link>
             <Link to="/privacy" className="text-muted no-underline hover:text-ink transition-colors">Privacy</Link>
             <a href="mailto:info@devobi.com" className="text-muted no-underline hover:text-ink transition-colors">info@devobi.com</a>

@@ -457,27 +457,27 @@ const LandingPage: React.FC = () => {
                   name="name"
                   placeholder="Your name"
                   required
-                  className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
                 <input
                   type="email"
                   name="email"
                   placeholder="Your email"
                   required
-                  className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
                 <input
                   type="text"
                   name="industry"
                   placeholder="Your industry — roofing, solar, HVAC, etc."
                   required
-                  className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
                 <select
                   name="leads"
                   required
                   defaultValue=""
-                  className="w-full rounded-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink outline-none focus:ring-2 focus:ring-accent transition-all appearance-none"
+                  className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink outline-none focus:ring-2 focus:ring-accent transition-all appearance-none"
                 >
                   <option value="" disabled>How many dormant leads do you have?</option>
                   <option value="50-100">50–100 leads</option>
@@ -490,7 +490,7 @@ const LandingPage: React.FC = () => {
                     Thanks! You should be receiving a meeting invite shortly.
                   </p>
                 ) : (
-                  <button type="submit" className="font-semibold text-[0.95rem] rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors w-full">
+                  <button type="submit" className="font-semibold text-[0.95rem] px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors w-full">
                     Apply for the Pilot →
                   </button>
                 )}

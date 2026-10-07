@@ -5,7 +5,7 @@
  * makes it obvious which pages carry which schema.
  */
 
-import { FAQ_SCHEMA, PLUMBER_SCHEMA, buildGraph } from './schema';
+import { FAQ_SCHEMA, PLUMBER_SCHEMA, VOICE_SCHEMA, buildGraph } from './schema';
 
 /**
  * Returns the JSON-LD graph for a path as a SINGLE object.
@@ -30,6 +30,10 @@ export function getJsonLdForPath(pathname: string): object {
 
   if (normalised === '/for-plumbers') {
     extra.push(PLUMBER_SCHEMA);
+  }
+
+  if (normalised === '/voice') {
+    extra.push(VOICE_SCHEMA);
   }
 
   return buildGraph(extra);

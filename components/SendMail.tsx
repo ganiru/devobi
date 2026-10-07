@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import AuthGate from './AuthGate';
+import { useTheme } from './ThemeContext';
 
 const SEND_MAIL_API = '/api/send-mail';
 
@@ -9,6 +10,8 @@ const SEND_MAIL_API = '/api/send-mail';
  * Protected by a passphrase gate so only the owner can use it.
  */
 const SendMail: React.FC = () => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [formData, setFormData] = useState({
         to: '',
@@ -62,25 +65,45 @@ const SendMail: React.FC = () => {
 
     // Full HTML document for iframe preview
     const htmlPreview = useMemo(() => {
+        const palette = isDark
+            ? {
+                background: '#111111',
+                panel: '#1a1a1a',
+                text: '#e2e2e2',
+                softText: '#666666',
+                border: 'rgba(255,255,255,0.08)',
+                heading: '#ffffff',
+                muted: '#555555'
+              }
+            : {
+                background: '#f7f7f5',
+                panel: '#ffffff',
+                text: '#111827',
+                softText: '#4b5563',
+                border: 'rgba(15,23,42,0.08)',
+                heading: '#111827',
+                muted: '#6b7280'
+              };
+
         return `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"/></head>
-<body style="margin:0;padding:32px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;color:#e2e2e2;background:#111;">
-  <div style="max-width:600px;margin:0 auto;background:#1a1a1a;border-radius:12px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
-    <div style="padding:24px 28px 20px;border-bottom:1px solid rgba(255,255,255,0.06);">
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:#fff;">${formData.subject || 'Subject'}</h2>
+<body style="margin:0;padding:32px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;color:${palette.text};background:${palette.background};">
+  <div style="max-width:600px;margin:0 auto;background:${palette.panel};border-radius:12px;border:1px solid ${palette.border};overflow:hidden;">
+    <div style="padding:24px 28px 20px;border-bottom:1px solid ${palette.border};">
+      <h2 style="margin:0;font-size:20px;font-weight:700;color:${palette.heading};">${formData.subject || 'Subject'}</h2>
     </div>
     <div style="padding:28px;">
-      ${messageBodyHtml || '<p style="color:#666;font-style:italic;">Start typing your message…</p>'}
+      ${messageBodyHtml || `<p style="color:${palette.softText};font-style:italic;">Start typing your message…</p>`}
     </div>
-    <div style="padding:16px 28px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
-      <p style="margin:0;font-size:12px;color:#555;">Sent from Devobi</p>
+    <div style="padding:16px 28px;border-top:1px solid ${palette.border};text-align:center;">
+      <p style="margin:0;font-size:12px;color:${palette.muted};">Sent from Devobi</p>
     </div>
   </div>
 </body>
 </html>`.trim();
-    }, [messageBodyHtml, formData.subject]);
+    }, [isDark, messageBodyHtml, formData.subject]);
 
     // Simplified HTML fragment for sending (no html/head/body wrapper)
     const htmlMessage = useMemo(() => {
@@ -131,19 +154,19 @@ const SendMail: React.FC = () => {
         <AuthGate>
             {status === 'success' ? (
                 <main className="min-h-screen pt-32 pb-16 px-6 flex items-center justify-center">
-                    <div className="glass p-12 rounded-3xl max-w-xl mx-auto text-center border border-emerald-500/30 shadow-2xl">
+                    <div className="glass p-12 rounded-lg max-w-xl mx-auto text-center border border-emerald-500/30 shadow-2xl">
                         <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-8 ring-4 ring-emerald-500/10">
                             <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <h3 className="text-3xl font-bold mb-4 text-white">Email Sent!</h3>
-                        <p className="text-gray-400 text-lg mb-8 max-w-sm mx-auto">
+                        <h3 className="text-3xl font-bold mb-4 text-slate-900 dark:text-white">Email Sent!</h3>
+                        <p className="text-slate-600 dark:text-gray-400 text-lg mb-8 max-w-sm mx-auto">
                             Your message has been dispatched successfully.
                         </p>
                         <button
                             onClick={() => setStatus('idle')}
-                            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-emerald-400 font-semibold transition-all cursor-pointer"
+                            className="px-8 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 rounded text-emerald-600 dark:text-emerald-400 font-semibold transition-all cursor-pointer"
                         >
                             Compose Another
                         </button>
@@ -159,29 +182,29 @@ const SendMail: React.FC = () => {
 
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="text-center mb-10">
-                            <h1 className="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
+                            <h1 className="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-br from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                                 Send Mail
                             </h1>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-slate-600 dark:text-gray-500 text-sm">
                                 Compose and preview your email before sending
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                             {/* ── Compose Form ── */}
-                            <form onSubmit={handleSubmit} className="glass p-8 md:p-10 shadow-2xl space-y-6 rounded-2xl border border-white/5">
+                            <form onSubmit={handleSubmit} className="glass p-8 md:p-10 shadow-2xl space-y-6 rounded-lg border border-slate-200 dark:border-white/5">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg flex items-center justify-center">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <h2 className="text-lg font-bold text-white">Compose</h2>
+                                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Compose</h2>
                                 </div>
 
                                 <div className="space-y-5">
                                     <div className="space-y-2">
-                                        <label htmlFor="sendmail-to" className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                                        <label htmlFor="sendmail-to" className="text-xs font-bold text-slate-600 dark:text-gray-400 uppercase tracking-widest ml-1">
                                             To
                                         </label>
                                         <input
@@ -192,12 +215,12 @@ const SendMail: React.FC = () => {
                                             value={formData.to}
                                             onChange={handleChange}
                                             placeholder="recipient@example.com"
-                                            className="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-emerald-500 outline-none transition-all text-white placeholder-gray-600"
+                                            className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 p-4 rounded-none focus:border-emerald-500 outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600"
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label htmlFor="sendmail-subject" className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                                        <label htmlFor="sendmail-subject" className="text-xs font-bold text-slate-600 dark:text-gray-400 uppercase tracking-widest ml-1">
                                             Subject
                                         </label>
                                         <input
@@ -208,15 +231,15 @@ const SendMail: React.FC = () => {
                                             value={formData.subject}
                                             onChange={handleChange}
                                             placeholder="Email subject line"
-                                            className="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-emerald-500 outline-none transition-all text-white placeholder-gray-600"
+                                            className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 p-4 rounded-none focus:border-emerald-500 outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600"
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label htmlFor="sendmail-message" className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                                        <label htmlFor="sendmail-message" className="text-xs font-bold text-slate-600 dark:text-gray-400 uppercase tracking-widest ml-1">
                                             Message
                                         </label>
-                                        <p className="text-[11px] text-gray-600 ml-1">
+                                        <p className="text-[11px] text-slate-500 dark:text-gray-600 ml-1">
                                             Supports **bold**, *italic*, and [link text](url) formatting
                                         </p>
                                         <textarea
@@ -227,13 +250,13 @@ const SendMail: React.FC = () => {
                                             value={formData.message}
                                             onChange={handleChange}
                                             placeholder="Write your email message here..."
-                                            className="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-emerald-500 outline-none transition-all resize-none text-white placeholder-gray-600 font-mono text-sm leading-relaxed"
+                                            className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 p-4 rounded-none focus:border-emerald-500 outline-none transition-all resize-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 font-mono text-sm leading-relaxed"
                                         />
                                     </div>
                                 </div>
 
                                 {status === 'error' && (
-                                    <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                    <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 rounded">
                                         <p className="text-red-400 text-sm text-center font-medium">
                                             Failed to send. Please check your connection and try again.
                                         </p>
@@ -243,7 +266,7 @@ const SendMail: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={status === 'loading'}
-                                    className={`w-full py-4 font-bold text-black text-base rounded-xl transition-all transform active:scale-[0.98] relative overflow-hidden group ${status === 'loading'
+                                    className={`w-full py-4 font-bold text-black text-base rounded transition-all transform active:scale-[0.98] relative overflow-hidden group ${status === 'loading'
                                         ? 'bg-emerald-600 cursor-not-allowed'
                                         : 'bg-emerald-400 hover:bg-emerald-300 shadow-[0_10px_30px_rgba(52,211,153,0.15)]'
                                         }`}
@@ -267,24 +290,24 @@ const SendMail: React.FC = () => {
                             </form>
 
                             {/* ── Live Preview ── */}
-                            <div className="glass rounded-2xl border border-white/5 shadow-2xl overflow-hidden sticky top-32">
-                                <div className="flex items-center gap-3 px-8 py-5 border-b border-white/5">
-                                    <div className="w-8 h-8 bg-violet-500/10 text-violet-400 rounded-lg flex items-center justify-center">
+                            <div className="glass rounded-lg border border-slate-200 dark:border-white/5 shadow-2xl overflow-hidden sticky top-32">
+                                <div className="flex items-center gap-3 px-8 py-5 border-b border-slate-200 dark:border-white/5">
+                                    <div className="w-8 h-8 bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-lg flex items-center justify-center">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </div>
-                                    <h2 className="text-lg font-bold text-white">Preview</h2>
-                                    <span className="ml-auto text-[11px] text-gray-600 uppercase tracking-widest font-bold">HTML Email</span>
+                                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Preview</h2>
+                                    <span className="ml-auto text-[11px] text-slate-500 dark:text-gray-600 uppercase tracking-widest font-bold">HTML Email</span>
                                 </div>
                                 <div className="p-4">
                                     <iframe
                                         id="sendmail-preview-frame"
                                         title="Email Preview"
                                         srcDoc={htmlPreview}
-                                        className="w-full rounded-lg border border-white/5"
-                                        style={{ minHeight: '480px', background: '#111' }}
+                                        className="w-full border border-slate-200 dark:border-white/5"
+                                        style={{ minHeight: '480px', background: isDark ? '#111' : '#f7f7f5' }}
                                         sandbox=""
                                     />
                                 </div>

@@ -1,8 +1,11 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTheme } from './ThemeContext';
 
 const Navbar: React.FC = () => {
   const { theme, toggle } = useTheme();
+  const { pathname } = useLocation();
+  const isVoicePage = pathname.replace(/\/+$/, '') === '/voice';
 
   return (
     <nav className="sticky top-0 z-50 bg-cream border-b border-line">
@@ -12,7 +15,11 @@ const Navbar: React.FC = () => {
         </a>
         <div className="hidden md:flex items-center gap-8 list-none">
           <a href="#how" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">How It Works</a>
-          <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
+          {isVoicePage ? (
+            <a href="https://www.loom.com/share/d9edc08096af49ff9c06e6e53e2dcf4c" target="_blank" rel="noopener noreferrer" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Demo Video</a>
+          ) : (
+            <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
+          )}
           <a href="#pilot" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Pilot</a>
         </div>
         <div className="flex items-center gap-3">

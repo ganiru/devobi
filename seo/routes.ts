@@ -58,6 +58,16 @@ export const SEO_ROUTES: SeoMeta[] = [
     lastmod: '2026-10-03',
   },
   {
+    path: '/voice',
+    title: 'AI Voice Agent for Home Service Businesses | Devobi',
+    description:
+      'Devobi builds AI voice agents that answer calls, qualify leads, and book appointments 24/7 for service businesses. Give every customer a fast, human-sounding response without adding staff.',
+    image: '/images/og-default.png',
+    priority: 0.9,
+    changefreq: 'weekly',
+    lastmod: '2026-10-07',
+  },
+  {
     path: '/free-pilot',
     title: 'Free 14-Day Lead Reactivation Pilot | Devobi',
     description:
