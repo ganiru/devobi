@@ -144,7 +144,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
   if (!isOpen) return null;
 
   return (
-    <div className="voice-modal-overlay">
+    <div className="voice-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) { voiceAgent.endSession(); onClose(); } }}>
       <div className="voice-dock-container glass-panel animate-fade-in" role="dialog" aria-modal="true">
 
         {/* Header */}
@@ -325,7 +325,7 @@ export default function VoiceAgentModal({ isOpen, onClose, onOpenBooking }) {
           <button className="prompt-chip" onClick={() => handlePromptClick("Can you replace my water heater?")}>
             "Water heater service?"
           </button>
-          <button className="prompt-chip highlight-chip" onClick={() => { voiceAgent.endSession(); onClose(); onOpenBooking(); }}>
+          <button className="prompt-chip highlight-chip" onClick={() => { voiceAgent.endSession(); onClose(); onOpenBooking?.(); }}>
             📅 "Schedule Service"
           </button>
         </div>

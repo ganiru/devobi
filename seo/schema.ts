@@ -169,7 +169,7 @@ export const OFFER_SCHEMA = {
 
 export const PLUMBER_SCHEMA = {
   '@type': 'Service',
-  '@id': `${SITE_URL}/for-plumbers#service`,
+  '@id': `${SITE_URL}/plumbers#service`,
   name: 'AI Lead Reactivation for Plumbers',
   serviceType: 'Plumbing Lead Reactivation',
   description:

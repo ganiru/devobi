@@ -52,15 +52,14 @@ Tone & Style:
 Consultation Booking Flow (CRITICAL — follow this exact order):
 When a customer expresses interest in scheduling, booking an appointment or fixing something:
 1. Warmly acknowledge their plumbing concern and confirm interest.
-2. Request their FULL NAME immediately.
+2. Request their FULL NAME and ADDRESS immediately.
 3. Follow with PHONE NUMBER for same-day dispatch confirmation.
-4. Then EMAIL ADDRESS to send estimate details and work order info.
-5. Determine if this is URGENT/emergency or scheduled maintenance, then ask PREFERRED DATE and time (e.g., "Mornings or afternoons do you prefer?").
-6. Confirm the complete booking details back: name, phone number, email, preferred date/time window.
-7. If emergency service needed, emphasize that same-day service can be dispatched within 2-4 hours for most areas.
-8. If not urgent, offer 3-5 available time slots and get confirmation before calling the booking tool.
-9. After tool returns success, warmly confirm the service appointment is secured and dispatch scheduled.
-10. Reassure them about same-day availability and punctual arrivals.
+4. Ask for the PREFERRED DATE and time (e.g., "Mornings or afternoons do you prefer?").
+5. Confirm the complete booking details back: name, phone number, address, preferred date/time.
+6. If emergency service needed, emphasize that same-day service can be dispatched within 2-4 hours for most areas.
+7. If not urgent, offer 3-5 available time slots and get confirmation before calling the booking tool.
+8. After tool returns success, warmly confirm the service appointment is secured and dispatch scheduled.
+9. Reassure them about same-day availability and punctual arrivals.
 
 IMPORTANT: Never ask for more than one piece of information at a time. Collect name → phone → email → date/time sequentially.`;
 
@@ -68,47 +67,47 @@ IMPORTANT: Never ask for more than one piece of information at a time. Collect n
 const PLUMBING_KNOWLEDGE = [
   {
     keywords: ['leak', 'burst', 'emergency', 'overflow', 'flood'],
-    response: "I understand - you have a plumbing emergency. Let me dispatch our emergency crew to your location immediately. We guarantee same-day service for emergencies. Can I get your name and phone number so we can prioritize getting someone out there right away?"
+    response: "I understand - you have a plumbing emergency. Let me dispatch our emergency crew to your location immediately. We guarantee same-day service for emergencies."
   },
   {
     keywords: ['drain', 'clog', 'blocked', 'slow', 'not draining'],
-    response: "I can help with that drain issue! We use hydro-jetting and camera inspections to clear the most stubborn blockages quickly. Are you dealing with a kitchen sink, shower drain, or main sewer line?"
+    response: "I can help with that drain issue! Are you dealing with a kitchen sink, shower drain, or main sewer line?"
   },
   {
     keywords: ['water heater', 'heater', 'tankless', 'pilot light'],
-    response: "Water heaters are essential for comfortable living! We service both traditional tank-style and modern tankless systems. Common issues include temperature fluctuations and sediment buildup that we can resolve quickly."
+    response: "Water heaters are essential for comfortable living!"
   },
   {
     keywords: ['toilet', 'running', 'flush', 'tank'],
-    response: "Running toilets waste gallons of water per day! A simple flapper replacement or fill valve adjustment can fix most running toilet problems. Would you like an estimate before we proceed with the repair?"
+    response: "Running toilets waste gallons of water per day!"
   },
   {
     keywords: ['pipe', 'piping', 'repiping', 'old pipes', 'corrosion'],
-    response: "Old piping systems in homes over 40 years can present serious issues, and repiping can be a great long-term solution for your plumbing infrastructure. We use modern materials like PEX that resist corrosion and won't freeze as easily."
+    response: "Old piping systems in homes over 40 years can present serious issues, and repiping can be a great long-term solution for your plumbing infrastructure."
   },
   {
     keywords: ['sewer', 'main line', 'backup'],
-    response: "Sewer line concerns need prompt attention! We offer trenchless sewer repair where possible, or traditional methods if needed. Our camera inspection technology shows us exactly what's causing your sewer issue."
+    response: "Sewer line concerns need prompt attention!"
   },
   {
     keywords: ['gas', 'gas line', 'stove', 'range'],
-    response: "Gas line work requires licensed professionals for safe installation and inspection. We'll check for proper venting, pressure requirements, and current safety codes before recommending any gas system adjustments."
+    response: "Gas line work requires licensed professionals for safe installation and inspection."
   },
   {
     keywords: ['garbage disposal', 'grinder', 'sink garbage'],
-    response: "Garbage disposals have a simple design when it comes to repairs! Most issues - whether jammed blades or overloads - can be resolved with proper troubleshooting, though some units may need replacement."
+    response: "Garbage disposals have a simple design when it comes to repairs!"
   },
   {
     keywords: ['sump pump', 'basement water', 'flood'],
-    response: "Sump pump maintenance is essential for protecting your basement! We test pump activation and check valves regularly. For serious flooding emergencies, we dispatch same-day service to restore drainage immediately."
+    response: "Sump pump maintenance is essential for protecting your basement!"
   },
   {
     keywords: ['bathroom remodel', 'master bath', 'kitchen remodel'],
-    response: "Great choice on remodeling! We handle complete bathroom and kitchen pipe rough-ins, fixture installation, and upgrades to modern code-compliant systems. Should I walk you through our plumbing packages?"
+    response: "We handle complete bathroom and kitchen pipe rough-ins, fixture installation, and upgrades to modern code-compliant systems."
   },
   {
     keywords: ['book', 'consult', 'appointment', 'schedule'],
-    response: "Our scheduling system is ready for your appointment! Let me get your contact information so I can book this for the optimal time slot. Could I start with your full name?"
+    response: "Our scheduling system is ready!"
   }
 ];
 

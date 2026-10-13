@@ -513,7 +513,7 @@ const LandingPage: React.FC = () => {
           <p className="text-muted max-w-[62ch] leading-relaxed mb-10">
             Everything contractors ask us before handing over their old lead database.
             Roofing, HVAC and solar contractors can also{' '}
-            <a href="/for-plumbers" className="text-ink underline no-underline hover:underline">see the plumbing playbook</a>
+            <a href="/plumbers" className="text-ink underline no-underline hover:underline">see the plumbing playbook</a>
             {' '}or{' '}
             <a href="/free-pilot" className="text-ink underline no-underline hover:underline">apply for the free pilot</a>.
           </p>

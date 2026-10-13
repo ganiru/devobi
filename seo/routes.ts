@@ -48,7 +48,7 @@ export const SEO_ROUTES: SeoMeta[] = [
     lastmod: '2026-10-03',
   },
   {
-    path: '/for-plumbers',
+    path: '/plumbers',
     title: 'AI Lead Reactivation for Plumbers | Devobi',
     description:
       'Reactivate old plumbing leads and booked-but-lost jobs. Devobi sends personalized text and email follow-ups to your dormant CRM contacts and books service calls on your calendar automatically.',

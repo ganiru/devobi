@@ -54,10 +54,10 @@ const App: React.FC = () => {
 export const AppRoutes = () => {
   const { pathname } = useLocation();
 
-  if (pathname.startsWith('/medspa')) {
+  if (pathname === '/medspa' || pathname.startsWith('/medspa/')) {
     return <MedspaApp />;
   }
-  if (pathname.startsWith('/plumber')) {
+  if (pathname === '/plumber' || pathname.startsWith('/plumber/')) {
     return <PlumberApp />;
   }
   return (
@@ -84,15 +84,16 @@ export const AppRoutes = () => {
           <Route path="/free-pilot" element={<FreePilot />} />
           <Route path="/demovideo" element={<DemoVideo />} />
           <Route path="/voice" element={<VoiceLandingPage />} />
-          <Route path="*" element={<LandingPage />} />
+          <Route path="/plumbers" element={<PlumbersLandingPage />} />
           <Route path="/for-plumbers" element={<PlumbersLandingPage />} />
+          <Route path="*" element={<LandingPage />} />
         </Routes>
       </main>
       <footer className="border-t border-line py-9 px-6 text-[0.85rem] text-muted bg-cream">
         <div className="max-w-[1120px] mx-auto flex justify-between gap-4 flex-wrap">
           <span>&copy; {new Date().getFullYear()} Devobi LLC · AI Lead Reactivation for Home Services</span>
           <nav aria-label="Footer" className="flex gap-4 flex-wrap items-center">
-            <Link to="/for-plumbers" className="text-muted no-underline hover:text-ink transition-colors">For Plumbers</Link>
+            <Link to="/plumbers" className="text-muted no-underline hover:text-ink transition-colors">For Plumbers</Link>
             <Link to="/voice" className="text-muted no-underline hover:text-ink transition-colors">Voice AI</Link>
             <Link to="/free-pilot" className="text-muted no-underline hover:text-ink transition-colors">Free Pilot</Link>
             <Link to="/privacy" className="text-muted no-underline hover:text-ink transition-colors">Privacy</Link>

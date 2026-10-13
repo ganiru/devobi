@@ -20,7 +20,7 @@ HVAC companies, solar installers, and plumbers.
 
 ## Pages
 - [Home](https://devobi.com/): What Devobi does, how it works, and the free pilot offer.
-- [For Plumbers](https://devobi.com/for-plumbers): Lead reactivation playbook for plumbing companies.
+- [For Plumbers](https://devobi.com/plumbers): Lead reactivation playbook for plumbing companies.
 - [AI Voice Agent](https://devobi.com/voice): AI voice agents that answer calls, qualify leads, and book appointments 24/7 for service businesses.
 - [Free 14-Day Pilot](https://devobi.com/free-pilot): Pilot terms and application.
 - [Privacy Policy](https://devobi.com/privacy): Data collection and handling.

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import VoiceAgentModal from '../plumber/components/VoiceAgent/VoiceAgentModal';
+import '../plumber/components/VoiceAgent/VoiceAgent.css';
 
 const CALENDLY_LINK = "https://calendly.com/obinnae/ai-consultation?utm_source=plumbers_page&utm_campaign=plumber_pilot";
+const SEND_MAIL_URL = "/api/send-mail";
+const LOOM_LINK = "https://www.loom.com/embed/d9edc08096af49ff9c06e6e53e2dcf4c";
 
 const PhoneIcon = () => (
   <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -22,20 +26,104 @@ const CheckIcon = () => (
 );
 
 const Eyebrow = ({ children, dark }: { children: React.ReactNode; dark?: boolean }) => (
-  <span className={`inline-flex items-center gap-2 text-[0.76rem] font-semibold tracking-[0.14em] uppercase rounded-full px-[14px] py-[7px] ${dark ? 'text-[#B7B1A4] border border-[#3A352B] bg-transparent' : 'text-muted border border-line bg-white dark:bg-gray-800'}`}>
+  <span className={`inline-flex items-center gap-2 text-[0.76rem] font-semibold tracking-[0.14em] uppercase rounded-[5px] px-[14px] py-[7px] ${dark ? 'text-[#B7B1A4] border border-[#3A352B] bg-transparent' : 'text-muted border border-line bg-white dark:bg-gray-800'}`}>
     <span className="w-[7px] h-[7px] rounded-full bg-accent" />
     {children}
   </span>
 );
 
 const PlumbersLandingPage: React.FC = () => {
+  const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Honeypot check
+    if (formData.get("_honey")) {
+      console.warn("Spam detected");
+      return;
+    }
+
+    const name = String(formData.get("name") || "");
+    const email = String(formData.get("email") || "");
+    const leadCount = String(formData.get("lead_count") || "");
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(SEND_MAIL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: "obi@devobi.com",
+          subject: "New Plumber Voice Trial Request",
+          text: [
+            `Name: ${name}`,
+            `Email: ${email}`,
+            `Source: https://devobi.com/plumbers`,
+          ].join("\n"),
+          html: `<div>
+            <h2>New Plumber Voice Trial Request</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Source:</strong> https://devobi.com/plumbers</p>
+          </div>`,
+        }),
+      });
+      if (response.ok) {
+        setSubmitted(true);
+        // Send the user a calendar invite or link to schedule a meeting
+        const calendarInviteLink = `https://calendly.com/obinnae/ai-consultation`;
+        await fetch(SEND_MAIL_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: email,
+            subject: 'Your Free Trial Meeting Invite',
+            text: `Hi ${name},\n\nThank you for your interest in our free trial. 
+The next step is a quick 30-minute consultation call. We'll listen to how you currently handle calls and get the AI voice agent running. 
+You can pick a time that works best for you here: ${calendarInviteLink}
+If none of the available slots work, just reply to this email and we'll find a time that does.
+Looking forward to talking with you.
+In the meantime, you can test it live (as a pretend customer) by calling this number +1 (469) 606-0963. Use a fake name, number and address when prompted.`,
+            html: `<div>
+              Hi ${name},
+              <p>Thanks for submitting a Free Trial request for our AI Voice Agent. I'm excited to learn more about your business.</p>
+              <p>The next step is a quick 30-minute call. We'll go over how you currently handle calls and get the AI voice agent running.</p>
+              <p>You can pick a time that works best for you here: <a href='${CALENDLY_LINK}' target="_blank" rel="noopener noreferrer">${calendarInviteLink}</a></p>
+              <p>If none of the available slots work, just reply to this email and we'll find a time that does.</p>
+              <p>Looking forward to talking with you.</p>
+              <p>In the meantime, you can test it live (as a pretend customer) by calling this number +1 (469) 606-0963. Use a fake name, number and address when prompted.</p>
+            </div>`,
+          }),
+        }).catch((error) => {
+          console.error('Error sending calendar invite:', error);
+        });
+        form.reset();
+      } else {
+        setError("Something went wrong. Please try again or email us directly.");
+      }
+    } catch (error) {
+      setError("Connection failed. Please check your internet and try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="bg-cream text-ink font-sans antialiased pt-[68px]">
 
       {/* HERO */}
       <section className="py-[88px] max-lg:py-[72px]">
         <div className="wrap max-w-[760px] text-center mx-auto">
-          <Eyebrow>Built After a Water Heater Emergency, at 9pm</Eyebrow>
+          <Eyebrow>Built After a couple of plumbing emergencies</Eyebrow>
           <h1 className="text-ink text-[clamp(2.5rem,5.2vw,3.75rem)] font-extrabold tracking-[-0.03em] leading-[1.12] mt-[22px] mb-[18px]">
             Every call you miss is a job someone else books.
           </h1>
@@ -44,11 +132,14 @@ const PlumbersLandingPage: React.FC = () => {
             and books it straight onto your calendar. Anyone who doesn't book on the spot gets followed up
             automatically until they do.
           </p>
-          <div className="flex gap-[14px] flex-wrap justify-center mb-[14px]">
-            <Link to="/plumber" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-ink dark:bg-gray-800 text-white hover:bg-accent transition-colors">
+          <div className="flex gap-[14px] justify-center mb-[14px]">
+            <button
+              onClick={() => setIsVoiceOpen(true)}
+              className="cursor-pointer inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-[5px] px-[26px] py-[13px] bg-ink dark:bg-gray-800 text-white hover:bg-accent transition-colors"
+            >
               Talk to Aura Right Now →
-            </Link>
-            <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] border border-line text-ink hover:border-ink transition-colors">
+            </button>
+            <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-[5px] px-[26px] py-[13px] border border-line text-ink hover:border-ink transition-colors">
               Book a Strategy Call
             </a>
           </div>
@@ -96,12 +187,14 @@ const PlumbersLandingPage: React.FC = () => {
         <div className="wrap max-w-[760px] mx-auto text-center">
           <Eyebrow>Why I Built This</Eyebrow>
           <h2 className="text-ink text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] mt-[18px] mb-[14px]">
-            My water heater died at 11pm. Every plumber I called was closed.
+            My water heater died at 11pm. Weeks later, my sink clogged at 9pm.
           </h2>
+          <h5 className="text-ink text-[clamp(1.3rem,1.5vw,2rem)] font-extrabold tracking-[-0.03em] leading-[1.12] mt-[18px] mb-[14px]">
+            Both times, every plumber I called was closed.</h5>
           <p className="text-[1.13rem] text-muted leading-relaxed">
-            No voicemail felt like it was going anywhere, so I went to bed with no hot water and no idea
-            when that would change. I'm Obi Ezeilo, an AI automations engineer in Frisco, TX — that night
-            became Aura: a phone agent that answers a plumbing company's line around the clock, qualifies
+            No voicemail felt like it was going anywhere, so I went to bed with no hot water and a clogged sink, and no idea
+            when that would change. I'm Obi Ezeilo, an AI automations engineer in Frisco, TX - that night
+            became <b>Aura</b> - a 24/7 AI phone agent that answers a plumbing company's line around the clock, qualifies
             the emergency, and books it, so the next caller doesn't have the same night I did.
           </p>
         </div>
@@ -121,8 +214,8 @@ const PlumbersLandingPage: React.FC = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-[820px] mx-auto">
-            <div className="bg-white dark:bg-gray-800 border border-line rounded-[18px] p-[30px]">
-              <div className="w-[44px] h-[44px] rounded-[12px] bg-accent-soft text-accent flex items-center justify-center mb-[18px]">
+            <div className="bg-white dark:bg-gray-800 border border-line rounded-[5px] p-[30px]">
+              <div className="w-[44px] h-[44px] rounded-[5px] bg-accent-soft text-accent flex items-center justify-center mb-[18px]">
                 <PhoneIcon />
               </div>
               <h3 className="text-ink text-[1.15rem] font-extrabold tracking-[-0.02em] mb-[10px]">Aura answers the phone</h3>
@@ -131,8 +224,8 @@ const PlumbersLandingPage: React.FC = () => {
                 mid-job — qualifies the emergency, and books it on your calendar.
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 border border-line rounded-[18px] p-[30px]">
-              <div className="w-[44px] h-[44px] rounded-[12px] bg-accent-soft text-accent flex items-center justify-center mb-[18px]">
+            <div className="bg-white dark:bg-gray-800 border border-line rounded-[5px] p-[30px]">
+              <div className="w-[44px] h-[44px] rounded-[5px] bg-accent-soft text-accent flex items-center justify-center mb-[18px]">
                 <RecoveryIcon />
               </div>
               <h3 className="text-ink text-[1.15rem] font-extrabold tracking-[-0.02em] mb-[10px]">Nobody falls through</h3>
@@ -145,33 +238,127 @@ const PlumbersLandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA — dark card, matches site's existing pilot section, no embedded form */}
-      <section className="py-0 pb-[88px]">
-        <div className="wrap">
-          <div className="bg-dark text-[#F5F2E9] rounded-[28px] p-16 max-lg:p-[44px_28px] text-center">
-            <Eyebrow dark>Limited Pilot Spots — DFW Plumbers</Eyebrow>
-            <h2 className="text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] text-white mt-[18px] mb-[14px]">
-              See it work before you decide anything.
+      {/* LOOM VIDEO EMBED */}
+      <section id="demo" className="py-24 max-lg:py-[72px] border-t border-line">
+        <div className="wrap max-w-[960px] mx-auto">
+          <div className="max-w-[700px] mx-auto text-center mb-[24px]">
+            <Eyebrow>See It In Action</Eyebrow>
+            <h2 className="text-ink text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] mt-[18px] mb-[14px]">
+              Watch Aura in action
             </h2>
-            <p className="text-[1.13rem] text-[#B7B1A4] max-w-[56ch] mx-auto mb-[30px]">
-              Call the live demo line and talk to Aura yourself — the same way one of your customers would
-              at midnight. Then let's talk about putting it on your number.
+            <p className="text-[1.13rem] text-muted">
+              Watch a quick walkthrough of how Aura answers, qualifies, and books calls for plumbing businesses.
             </p>
-            <ul className="list-none flex flex-col items-center gap-3 mb-[34px]">
-              <li className="flex gap-3 items-start text-[0.95rem]"><CheckIcon />Works with your existing number and calendar</li>
-              <li className="flex gap-3 items-start text-[0.95rem]"><CheckIcon />No contract to try the live demo</li>
-            </ul>
-            <div className="flex gap-[14px] flex-wrap justify-center">
-              <Link to="/plumber" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors">
-                Talk to Aura Right Now →
-              </Link>
-              <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] border border-[#3A352B] text-white hover:border-white transition-colors">
-                Book a Strategy Call
-              </a>
+          </div>
+
+          {/* Loom Video Embed Container */}
+          <div className="max-w-[680px] mx-auto">
+            <div className="w-full rounded-[5px] overflow-hidden border border-line bg-black/5 dark:bg-black/20 shadow-[0_24px_60px_-24px_rgba(23,20,15,0.18)]" style={{ position: 'relative', paddingBottom: '64.86486486486486%', height: 0 }}>
+              <iframe
+                src={LOOM_LINK}
+                frameBorder="0"
+                allowFullScreen
+                title="Watch Aura in action"
+                className="w-full h-full absolute inset-0"
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+              />
             </div>
           </div>
         </div>
       </section>
+
+      {/* CTA — dark card with embedded pilot contact form */}
+      <section id="pilot" className="py-0 pb-[88px]">
+        <div className="wrap">
+          <div className="bg-dark text-[#F5F2E9] rounded-[5px] p-16 max-lg:p-[44px_28px] grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-center">
+            <div>
+              <Eyebrow dark>Limited Pilot Spots — DFW Plumbers</Eyebrow>
+              <h2 className="text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] text-white mt-[18px] mb-[14px]">
+                See it work before you decide anything.
+              </h2>
+              <p className="text-[1.13rem] text-[#B7B1A4] max-w-[56ch] mb-[30px]">
+                Call the live demo line and talk to Aura yourself — the same way one of your customers would
+                at midnight. Then let's talk about putting it on your number.
+              </p>
+              <ul className="list-none flex flex-col gap-3 mb-[34px]">
+                <li className="flex gap-3 items-start text-[0.95rem]"><CheckIcon />Works with your existing number and calendar</li>
+                <li className="flex gap-3 items-start text-[0.95rem]"><CheckIcon />No contract to try the live demo</li>
+              </ul>
+              <div className="flex gap-[14px] flex-wrap">
+                <button
+                  onClick={() => setIsVoiceOpen(true)}
+                  className="cursor-pointer inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-[5px] px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors"
+                >
+                  Talk to Aura Right Now →
+                </button>
+                <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-[5px] px-[26px] py-[13px] border border-[#3A352B] text-white hover:border-white transition-colors">
+                  Book a Strategy Call
+                </a>
+              </div>
+            </div>
+
+            <div className="bg-[#221E17] border border-[#373226] rounded-[5px] p-8 md:p-9 text-left">
+              {submitted ? (
+                <div className="text-center py-12">
+                  <h3 className="text-2xl font-bold text-accent mb-4">We've received your submission!</h3>
+                  <h5 className="text-[#B7B1A4]">You should be receiving a meeting invite shortly. Please check your spam and trash folders as well.</h5>
+                </div>
+              ) : (
+                <>
+                  <div className="text-[1.4rem] font-extrabold tracking-[-0.02em] mb-2 text-white">Start Your Free 14-Day Pilot</div>
+                  <p className="text-[0.88rem] text-[#B7B1A4] mb-6">Spots are limited so we can protect your market from competitors.</p>
+                  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="_honey" style={{ display: 'none' }} />
+                    <div className="space-y-2">
+                      <label className="text-xs uppercase font-bold text-[#B7B1A4] tracking-wider">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="John Doe"
+                        className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all rounded-[5px]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs uppercase font-bold text-[#B7B1A4] tracking-wider">Email Address</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="john@abcplumbing.com"
+                        className="w-full px-5 py-[13px] text-[0.95rem] bg-white/80 dark:bg-black/20 border border-gray-200 dark:border-[#373226] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent transition-all rounded-[5px]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="md:col-span-2 cursor-pointer font-semibold text-[0.95rem] no-underline rounded-[5px] px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors w-full"
+                    >
+                      {isLoading ? "Submitting..." : "Apply for Free Pilot"}
+                    </button>
+                    {error && (
+                      <p className="md:col-span-2 text-center text-sm text-red-400 mt-2">
+                        {error}
+                      </p>
+                    )}
+                    <p className="md:col-span-2 text-center text-xs text-[#B7B1A4]/60">
+                      We respect your privacy. Your information is never shared or sold.
+                    </p>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Voice Agent Modal Dock */}
+      <VoiceAgentModal
+        isOpen={isVoiceOpen}
+        onClose={() => setIsVoiceOpen(false)}
+        onOpenBooking={() => window.open(CALENDLY_LINK, '_blank')}
+      />
     </div>
   );
 };

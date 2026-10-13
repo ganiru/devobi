@@ -772,7 +772,12 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
         }
 
         // Demo microsites are separate app shells, not prerendered routes.
-        if (req.path.startsWith('/medspa') || req.path.startsWith('/plumber')) {
+        if (
+            req.path === '/medspa' ||
+            req.path.startsWith('/medspa/') ||
+            req.path === '/plumber' ||
+            req.path.startsWith('/plumber/')
+        ) {
             res.sendFile(indexPath);
             return;
         }

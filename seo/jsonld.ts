@@ -28,7 +28,7 @@ export function getJsonLdForPath(pathname: string): object {
     extra.push(FAQ_SCHEMA);
   }
 
-  if (normalised === '/for-plumbers') {
+  if (normalised === '/plumbers' || normalised === '/for-plumbers') {
     extra.push(PLUMBER_SCHEMA);
   }
 
