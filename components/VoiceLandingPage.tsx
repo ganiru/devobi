@@ -291,7 +291,7 @@ const VoiceLandingPage: React.FC = () => {
                   >
                     <option value="" disabled>Select your industry...</option>
                     <option value="HVAC">HVAC</option>
-                    <option value="Plumbing">Plumbing</option>
+                  <option value="Plumbing">Plumbing</option>
                     <option value="Roofing">Roofing</option>
                     <option value="Electrical">Electrical</option>
                     <option value="Solar">Solar</option>

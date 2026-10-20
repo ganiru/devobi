@@ -13,6 +13,7 @@ import SendMail from './components/SendMail';
 import LeadReactivationForm from './components/LeadReactivationForm';
 import FreePilot from './components/FreePilot';
 import DemoVideo from './components/DemoVideo';
+import PlumberVoiceVideo from './components/PlumberVoiceVideo';
 import MedspaApp from './medspa/App';
 import PlumberApp from './plumber/App';
 import PlumbersLandingPage from './components/PlumbersLandingPage';
@@ -83,6 +84,7 @@ export const AppRoutes = () => {
           <Route path="/reactivate" element={<LeadReactivationForm />} />
           <Route path="/free-pilot" element={<FreePilot />} />
           <Route path="/demovideo" element={<DemoVideo />} />
+          <Route path="/plumber-voice-demo" element={<PlumberVoiceVideo />} />
           <Route path="/voice" element={<VoiceLandingPage />} />
           <Route path="/plumbers" element={<PlumbersLandingPage />} />
           <Route path="/for-plumbers" element={<PlumbersLandingPage />} />

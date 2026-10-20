@@ -5,7 +5,10 @@ import { useTheme } from './ThemeContext';
 const Navbar: React.FC = () => {
   const { theme, toggle } = useTheme();
   const { pathname } = useLocation();
-  const isVoicePage = pathname.replace(/\/+$/, '') === '/voice';
+  const normalizedPath = pathname.replace(/\/+$/, '');
+  const isVoicePage = normalizedPath === '/voice';
+  const isPlumbersPage = ['/plumbers', '/for-plumbers'].includes(normalizedPath);
+  const isPlumberVoiceDemoPage = normalizedPath === '/plumber-voice-demo';
 
   return (
     <nav className="sticky top-0 z-50 bg-cream border-b border-line">
@@ -13,15 +16,19 @@ const Navbar: React.FC = () => {
         <a href="/" className="font-extrabold text-lg tracking-tight no-underline text-ink">
           Devobi<span className="text-accent">.</span>
         </a>
-        <div className="hidden md:flex items-center gap-8 list-none">
-          <a href="#how" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">How It Works</a>
-          {isVoicePage ? (
-            <a href="https://www.loom.com/share/d9edc08096af49ff9c06e6e53e2dcf4c" target="_blank" rel="noopener noreferrer" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Demo Video</a>
-          ) : (
-            <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
-          )}
-          <a href="#pilot" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Pilot</a>
-        </div>
+        {!isPlumberVoiceDemoPage && (
+          <div className="hidden md:flex items-center gap-8 list-none">
+            <a href="#how" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">How It Works</a>
+            {isVoicePage ? (
+              <a href="https://www.loom.com/share/d9edc08096af49ff9c06e6e53e2dcf4c" target="_blank" rel="noopener noreferrer" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Demo Video</a>
+            ) : isPlumbersPage ? (
+              <a href="#demo" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Watch the Demo</a>
+            ) : (
+              <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
+            )}
+            <a href="#pilot" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Pilot</a>
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <button
             onClick={toggle}

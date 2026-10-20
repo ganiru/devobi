@@ -58,6 +58,14 @@ export const SEO_ROUTES: SeoMeta[] = [
     lastmod: '2026-10-03',
   },
   {
+    path: '/plumber-voice-demo',
+    title: 'Plumbing AI Voice Agent Demo | Devobi',
+    description:
+      'Watch Aura answer a plumbing call, qualify the job, and help book the next step. Request a free 14-day pilot for your plumbing business.',
+    image: '/images/plumber-hero.jpeg',
+    noindex: true,
+  },
+  {
     path: '/voice',
     title: 'AI Voice Agent for Home Service Businesses | Devobi',
     description:
@@ -116,7 +124,7 @@ export function getSeoForPath(pathname: string): SeoMeta | undefined {
 export function isNoindexPath(pathname: string): boolean {
   const normalised =
     pathname.length > 1 && pathname.endsWith('/') ? pathname.replace(/\/+$/, '') : pathname;
-  return NOINDEX_ROUTES.includes(normalised);
+  return metaByPath.get(normalised)?.noindex === true || NOINDEX_ROUTES.includes(normalised);
 }
 
 /** Absolute URL helper — canonical and og:url must always be absolute. */
