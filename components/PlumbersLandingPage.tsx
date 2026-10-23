@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PlumberPilotForm from './PlumberPilotForm';
+import MissedCallsCalculator from './MissedCallsCalculator';
 import VoiceAgentModal from '../plumber/components/VoiceAgent/VoiceAgentModal';
 import '../plumber/components/VoiceAgent/VoiceAgent.css';
 
@@ -154,6 +155,22 @@ const PlumbersLandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* MISSED CALLS CALCULATOR — voice agent widget */}
+      <MissedCallsCalculator
+        title="What Are Missed Calls Costing You?"
+        headline={
+          <>
+            Every call you miss is a job <span className="text-accent">someone else books.</span>
+          </>
+        }
+        description="Voicemails and busy signals are jobs walking to the contractor down the street. See what answering every call — nights, weekends, mid-job — could be worth this month."
+        bullets={[
+          'Aura answers every call, day or night.',
+          'Booked jobs your voicemail would have lost.',
+          'No more playing phone tag with emergencies.',
+        ]}
+      />
 
       {/* LOOM VIDEO EMBED */}
       <section id="demo" className="py-24 max-lg:py-[72px] border-t border-line">

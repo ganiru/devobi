@@ -304,9 +304,8 @@ const Chatbot: React.FC = () => {
               <div className="w-3 h-3 rounded-full bg-white/70"></div>
               <div>
                 <div className="font-bold text-white text-sm">
-                  Devobi Expert
+                  Devobi Concierge
                 </div>
-                <div className="text-[10px] text-white/70 uppercase tracking-widest font-semibold">Lead Reactivation</div>
               </div>
             </div>
             {/* Microphone button hidden — voice mode temporarily disabled

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RevenueCalculator from './RevenueCalculator';
 
 const RoofingIcon = () => (
   <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -50,7 +51,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Does Devobi cost anything to get started?',
-    a: 'The first 14 days are a free pilot. Hand us your 500 coldest leads and if you do not get at least 3 qualified responses, you pay nothing. There are no contracts and no setup fees.',
+    a: 'The first 14 days are a 100% free pilot with $0 setup fees. If we don\'t generate at least 3 qualified responses from your dormant leads, you walk away and pay nothing. Once we prove the system works, it is a flat $497/month (our Founding Partner lock-in rate, regularly $997/month) to keep the reactivation and speed-to-lead engine running. Month-to-month, cancel anytime.',
   },
   {
     q: 'Who owns the leads that Devobi reactivates?',
@@ -64,8 +65,6 @@ const FAQ_ITEMS = [
 
 const LandingPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
-  const [calcLeads, setCalcLeads] = useState(2000);
-  const [calcJobValue, setCalcJobValue] = useState(15000);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,7 +135,7 @@ const LandingPage: React.FC = () => {
               Your old leads aren't dead. They're dormant.
             </h1>
             <p className="text-[1.13rem] text-muted max-w-[56ch] leading-relaxed mb-[30px]">
-              Devobi's AI reads every old quote and cold inquiry in your CRM, writes personalized follow-ups, and books estimates straight onto your calendar. No chasing. No new ad spend.
+              Your CRM is a goldmine of $15K jobs you already paid to acquire. We turn them into estimates while you sleep. No chasing. No new ad spend.
             </p>
             <div className="flex gap-[14px] flex-wrap mb-[14px]">
               <a href="#pilot" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-ink dark:bg-gray-800 text-white hover:bg-accent transition-colors">
@@ -197,9 +196,10 @@ const LandingPage: React.FC = () => {
         <div className="wrap grid grid-cols-1 sm:grid-cols-3 gap-10">
           <div className="text-center max-sm:pb-7 max-sm:border-b border-line sm:border-r sm:pr-10 last:border-r-0">
             <div className="text-[clamp(2rem,3.4vw,2.7rem)] font-extrabold tracking-[-0.03em]">
-              <em className="not-italic text-accent">200+</em>
+              <em className="not-italic text-accent">$0 Setup</em>
             </div>
-            <p className="text-muted text-[0.92rem] max-w-[30ch] mx-auto mt-[6px]">dormant leads reactivated from old CRMs</p>
+            <p className="text-muted text-[0.92rem] max-w-[30ch] mx-auto mt-[6px]">
+              Risk-free implementation for Founding Partners</p>
           </div>
           <div className="text-center max-sm:pb-7 max-sm:border-b border-line sm:border-r sm:pr-10 last:border-r-0">
             <div className="text-[clamp(2rem,3.4vw,2.7rem)] font-extrabold tracking-[-0.03em]">
@@ -289,7 +289,7 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-0">
+      {/*<section className="py-0">
         <div className="wrap">
           <div className="bg-dark text-[#F5F2E9] rounded-[28px] p-16 max-lg:p-[44px_28px] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -322,6 +322,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+      */}
 
       <section className="py-[72px] text-center">
         <div className="wrap">
@@ -336,88 +337,7 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-[88px] max-lg:py-[72px]">
-        <div className="wrap">
-          <div className="bg-white dark:bg-gray-800 border border-line rounded-2xl p-8 lg:p-10 relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="text-[clamp(1.4rem,2.5vw,1.8rem)] font-extrabold tracking-[-0.03em] text-ink mb-6 border-b border-line pb-4">
-                What's Your Dormant Lead Database Worth?
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-                <div>
-                  <h2 className="text-[clamp(1.4rem,2.5vw,1.8rem)] font-extrabold tracking-[-0.03em] text-ink mb-4">
-                    The math makes this a <span className="text-accent">no-brainer.</span>
-                  </h2>
-                  <p className="text-muted mb-8 font-light leading-relaxed">
-                    Unlike cheap lead gen where you fight over shared contacts, this is your exclusive data. See what just a 2% reactivation rate could mean for your bottom line this month.
-                  </p>
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-center gap-3">
-                      <div className="bg-accent/20 p-1 rounded-full">
-                        <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-muted">Zero ad spend required.</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="bg-accent/20 p-1 rounded-full">
-                        <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-muted">Exclusive leads (they already know your brand).</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="bg-accent/20 p-1 rounded-full">
-                        <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-muted">Massive profit margins per job.</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-muted mb-2">Dead Leads in Database</label>
-                    <input
-                      type="range"
-                      min="500"
-                      max="10000"
-                      step="100"
-                      value={calcLeads}
-                      onChange={(e) => setCalcLeads(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-accent"
-                    />
-                    <div className="text-right font-mono font-bold text-accent mt-1">{calcLeads.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-muted mb-2">Average Job Value ($)</label>
-                    <input
-                      type="range"
-                      min="5000"
-                      max="30000"
-                      step="1000"
-                      value={calcJobValue}
-                      onChange={(e) => setCalcJobValue(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-accent"
-                    />
-                    <div className="text-right font-mono font-bold text-accent mt-1">${calcJobValue.toLocaleString()}</div>
-                  </div>
-                  <div className="bg-cream dark:bg-gray-900 p-6 lg:p-8 rounded-xl text-center border border-line">
-                    <p className="text-sm text-muted font-semibold mb-1 uppercase tracking-wide">Projected Recovered Revenue</p>
-                    <p className="text-sm text-muted/60 mb-3">(assuming conservative 1% close rate)</p>
-                    <div className="text-[clamp(2.5rem,5vw,3.75rem)] font-extrabold text-accent leading-none">
-                      ${(calcLeads * calcJobValue * 0.01).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-            </div>
-          </div>
-          </div>
-        </div>
-      </section>
+      <RevenueCalculator />
 
       <section id="pilot" className="py-0">
         <div className="wrap">
@@ -425,7 +345,7 @@ const LandingPage: React.FC = () => {
             <div>
               <Eyebrow dark>Free 14-Day Pilot · Limited spots per market</Eyebrow>
               <h2 className="text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold tracking-[-0.03em] leading-[1.12] text-white mt-[18px] mb-[14px]">
-                Hand us your 500 coldest leads.
+                Hand us 50 to 500 of your coldest leads.
               </h2>
               <p className="text-[1.13rem] text-[#B7B1A4] max-w-[56ch]">
                 If you don't get at least 3 qualified responses in 14 days, you pay nothing. No contracts. No setup fees. No risk.
@@ -444,8 +364,21 @@ const LandingPage: React.FC = () => {
                   You keep every lead we reactivate
                 </li>
               </ul>
+              <div className="mt-6 p-4 rounded-xl border border-slate-800 bg-slate-900/60">
+  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+    Founding Partner Post-Pilot Rate
+  </div>
+  <div className="flex items-baseline gap-2">
+    <span className="text-2xl font-extrabold text-white">$497<span className="text-sm font-normal text-slate-400">/mo</span></span>
+    <span className="text-sm text-slate-500 line-through">$997/mo</span>
+    <span className="text-xs text-slate-400">· $0 Setup Fee</span>
+  </div>
+  <p className="text-xs text-slate-400 mt-1">
+    Only if we hit 3+ qualified responses in your 14-day pilot. Locked in for life. Cancel anytime.
+  </p>
+</div>
             </div>
-            <div className="bg-[#221E17] border border-[#373226] rounded-[20px] p-9 text-center">
+            <div className="bg-[#221E17] border border-[#373226] rounded-[4px] p-9 text-center">
               <div className="text-[1.4rem] font-extrabold tracking-[-0.02em] mb-2 text-white">Ready when you are.</div>
               <p className="text-[0.88rem] text-[#B7B1A4] mb-6">Spots are limited so we can protect your market from competitors.</p>
               <form
@@ -491,7 +424,7 @@ const LandingPage: React.FC = () => {
                   </p>
                 ) : (
                   <button type="submit" className="font-semibold text-[0.95rem] px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors w-full">
-                    Apply for the Pilot →
+                    Start Your Free 14-Day Pilot →
                   </button>
                 )}
               </form>
