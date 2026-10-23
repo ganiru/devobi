@@ -47,7 +47,7 @@ export default function RevenueCalculator({
   title = "What's Your Dormant Lead Database Worth?",
   headline = (
     <>
-      The math makes this a <span className="text-accent">no-brainer.</span>
+      See the upside in your <span className="text-accent">existing database.</span>
     </>
   ),
   description = 'Unlike cheap lead gen where you fight over shared contacts, this is your exclusive data. See what just a 2% reactivation rate could mean for your bottom line this month.',
