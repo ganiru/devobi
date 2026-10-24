@@ -1,6 +1,7 @@
 // @ts-nocheck Transitional conversion: preserve the existing Medspa component API.
 import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar/Navbar';
+import DemoBanner from './components/DemoBanner/DemoBanner';
 import Hero from './components/Hero/Hero';
 import Treatments from './components/Treatments/Treatments';
 import BeforeAfter from './components/BeforeAfter/BeforeAfter';
@@ -41,6 +42,9 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Demo Site Banner */}
+      <DemoBanner label="Demo experience created by DevObi — fictional business for illustration purposes" />
+
       {/* Top Header Navigation */}
       <Navbar 
         onOpenVoice={() => setIsVoiceOpen(true)}
