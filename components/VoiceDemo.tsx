@@ -25,7 +25,7 @@ const VapiWidget = React.lazy(() =>
 
 const ASSISTANT_IDS: Record<string, string> = {
   plumber: '66b958f3-ff8d-4e32-a19b-76f5c386c0dc',
-  medspa: '001d0a53-ec4a-4b25-a3fd-76e7897ca714',
+  medspa: 'fb299f76-4aee-4415-8bc2-60a4a8d93883',
   'african-market': '001d0a53-ec4a-4b25-a3fd-76e7897ca714',
 };
 
@@ -203,38 +203,38 @@ const VoiceDemo: React.FC = () => {
                   <p className="text-muted max-w-[52ch] mx-auto leading-relaxed">
                     This is just the web demo. We can put a voice agent on your
                     actual phone number — it answers every call, qualifies the
-                    lead, and books the job. Tell us about your business and
-                    we'll show you how it works on your line.
+                    lead, and books the job. 
+                    <br/>Request a <b>free 14-day pilot</b> below and we'll reach out to set it up.
+                  </p>
+                  <p className="text-muted text-xs max-w-[52ch] mx-auto leading-relaxed mt-2">
+                    No credit card required.
                   </p>
                 </div>
                 <form onSubmit={handlePhoneFormSubmit} className="w-full space-y-4">
                   <input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label htmlFor="phone-form-name" className="block text-sm font-semibold text-muted">Name</label>
                       <input
                         type="text"
                         id="phone-form-name"
                         name="name"
                         required
-                        placeholder="John Doe"
+                        placeholder="Your name"
                         className="w-full bg-cream dark:bg-gray-900 border border-line rounded-md px-4 py-3 text-[0.95rem] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent/50"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="phone-form-email" className="block text-sm font-semibold text-muted">Email</label>
                       <input
                         type="email"
                         id="phone-form-email"
                         name="email"
                         required
-                        placeholder="john@yourbusiness.com"
+                        placeholder="Your email"
                         className="w-full bg-cream dark:bg-gray-900 border border-line rounded-md px-4 py-3 text-[0.95rem] text-ink placeholder:text-muted/50 outline-none focus:ring-2 focus:ring-accent/50"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="phone-form-type" className="block text-sm font-semibold text-muted">Business Type</label>
                     <select
                       id="phone-form-type"
                       name="businessType"
@@ -270,7 +270,7 @@ const VoiceDemo: React.FC = () => {
                     disabled={isLoading}
                     className="w-full cursor-pointer font-semibold text-[0.95rem] no-underline rounded-md px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
                   >
-                    {isLoading ? 'Submitting…' : 'Request a Free 14-day trial'}
+                    {isLoading ? 'Submitting…' : 'Request a Free 14-day pilot'}
                   </button>
                   {error && (
                     <p className="text-center text-sm text-red-500 dark:text-red-400">{error}</p>
