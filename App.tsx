@@ -18,6 +18,7 @@ import MedspaApp from './medspa/App';
 import PlumberApp from './plumber/App';
 import PlumbersLandingPage from './components/PlumbersLandingPage';
 import VoiceLandingPage from './components/VoiceLandingPage';
+import VoiceDemo from './components/VoiceDemo';
 
 export const ScrollToAnchor = () => {
   const { hash, pathname } = useLocation();
@@ -86,6 +87,7 @@ export const AppRoutes = () => {
           <Route path="/demovideo" element={<DemoVideo />} />
           <Route path="/plumber-voice-demo" element={<PlumberVoiceVideo />} />
           <Route path="/voice" element={<VoiceLandingPage />} />
+          <Route path="/voicedemo" element={<VoiceDemo />} />
           <Route path="/plumbers" element={<PlumbersLandingPage />} />
           <Route path="/for-plumbers" element={<PlumbersLandingPage />} />
           <Route path="*" element={<LandingPage />} />
@@ -97,6 +99,7 @@ export const AppRoutes = () => {
           <nav aria-label="Footer" className="flex gap-4 flex-wrap items-center">
             <Link to="/plumbers" className="text-muted no-underline hover:text-ink transition-colors">For Plumbers</Link>
             <Link to="/voice" className="text-muted no-underline hover:text-ink transition-colors">Voice AI</Link>
+            <Link to="/voicedemo" className="text-muted no-underline hover:text-ink transition-colors">Voice Demo</Link>
             <Link to="/free-pilot" className="text-muted no-underline hover:text-ink transition-colors">Free Pilot</Link>
             <Link to="/privacy" className="text-muted no-underline hover:text-ink transition-colors">Privacy</Link>
             <a href="mailto:info@devobi.com" className="text-muted no-underline hover:text-ink transition-colors">info@devobi.com</a>

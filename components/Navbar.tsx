@@ -9,6 +9,8 @@ const Navbar: React.FC = () => {
   const isVoicePage = normalizedPath === '/voice';
   const isPlumbersPage = ['/plumbers', '/for-plumbers'].includes(normalizedPath);
   const isPlumberVoiceDemoPage = normalizedPath === '/plumber-voice-demo';
+  const isVoiceDemoPage = normalizedPath === '/voicedemo';
+  const hideNavLinks = isPlumberVoiceDemoPage || isVoiceDemoPage;
 
   return (
     <nav className="sticky top-0 z-50 bg-cream border-b border-line">
@@ -16,7 +18,7 @@ const Navbar: React.FC = () => {
         <a href="/" className="font-extrabold text-lg tracking-tight no-underline text-ink">
           Devobi<span className="text-accent">.</span>
         </a>
-        {!isPlumberVoiceDemoPage && (
+        {!hideNavLinks && (
           <div className="hidden md:flex items-center gap-8 list-none">
             <a href="#how" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">How It Works</a>
             {isVoicePage ? (
@@ -27,6 +29,7 @@ const Navbar: React.FC = () => {
               <a href="#trades" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">The Trades</a>
             )}
             <a href="#pilot" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Pilot</a>
+            <a href="/voicedemo" className="text-muted text-sm font-medium no-underline hover:text-ink transition-colors">Voice Demo</a>
           </div>
         )}
         <div className="flex items-center gap-3">

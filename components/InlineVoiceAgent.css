@@ -1,0 +1,109 @@
+/* src/components/InlineVoiceAgent.css */
+
+/* Theme-aware using the app's design tokens (see index.css):
+   --color-surface / --color-line / --color-ink / --color-muted flip
+   automatically when the `.dark` class is toggled on <html>. */
+
+.voice-agent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  padding: 2rem;
+  border: 1px solid var(--color-line, #e5e7eb);
+  border-radius: 24px;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 16px 50px rgb(15 23 42 / 10%);
+}
+
+.voice-agent__avatar {
+  display: grid;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.dark .voice-agent__avatar {
+  background: rgb(99 102 241 / 20%);
+  color: #a5b4fc;
+}
+
+.voice-agent__avatar--active {
+  animation: pulse 1.6s infinite;
+}
+
+.voice-agent__content {
+  flex: 1;
+}
+
+.voice-agent__eyebrow {
+  margin: 0;
+  color: #6366f1;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voice-agent h2 {
+  margin: 0.25rem 0;
+  color: var(--color-ink, #0f172a);
+}
+
+.voice-agent__status {
+  margin: 0 0 1rem;
+  color: var(--color-muted, #64748b);
+}
+
+.voice-agent__transcript {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: var(--color-surface-alt, #f8fafc);
+}
+
+.voice-agent__error {
+  color: #b91c1c;
+}
+
+.dark .voice-agent__error {
+  color: #f87171;
+}
+
+.voice-agent button {
+  padding: 0.75rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.voice-agent__start {
+  background: #4f46e5;
+}
+
+.voice-agent__end {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 12px rgb(99 102 241 / 12%);
+    transform: scale(1.04);
+  }
+}
+
+@media (max-width: 560px) {
+  .voice-agent {
+    flex-direction: column;
+    text-align: center;
+  }
+}

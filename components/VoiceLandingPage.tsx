@@ -137,6 +137,9 @@ const VoiceLandingPage: React.FC = () => {
             and gets your team back to the work that matters most.
           </p>
           <div className="flex gap-[14px] flex-wrap justify-center mb-[14px]">
+            <Link to="/voicedemo" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-accent text-white hover:bg-accent-dark transition-colors">
+              Try the Live Demo →
+            </Link>
             <Link to="#pilot" className="inline-flex items-center gap-2 font-semibold text-[0.95rem] no-underline rounded-full px-[26px] py-[13px] bg-ink dark:bg-gray-800 text-white hover:bg-accent transition-colors">
               Start a Free 14-Day Pilot →
             </Link>

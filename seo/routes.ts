@@ -76,6 +76,16 @@ export const SEO_ROUTES: SeoMeta[] = [
     lastmod: '2026-10-07',
   },
   {
+    path: '/voicedemo',
+    title: 'Voice Agent Demo — Try Plumber, Medspa & Market Assistants | Devobi',
+    description:
+      'Try Devobi voice agents live. Pick a Plumber, Medspa, or African Market assistant and chat with a real Vapi AI voice agent right in your browser.',
+    image: '/images/og-default.png',
+    priority: 0.7,
+    changefreq: 'weekly',
+    lastmod: '2026-10-24',
+  },
+  {
     path: '/free-pilot',
     title: 'Free 14-Day Lead Reactivation Pilot | Devobi',
     description:
