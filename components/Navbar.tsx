@@ -9,7 +9,9 @@ const Navbar: React.FC = () => {
   const isVoicePage = normalizedPath === '/voice';
   const isPlumbersPage = ['/plumbers', '/for-plumbers'].includes(normalizedPath);
   const isPlumberVoiceDemoPage = normalizedPath === '/plumber-voice-demo';
-  const isVoiceDemoPage = normalizedPath === '/voicedemo';
+  // Single-agent deep links (/voicedemo/plumber) get the same distraction-free
+  // treatment as the picker page.
+  const isVoiceDemoPage = normalizedPath === '/voicedemo' || normalizedPath.startsWith('/voicedemo/');
   const hideNavLinks = isPlumberVoiceDemoPage || isVoiceDemoPage;
 
   return (

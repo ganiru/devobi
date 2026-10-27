@@ -88,6 +88,9 @@ export const AppRoutes = () => {
           <Route path="/plumber-voice-demo" element={<PlumberVoiceVideo />} />
           <Route path="/voice" element={<VoiceLandingPage />} />
           <Route path="/voicedemo" element={<VoiceDemo />} />
+          {/* Deep link to a single voice agent (/voicedemo/plumber). Renders
+              the same page with that agent preselected and the picker hidden. */}
+          <Route path="/voicedemo/:assistant" element={<VoiceDemo />} />
           <Route path="/plumbers" element={<PlumbersLandingPage />} />
           <Route path="/for-plumbers" element={<PlumbersLandingPage />} />
           <Route path="*" element={<LandingPage />} />

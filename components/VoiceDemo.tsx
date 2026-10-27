@@ -1,16 +1,26 @@
 import React, { Suspense, useState } from 'react';
-import { Wrench, Sparkles, Store } from 'lucide-react';
+import { Wrench, Sparkles, Store, ToyBrick, Mic } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import InlineVoiceAgent from "./InlineVoiceAgent";
+import {
+  DEFAULT_VOICE_AGENT_KEY,
+  VOICE_AGENTS,
+  getVoiceAgentByKey,
+  getVoiceAgentBySlug,
+} from '../voiceAgents';
 
 /**
  * /voicedemo — interactive Vapi voice-agent widget demo.
  *
- * Lets a visitor pick which assistant (Plumber / Medspa / African Market)
- * to talk to, then renders the Vapi chat widget for that assistant.
+ * Lets a visitor pick which assistant (Plumber / Medspa / African Market /
+ * Kidz Playon) to talk to, then renders the Vapi chat widget for that assistant.
  *
- * Assistant IDs live in this map. Replace the placeholder values with your
- * real Vapi assistant IDs. The public key comes from `VAPI_PUBLIC_KEY` in
- * .env.local (exposed to the client via vite.config.ts `define`).
+ * Deep links preselected a single agent: /voicedemo/plumber and friends render
+ * that agent with no picker. The agents themselves live in the shared registry
+ * at voiceAgents.ts, which also feeds the prerendered route table.
+ *
+ * The public key comes from `VAPI_PUBLIC_KEY` in .env.local (exposed to the
+ * client via vite.config.ts `define`).
  *
  * NOTE: VapiWidget is lazy-loaded because the SDK touches `document` at
  * module scope (to inject its stylesheet). Importing it eagerly would crash
@@ -23,33 +33,34 @@ const VapiWidget = React.lazy(() =>
   import('@vapi-ai/client-sdk-react').then((m) => ({ default: m.VapiWidget }))
 );
 
-const ASSISTANT_IDS: Record<string, string> = {
-  plumber: '66b958f3-ff8d-4e32-a19b-76f5c386c0dc',
-  medspa: 'fb299f76-4aee-4415-8bc2-60a4a8d93883',
-  'african-market': '001d0a53-ec4a-4b25-a3fd-76e7897ca714',
-};
-
-const ASSISTANT_LABELS: Record<string, string> = {
-  plumber: 'Plumber',
-  medspa: 'Medspa',
-  'african-market': 'African Market',
-};
-
-// Industry-relevant avatar icons per assistant.
+// Industry-relevant avatar icons per assistant. Keyed by agent key; agents
+// without an entry fall back to the generic mic icon below.
 const ASSISTANT_ICONS: Record<string, React.ReactNode> = {
   plumber: <Wrench size={40} strokeWidth={1.8} />,
   medspa: <Sparkles size={40} strokeWidth={1.8} />,
   'african-market': <Store size={40} strokeWidth={1.8} />,
+  'kidz-playon': <ToyBrick size={40} strokeWidth={1.8} />,
 };
+
+const DEFAULT_ICON = <Mic size={40} strokeWidth={1.8} />;
 
 const VAPI_PUBLIC_KEY = process.env.VAPI_PUBLIC_KEY || '';
 
 const VoiceDemo: React.FC = () => {
-  // State tracks the assistant *key*; the ID/label are derived from it, so the
-  // default selection (first entry) is always a valid assistant on load.
-  const [selectedAssistantKey, setSelectedAssistantKey] = useState<string>(Object.keys(ASSISTANT_IDS)[0]);
-  const selectedAssistantId = ASSISTANT_IDS[selectedAssistantKey];
-  const selectedAssistantLabel = ASSISTANT_LABELS[selectedAssistantKey] || '';
+  // /voicedemo/:assistant — when the URL names a real agent the demo is locked
+  // to it and the picker is hidden. Unknown slugs (and bare /voicedemo) behave
+  // like the picker page.
+  const { assistant: assistantSlug } = useParams<{ assistant: string }>();
+  const lockedAgent = getVoiceAgentBySlug(assistantSlug);
+
+  // Only the picker page needs selection state; a locked page derives the
+  // agent from the URL, so switching deep links always shows the right one.
+  const [pickedKey, setPickedKey] = useState<string>(DEFAULT_VOICE_AGENT_KEY);
+
+  const selectedAgent =
+    lockedAgent ?? getVoiceAgentByKey(pickedKey) ?? VOICE_AGENTS[0];
+  const selectedAssistantId = selectedAgent.assistantId;
+  const selectedAssistantLabel = selectedAgent.label;
 
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,31 +137,44 @@ const VoiceDemo: React.FC = () => {
             Talk to a Voice Agent
           </h1>
           <p className="text-muted max-w-[52ch] mx-auto leading-relaxed">
-            Pick an assistant below and start talking. Each one is a real 
-            voice agent configured for its industry.
+            {lockedAgent ? (
+              <>
+                You're set to our {selectedAssistantLabel} voice agent. Press
+                start and talk to it like a real customer would.
+              </>
+            ) : (
+              <>
+                Pick an assistant below and start talking. Each one is a real
+                voice agent configured for its industry.
+              </>
+            )}
           </p>
         </header>
 
-        <div className="mb-8 flex flex-col items-center">
-          <label
-            htmlFor="assistant-select"
-            className="block text-sm font-semibold text-muted mb-2"
-          >
-            Choose an assistant
-          </label>
-          <select
-            id="assistant-select"
-            value={selectedAssistantKey}
-            onChange={(e) => setSelectedAssistantKey(e.target.value)}
-            className="max-w-[320px] w-full bg-white dark:bg-gray-800 border border-line rounded-md px-4 py-3 text-[0.95rem] text-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
-          >
-            {Object.entries(ASSISTANT_IDS).map(([key]) => (
-              <option key={key} value={key}>
-                {ASSISTANT_LABELS[key]}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* A deep link names its agent, so the picker is hidden and the page
+            reads as that single assistant's demo. */}
+        {!lockedAgent && (
+          <div className="mb-8 flex flex-col items-center">
+            <label
+              htmlFor="assistant-select"
+              className="block text-sm font-semibold text-muted mb-2"
+            >
+              Choose an assistant
+            </label>
+            <select
+              id="assistant-select"
+              value={selectedAgent.key}
+              onChange={(e) => setPickedKey(e.target.value)}
+              className="max-w-[320px] w-full bg-white dark:bg-gray-800 border border-line rounded-md px-4 py-3 text-[0.95rem] text-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
+            >
+              {VOICE_AGENTS.map((agent) => (
+                <option key={agent.key} value={agent.key}>
+                  {agent.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex justify-center">
           <Suspense
@@ -164,7 +188,7 @@ const VoiceDemo: React.FC = () => {
               assistantId={selectedAssistantId}
               eyebrow={selectedAssistantLabel || 'Voice assistant'}
               title={`${selectedAssistantLabel.charAt(0).toUpperCase()}${selectedAssistantLabel.slice(1)} voice agent`}
-              icon={ASSISTANT_ICONS[selectedAssistantKey]}
+              icon={ASSISTANT_ICONS[selectedAgent.key] ?? DEFAULT_ICON}
             />
             {/*<VapiWidget
               publicKey={VAPI_PUBLIC_KEY}

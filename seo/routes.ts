@@ -11,6 +11,8 @@
  * the component tree.
  */
 
+import { VOICE_AGENTS, voiceDemoPath } from '../voiceAgents';
+
 export const SITE_URL = 'https://devobi.com';
 
 export interface SeoMeta {
@@ -31,6 +33,22 @@ export interface SeoMeta {
   changefreq?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   priority?: number;
 }
+
+/**
+ * One deep link per voice agent, e.g. /voicedemo/plumber.
+ *
+ * These are shared in outreach rather than found by searching, so they are
+ * prerendered — a hard load must not 404 — but signed noindex so this thin
+ * duplicate never competes with /voicedemo itself. Derived from the agent
+ * registry, so adding an agent there is all that is needed.
+ */
+const VOICE_AGENT_ROUTES: SeoMeta[] = VOICE_AGENTS.map((agent) => ({
+  path: voiceDemoPath(agent),
+  title: `${agent.label} AI Voice Agent Demo | Devobi`,
+  description: `Talk to Devobi's ${agent.label} AI voice agent live in your browser. It answers like a real receptionist, qualifies the caller, and books the next step.`,
+  image: '/images/og-default.png',
+  noindex: true,
+}));
 
 /**
  * Routes that should be indexed and appear in sitemap.xml.
@@ -77,14 +95,15 @@ export const SEO_ROUTES: SeoMeta[] = [
   },
   {
     path: '/voicedemo',
-    title: 'Voice Agent Demo — Try Plumber, Medspa & Market Assistants | Devobi',
+    title: 'Voice Agent Demo — Try Plumber, Medspa, Market & Kids Assistants | Devobi',
     description:
-      'Try Devobi voice agents live. Pick a Plumber, Medspa, or African Market assistant and chat with a real Vapi AI voice agent right in your browser.',
+      'Try Devobi voice agents live. Pick a Plumber, Medspa, African Market, or Kidz Playon assistant and chat with a real Vapi AI voice agent right in your browser.',
     image: '/images/og-default.png',
     priority: 0.7,
     changefreq: 'weekly',
-    lastmod: '2026-10-24',
+    lastmod: '2026-10-27',
   },
+  ...VOICE_AGENT_ROUTES,
   {
     path: '/free-pilot',
     title: 'Free 14-Day Lead Reactivation Pilot | Devobi',
