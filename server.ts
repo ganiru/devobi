@@ -81,7 +81,10 @@ async function createOpenAIRealtimeClientSecret() {
     return { clientSecret: data.value, expiresAt: data.expires_at, model: OPENAI_REALTIME_MODEL };
 }
 
+const defaultEmailFrom = 'info@devobi.com';
+
 type EmailPayload = {
+    from?: string;
     to: string;
     subject: string;
     html: string;
@@ -92,7 +95,7 @@ async function sendEmail(payload: EmailPayload) {
     const response = await fetch(sendMailWebhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, from: payload.from || defaultEmailFrom }),
     });
 
     const responseText = await response.text();
