@@ -298,6 +298,7 @@ app.use(
                     "'self'",
                     "'unsafe-inline'",
                     "'unsafe-eval'",
+                    'blob:',
                     'https://www.googletagmanager.com',
                     'https://player.vimeo.com',
                     'https://www.loom.com',
