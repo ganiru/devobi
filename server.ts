@@ -296,7 +296,9 @@ app.use(
                 'frame-ancestors': ["'none'"],
                 'script-src': [
                     "'self'",
+                    "'blob:'",
                     "'unsafe-inline'",
+                    "'unsafe-eval'",
                     'https://www.googletagmanager.com',
                     'https://player.vimeo.com',
                     'https://www.loom.com',
@@ -325,7 +327,10 @@ app.use(
                     'https://*.vimeo.com',
                     'https://api.openai.com',
                     'https://api.vapi.ai/call/web',
-                    'https://*.sentry.io/*'
+                    'https://*.sentry.io/*',
+                    'https://*.daily.co',
+                    'https://*.dailywebrtc.com',
+                    'https://*.dailywebrtc.net'
                 ],
                 'worker-src': ["'self'", 'blob:'],
                 'manifest-src': ["'self'"],
