@@ -33,6 +33,12 @@ export interface VoiceAgent {
 
 export const VOICE_AGENTS: VoiceAgent[] = [
   {
+    key: 'roofer',
+    slug: 'roofer',
+    label: 'Roofer',
+    assistantId: '24e1a125-04d5-4119-99cd-0ae57d1b4bfa',
+  },
+  {
     key: 'plumber',
     slug: 'plumber',
     label: 'Plumber',
@@ -48,7 +54,7 @@ export const VOICE_AGENTS: VoiceAgent[] = [
     key: 'african-market',
     slug: 'africanmarket',
     label: 'African Market',
-    assistantId: '001d0a53-ec4a-4b25-a3fd-76e7897ca714',
+    assistantId: 'd55a320f-d9f3-46fb-b754-f0e18d5ed6fe',
   },
   {
     key: 'kidz-playon',
