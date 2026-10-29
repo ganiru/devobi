@@ -324,7 +324,8 @@ app.use(
                     'https://vimeo.com',
                     'https://*.vimeo.com',
                     'https://api.openai.com',
-                    'https://api.vapi.ai/call/web'
+                    'https://api.vapi.ai/call/web',
+                    'https://*.sentry.io/*'
                 ],
                 'worker-src': ["'self'", 'blob:'],
                 'manifest-src': ["'self'"],
