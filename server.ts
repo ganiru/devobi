@@ -296,7 +296,6 @@ app.use(
                 'frame-ancestors': ["'none'"],
                 'script-src': [
                     "'self'",
-                    "'blob:'",
                     "'unsafe-inline'",
                     "'unsafe-eval'",
                     'https://www.googletagmanager.com',
