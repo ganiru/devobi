@@ -106,6 +106,17 @@ export const AppRoutes = () => {
             <Link to="/free-pilot" className="text-muted no-underline hover:text-ink transition-colors">Free Pilot</Link>
             <Link to="/privacy" className="text-muted no-underline hover:text-ink transition-colors">Privacy</Link>
             <a href="mailto:info@devobi.com" className="text-muted no-underline hover:text-ink transition-colors">info@devobi.com</a>
+            {/* vCard download. A plain <a>, not <Link>, and deliberately without
+                a `download` attribute: tapping it on a phone hands the
+                text/vcard response to the OS, which opens the "Create New
+                Contact" sheet instead of saving an opaque file. */}
+            <a
+              href="/obinna-ezeilo.vcf"
+              type="text/vcard"
+              className="text-muted no-underline hover:text-ink transition-colors"
+            >
+              Save Contact
+            </a>
           </nav>
         </div>
       </footer>

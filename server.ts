@@ -714,6 +714,16 @@ if (fs.existsSync(indexPath) || process.env.NODE_ENV === 'production') {
             // /privacy/index.html and our own handler below serves it at the
             // canonical, trailing-slash-free URL, matching the canonical tag.
             redirect: false,
+            // The installed mime-db maps `.vcf` to the legacy text/x-vcard.
+            // Phones decide what to do with a contact card from its
+            // Content-Type, so pin the registered type (RFC 6350) and let iOS
+            // and Android open their "add contact" sheet. `send` skips its own
+            // type detection when this header is already set.
+            setHeaders: (res, filePath) => {
+                if (filePath.endsWith('.vcf')) {
+                    res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+                }
+            },
         }),
     );
 
