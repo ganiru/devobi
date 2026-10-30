@@ -139,7 +139,7 @@ const VoiceDemo: React.FC = () => {
           <p className="text-muted max-w-[52ch] mx-auto leading-relaxed">
             {lockedAgent ? (
               <>
-                You're set to our {selectedAssistantLabel} voice agent. Press
+                Here's the web version of the {selectedAssistantLabel} voice agent. Press
                 start and talk to it like a real customer would.
               </>
             ) : (
