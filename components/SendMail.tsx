@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import AuthGate from './AuthGate';
 import { useTheme } from './ThemeContext';
+import { from } from 'node:stream/iter';
 
 const SEND_MAIL_API = '/api/send-mail';
 
@@ -125,6 +126,7 @@ const SendMail: React.FC = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    from: 'info@devobi.com',
                     to: formData.to,
                     subject: formData.subject,
                     html: htmlMessage,
