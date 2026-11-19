@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import AuthGate from './AuthGate';
 import { useTheme } from './ThemeContext';
-import { from } from 'node:stream/iter';
 
 const SEND_MAIL_API = '/api/send-mail';
 
