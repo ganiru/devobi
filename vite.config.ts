@@ -60,7 +60,8 @@ export default defineConfig(({ mode }) => {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.VAPI_PUBLIC_KEY': JSON.stringify(env.VAPI_PUBLIC_KEY),
-      'process.env.RECAPTCHA_KEY': JSON.stringify(env.RECAPTCHA_KEY)
+      'process.env.RECAPTCHA_KEY': JSON.stringify(env.RECAPTCHA_KEY),
+      'process.env.AUTH_HEADER': JSON.stringify(env.AUTH_HEADER)
     },
     resolve: {
       alias: {

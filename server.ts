@@ -94,7 +94,10 @@ type EmailPayload = {
 async function sendEmail(payload: EmailPayload) {
     const response = await fetch(sendMailWebhook, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'x-devobi-key': process.env.AUTH_HEADER || ''
+        },
         body: JSON.stringify({ ...payload, from: payload.from || defaultEmailFrom }),
     });
 
@@ -859,7 +862,7 @@ httpServer.on('upgrade', (request, socket, head) => {
     }
 
     console.log('[WebSocket] Pathname matches, handling upgrade for /api/medspa/live');
-    
+
     // Add error handler to the socket for debugging
     socket.on('error', (err) => {
         console.error('[WebSocket] Socket error:', err);

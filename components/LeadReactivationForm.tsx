@@ -74,6 +74,9 @@ const LeadReactivationFormInner: React.FC = () => {
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
+        headers: {
+          'x-devobi-key': process.env.AUTH_HEADER || '',
+        },
         body: formData,
       });
 
