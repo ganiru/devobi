@@ -1,21 +1,19 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import AuthGate from './AuthGate';
 
 /**
- * LeadReactivationForm component
- * A premium form for uploading a CSV of leads and providing contractor details.
- * Submits data to an n8n webhook via multipart/form-data.
+ * LeadReactivationFormInner component
+ * Form logic that executes invisible reCAPTCHA v3 on submit.
  */
-const LeadReactivationForm: React.FC = () => {
+const LeadReactivationFormInner: React.FC = () => {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [agentName, setAgentName] = useState('John Doe');
   const [agentPhone, setAgentPhone] = useState('(555) 123-4567');
   const [agentEmail, setAgentEmail] = useState('john@example.com');
   const [emailSignature, setEmailSignature] = useState('John Doe, Home Service Contractor');
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     document.title = 'Reactivate Leads | Devobi LLC AI Automation';
@@ -27,9 +25,9 @@ const LeadReactivationForm: React.FC = () => {
 
   // TODO: Replace with your actual n8n webhook URL
   const WEBHOOK_URL = 'https://n8n-production-6955.up.railway.app/webhook/b6aeb04b-87ea-4711-a67e-e89e7ac5f293';
-  const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_KEY || '';
 
-  const isFormValid = Boolean(csvFile && isValidEmail(agentEmail) && recaptchaToken);
+  // Disabled unless a CSV file is chosen and the email is valid
+  const isFormValid = Boolean(csvFile && isValidEmail(agentEmail));
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -49,12 +47,22 @@ const LeadReactivationForm: React.FC = () => {
       alert('Please enter a valid email address.');
       return;
     }
-    if (!recaptchaToken) {
-      alert('Please complete the reCAPTCHA verification.');
+
+    if (!executeRecaptcha) {
+      alert('reCAPTCHA is still initializing. Please wait a moment and try again.');
       return;
     }
+
     setStatus('loading');
     try {
+      // Execute invisible reCAPTCHA v3
+      const token = await executeRecaptcha('reactivate_leads');
+      if (!token) {
+        alert('reCAPTCHA verification failed. Please try again.');
+        setStatus('error');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('csv_file', csvFile);
       formData.append('agent_name', agentName);
@@ -62,7 +70,7 @@ const LeadReactivationForm: React.FC = () => {
       formData.append('agent_email', agentEmail.trim());
       formData.append('email_signature', emailSignature);
       formData.append('campaign_name', 'Reactivation Campaign');
-      formData.append('recaptcha_token', recaptchaToken);
+      formData.append('recaptcha_token', token);
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
@@ -77,8 +85,6 @@ const LeadReactivationForm: React.FC = () => {
         setAgentPhone('(555) 123-4567');
         setAgentEmail('john@example.com');
         setEmailSignature('John Doe, Home Service Contractor');
-        setRecaptchaToken(null);
-        recaptchaRef.current?.reset();
         // Reset file input value
         const fileInput = document.getElementById('csv') as HTMLInputElement | null;
         if (fileInput) fileInput.value = '';
@@ -210,17 +216,6 @@ const LeadReactivationForm: React.FC = () => {
                 </div>
               </div>
 
-              {/* ReCAPTCHA */}
-              <div className="flex justify-center pt-2">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={RECAPTCHA_SITE_KEY}
-                  theme="dark"
-                  onChange={(value) => setRecaptchaToken(value)}
-                  onExpired={() => setRecaptchaToken(null)}
-                />
-              </div>
-
               {status === 'error' && (
                 <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                   <p className="text-red-400 text-sm text-center font-medium">Submission failed. Please try again.</p>
@@ -251,11 +246,36 @@ const LeadReactivationForm: React.FC = () => {
                   </div>
                 )}
               </button>
+
+              <p className="text-[11px] text-gray-500 text-center leading-normal">
+                This site is protected by reCAPTCHA and the Google{' '}
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
+                  Privacy Policy
+                </a>{' '}
+                and{' '}
+                <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
+                  Terms of Service
+                </a>{' '}
+                apply.
+              </p>
             </form>
           </div>
         </main>
       )}
     </AuthGate>
+  );
+};
+
+/**
+ * LeadReactivationForm component wrapped with GoogleReCaptchaProvider
+ */
+const LeadReactivationForm: React.FC = () => {
+  const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_KEY || '';
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
+      <LeadReactivationFormInner />
+    </GoogleReCaptchaProvider>
   );
 };
 
