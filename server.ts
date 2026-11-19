@@ -303,6 +303,8 @@ app.use(
                     'https://player.vimeo.com',
                     'https://www.loom.com',
                     'https://www.calendly.com',
+                    'https://www.google.com/recaptcha/',
+                    'https://www.gstatic.com/recaptcha/',
                 ],
                 // Vite inlines a small amount of critical CSS; 'unsafe-inline' is
                 // required here. Remove once styles are fully extracted.
@@ -315,7 +317,13 @@ app.use(
                     'https:',
                 ],
                 'media-src': ["'self'", 'blob:', 'https://*.vimeocdn.com'],
-                'frame-src': ['https://player.vimeo.com', 'https://www.loom.com', 'https://calendly.com'],
+                'frame-src': [
+                    'https://player.vimeo.com',
+                    'https://www.loom.com',
+                    'https://calendly.com',
+                    'https://www.google.com/recaptcha/',
+                    'https://recaptcha.google.com/recaptcha/',
+                ],
                 'connect-src': [
                     "'self'",
                     'ws:',
@@ -330,7 +338,8 @@ app.use(
                     'https://*.sentry.io/*',
                     'https://*.daily.co',
                     'https://*.dailywebrtc.com',
-                    'https://*.dailywebrtc.net'
+                    'https://*.dailywebrtc.net',
+                    'https://www.google.com/recaptcha/',
                 ],
                 'worker-src': ["'self'", 'blob:'],
                 'manifest-src': ["'self'"],
