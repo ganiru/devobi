@@ -61,7 +61,10 @@ export default defineConfig(({ mode }) => {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.VAPI_PUBLIC_KEY': JSON.stringify(env.VAPI_PUBLIC_KEY),
       'process.env.RECAPTCHA_KEY': JSON.stringify(env.RECAPTCHA_KEY),
-      'process.env.AUTH_HEADER': JSON.stringify(env.AUTH_HEADER)
+      // Server-only secrets (AUTH_HEADER, N8N_WEBHOOK_SECRET, TURNSTILE_SECRET_KEY)
+      // are deliberately NOT defined here: anything listed in `define` is baked
+      // into the public bundle, which is how the webhook secret leaked before.
+      'process.env.TURNSTILE_SITE_KEY': JSON.stringify(env.TURNSTILE_SITE_KEY)
     },
     resolve: {
       alias: {

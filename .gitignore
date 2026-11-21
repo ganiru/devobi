@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Local secrets (server-only values, never commit)
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +29,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# local n8n API snapshots (contain workflow JSON)
+.n8n-backups/

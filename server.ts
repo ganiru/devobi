@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
+import multer from 'multer';
+import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from "@google/genai";
 import { google } from 'googleapis';
@@ -14,6 +16,7 @@ import fs from 'fs';
 
 import { renderHead } from './seo/head.js';
 import { getJsonLdForPath } from './seo/jsonld.js';
+import { ALLOWED_CSV_MIME, inspectCsv, MAX_CSV_BYTES } from './lib/csv.js';
 
 dotenv.config({ path: '.env.local' });
 //dotenv.config(); // fallback to .env
@@ -24,8 +27,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
-const demoLeadWebhook = 'https://n8n-production-6955.up.railway.app/webhook-test/mailgun-inbound'; // test - 'https://n8n-production-6955.up.railway.app/webhook-test/7a87561a-5de6-4a01-9087-3f3dcdc81e4d';
 const sendMailWebhook = 'https://n8n-production-6955.up.railway.app/webhook/3969361d-c5df-41d0-8db8-265bf071f73d';
+
+// Lead reactivation intake. The browser never learns this URL or this secret:
+// both live only in the server environment. See infra/README.md for rotation.
+const n8nReactivateWebhook = process.env.N8N_REACTIVATE_WEBHOOK_URL || '';
+const n8nWebhookSecret = process.env.N8N_WEBHOOK_SECRET || '';
+const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || '';
 const googleSheetId = process.env.GOOGLE_SHEET_ID || process.env.VITE_GOOGLE_SHEET_ID;
 const googleCalendarId = process.env.GOOGLE_CALENDAR_ID || process.env.VITE_GOOGLE_CALENDAR_ID || 'primary';
 const schedulingTimeZone = 'America/Chicago';
@@ -308,6 +316,7 @@ app.use(
                     'https://www.calendly.com',
                     'https://www.google.com/recaptcha/',
                     'https://www.gstatic.com/recaptcha/',
+                    'https://challenges.cloudflare.com',
                 ],
                 // Vite inlines a small amount of critical CSS; 'unsafe-inline' is
                 // required here. Remove once styles are fully extracted.
@@ -326,6 +335,7 @@ app.use(
                     'https://calendly.com',
                     'https://www.google.com/recaptcha/',
                     'https://recaptcha.google.com/recaptcha/',
+                    'https://challenges.cloudflare.com',
                 ],
                 'connect-src': [
                     "'self'",
@@ -343,6 +353,7 @@ app.use(
                     'https://*.dailywebrtc.com',
                     'https://*.dailywebrtc.net',
                     'https://www.google.com/recaptcha/',
+                    'https://challenges.cloudflare.com',
                 ],
                 'worker-src': ["'self'", 'blob:'],
                 'manifest-src': ["'self'"],
@@ -504,26 +515,247 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-// Proxy route for n8n lead form webhook (avoids browser CORS restrictions)
-app.post('/api/submit-lead', async (req, res) => {
+// NOTE: /api/submit-lead was removed. It proxied req.body verbatim into a public
+// n8n webhook and echoed upstream errors back to the caller, and nothing in the
+// app ever posted to it. Demo/voice forms use /api/send-mail; CSV intake uses
+// /api/reactivate.
+
+// ---------------------------------------------------------------------------
+// Lead reactivation CSV intake
+//
+// The public /reactivate page used to POST the CSV straight to a public n8n
+// webhook, carrying a header secret that was baked into the client bundle by
+// `vite define`. That made the webhook an unauthenticated upload endpoint: any
+// bot could POST an empty body and n8n would run (and alert) for every one.
+//
+// The browser now posts here instead. This endpoint holds the n8n URL and
+// secret, verifies Turnstile server-side, validates the file (size, MIME,
+// magic bytes, encoding, row/column caps), sanitises formula-injection
+// payloads, and only then forwards the cleaned CSV upstream.
+// ---------------------------------------------------------------------------
+
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+// Headroom for multipart boundaries and the text fields around the file.
+const MAX_REACTIVATE_REQUEST_BYTES = MAX_CSV_BYTES + 64 * 1024;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+class UploadRejected extends Error {
+    constructor(readonly code: string) {
+        super(code);
+        this.name = 'UploadRejected';
+    }
+}
+
+const reactivateUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: MAX_CSV_BYTES,
+        files: 1,
+        fields: 12,
+        fieldSize: 4 * 1024,
+        parts: 20,
+    },
+    fileFilter: (_req, file, cb) => {
+        if (!ALLOWED_CSV_MIME.has((file.mimetype || '').toLowerCase())) {
+            cb(new UploadRejected('unsupported_file_type'));
+            return;
+        }
+        if (!/\.csv$/i.test(file.originalname || '')) {
+            cb(new UploadRejected('unsupported_file_type'));
+            return;
+        }
+        cb(null, true);
+    },
+}).single('csv_file');
+
+function requestIp(req: express.Request): string | undefined {
+    const cloudflareIp = req.headers['cf-connecting-ip'];
+    if (typeof cloudflareIp === 'string' && cloudflareIp.trim()) return cloudflareIp.trim();
+    return req.ip;
+}
+
+/** Trims, strips control characters and caps the length of a text field. */
+function cleanField(value: unknown, maxLength: number, singleLine = false): string {
+    if (typeof value !== 'string') return '';
+    let cleaned = value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '');
+    if (singleLine) cleaned = cleaned.replace(/[\r\n]+/g, ' ');
+    return cleaned.trim().slice(0, maxLength);
+}
+
+type TurnstileResult =
+    | { ok: true }
+    | { ok: false; reason: 'missing_token' | 'rejected' | 'unavailable' | 'not_configured' };
+
+async function verifyTurnstileToken(token: string, remoteIp?: string): Promise<TurnstileResult> {
+    if (!turnstileSecretKey) {
+        console.error('[Reactivate] TURNSTILE_SECRET_KEY is not configured; refusing uploads.');
+        return { ok: false, reason: 'not_configured' };
+    }
+    if (!token) return { ok: false, reason: 'missing_token' };
+
+    const body = new URLSearchParams({ secret: turnstileSecretKey, response: token });
+    if (remoteIp) body.set('remoteip', remoteIp);
+
     try {
-        const n8nResponse = await fetch(demoLeadWebhook, {
+        const response = await fetch(TURNSTILE_VERIFY_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body),
+            body,
+            signal: AbortSignal.timeout(8000),
         });
 
-        if (n8nResponse.ok) {
-            res.status(200).json({ success: true });
-        } else {
-            const errorText = await n8nResponse.text();
-            console.error('n8n webhook error:', n8nResponse.status, errorText);
-            res.status(n8nResponse.status).json({ success: false, error: errorText });
+        if (!response.ok) {
+            console.error('[Reactivate] Turnstile siteverify returned HTTP', response.status);
+            return { ok: false, reason: 'unavailable' };
         }
+
+        const result = (await response.json()) as { success?: boolean; 'error-codes'?: string[] };
+        if (result.success === true) return { ok: true };
+
+        console.warn('[Reactivate] Turnstile rejected a token:', (result['error-codes'] || []).join(',') || 'no codes');
+        return { ok: false, reason: 'rejected' };
     } catch (error) {
-        console.error('Lead proxy error:', error);
-        res.status(500).json({ success: false, error: 'Failed to forward lead to n8n.' });
+        console.error(
+            '[Reactivate] Turnstile verification failed:',
+            error instanceof Error ? error.message : error,
+        );
+        return { ok: false, reason: 'unavailable' };
     }
+}
+
+app.post('/api/reactivate', (req, res) => {
+    const declaredLength = Number(req.headers['content-length'] || 0);
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_REACTIVATE_REQUEST_BYTES) {
+        return res.status(413).json({ success: false, error: 'file_too_large' });
+    }
+
+    reactivateUpload(req, res, async (uploadError: unknown) => {
+        try {
+            if (uploadError) {
+                if (uploadError instanceof UploadRejected) {
+                    return res.status(415).json({ success: false, error: uploadError.code });
+                }
+                if (uploadError instanceof multer.MulterError) {
+                    if (uploadError.code === 'LIMIT_FILE_SIZE') {
+                        return res.status(413).json({ success: false, error: 'file_too_large' });
+                    }
+                    console.warn('[Reactivate] Rejected malformed upload:', uploadError.code);
+                    return res.status(400).json({ success: false, error: 'invalid_upload' });
+                }
+                console.warn(
+                    '[Reactivate] Upload parsing failed:',
+                    uploadError instanceof Error ? uploadError.message : uploadError,
+                );
+                return res.status(400).json({ success: false, error: 'invalid_upload' });
+            }
+
+            const file = req.file;
+            if (!file || !file.buffer?.length) {
+                return res.status(400).json({ success: false, error: 'missing_csv' });
+            }
+
+            const fields = req.body as Record<string, unknown>;
+            const agentName = cleanField(fields.agent_name, 120, true);
+            const agentEmail = cleanField(fields.agent_email, 200, true).toLowerCase();
+            const agentPhone = cleanField(fields.agent_phone, 40, true);
+            const emailSignature = cleanField(fields.email_signature, 1000);
+            const campaignName = cleanField(fields.campaign_name, 120, true) || 'Reactivation Campaign';
+
+            if (!agentName || !EMAIL_PATTERN.test(agentEmail)) {
+                return res.status(400).json({ success: false, error: 'invalid_agent_details' });
+            }
+            if (agentPhone.replace(/\D/g, '').length < 7) {
+                return res.status(400).json({ success: false, error: 'invalid_agent_details' });
+            }
+
+            // Verify the bot challenge before doing any heavy work.
+            const turnstile = await verifyTurnstileToken(
+                cleanField(fields['cf-turnstile-response'], 2048, true),
+                requestIp(req),
+            );
+            if (!turnstile.ok) {
+                if (turnstile.reason === 'not_configured' || turnstile.reason === 'unavailable') {
+                    return res.status(503).json({ success: false, error: 'verification_unavailable' });
+                }
+                return res.status(403).json({ success: false, error: 'captcha_failed' });
+            }
+
+            const inspection = inspectCsv(file.buffer);
+            if (!inspection.ok) {
+                console.warn('[Reactivate] Rejected CSV:', inspection.reason);
+                return res.status(400).json({ success: false, error: inspection.reason });
+            }
+
+            if (!n8nReactivateWebhook || !n8nWebhookSecret) {
+                console.error(
+                    '[Reactivate] N8N_REACTIVATE_WEBHOOK_URL / N8N_WEBHOOK_SECRET are not configured; refusing uploads.',
+                );
+                return res.status(503).json({ success: false, error: 'intake_not_configured' });
+            }
+
+            const requestId = randomUUID();
+            const payload = new FormData();
+            // Forward the sanitised CSV, never the raw upload.
+            payload.append('csv_file', new Blob([inspection.csv], { type: 'text/csv' }), `leads-${requestId}.csv`);
+            payload.append('agent_name', agentName);
+            payload.append('agent_phone', agentPhone);
+            payload.append('agent_email', agentEmail);
+            payload.append('email_signature', emailSignature);
+            payload.append('campaign_name', campaignName);
+            payload.append('source', 'devobi.com/reactivate');
+            payload.append('request_id', requestId);
+
+            let upstream: Response;
+            try {
+                upstream = await fetch(n8nReactivateWebhook, {
+                    method: 'POST',
+                    headers: {
+                        'x-devobi-key': n8nWebhookSecret,
+                        'x-request-id': requestId,
+                    },
+                    body: payload,
+                    signal: AbortSignal.timeout(20000),
+                });
+            } catch (error) {
+                console.error(
+                    `[Reactivate] ${requestId} upstream request failed:`,
+                    error instanceof Error ? error.message : error,
+                );
+                return res.status(502).json({ success: false, error: 'upstream_unreachable' });
+            }
+
+            if (upstream.ok) {
+                console.log(`[Reactivate] ${requestId} accepted: ${inspection.rows} rows, ${inspection.columns} columns`);
+                return res.status(200).json({ success: true, rows: inspection.rows });
+            }
+
+            // Log the upstream detail for ourselves; never echo it to the browser.
+            const detail = await upstream.text().catch(() => '');
+            console.error(`[Reactivate] ${requestId} upstream HTTP ${upstream.status}:`, detail.slice(0, 300));
+
+            if (upstream.status === 429) {
+                res.setHeader('Retry-After', upstream.headers.get('retry-after') || '60');
+                return res.status(429).json({ success: false, error: 'rate_limited' });
+            }
+            if (upstream.status === 400 || upstream.status === 413 || upstream.status === 415) {
+                return res.status(400).json({ success: false, error: 'rejected_upstream' });
+            }
+            if (upstream.status === 401 || upstream.status === 403) {
+                console.error(
+                    '[Reactivate] Upstream rejected our credentials. Check N8N_WEBHOOK_SECRET against the n8n header-auth credential.',
+                );
+                return res.status(503).json({ success: false, error: 'intake_not_configured' });
+            }
+            return res.status(502).json({ success: false, error: 'upstream_error' });
+        } catch (error) {
+            console.error(
+                '[Reactivate] Unhandled intake error:',
+                error instanceof Error ? error.stack || error.message : error,
+            );
+            if (!res.headersSent) {
+                return res.status(500).json({ success: false, error: 'internal_error' });
+            }
+        }
+    });
 });
 
 // Proxy route for send-mail webhook (avoids browser CORS restrictions)

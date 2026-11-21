@@ -1,15 +1,45 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import AuthGate from './AuthGate';
+import TurnstileWidget from './TurnstileWidget';
+
+/** Keep in sync with MAX_CSV_BYTES in lib/csv.ts (the server is authoritative). */
+const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
+
+/** Server error codes -> copy. Anything unknown falls back to a generic message. */
+const ERROR_MESSAGES: Record<string, string> = {
+  file_too_large: 'That CSV is larger than 2 MB. Please split it into smaller files.',
+  unsupported_file_type: 'Please upload a .csv file.',
+  binary_content: 'That file is not a text CSV.',
+  invalid_encoding: 'That CSV is not valid UTF-8. Please re-export it as UTF-8 and try again.',
+  no_header: 'The CSV is missing a header row.',
+  no_data_rows: 'The CSV does not contain any lead rows.',
+  too_many_rows: 'That CSV has more than 5,000 rows. Please split it into smaller files.',
+  too_many_columns: 'That CSV has too many columns.',
+  empty_file: 'That CSV file is empty.',
+  missing_csv: 'Please select a CSV file.',
+  invalid_agent_details: 'Check the agent name, phone number and email address.',
+  captcha_failed: 'Verification failed. Please complete the challenge and try again.',
+  verification_unavailable: 'Verification is temporarily unavailable. Please try again shortly.',
+  rate_limited: 'Too many uploads from this network. Please wait a minute and try again.',
+  intake_not_configured: 'Uploads are not configured on the server yet. Please contact us.',
+  rejected_upstream: 'The upload was rejected. Please check the CSV and try again.',
+};
 
 /**
- * LeadReactivationFormInner component
- * Form logic that executes invisible reCAPTCHA v3 on submit.
+ * Lead Reactivation upload.
+ *
+ * This form posts to our own `/api/reactivate` endpoint, which holds the n8n
+ * webhook URL and secret, verifies the Turnstile token, and validates the CSV
+ * before anything reaches n8n. The browser never sees the webhook or its secret.
  */
 const LeadReactivationFormInner: React.FC = () => {
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [uploadedRows, setUploadedRows] = useState<number | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  // Changing this remounts the widget, which is how a Turnstile token is spent.
+  const [widgetKey, setWidgetKey] = useState(0);
   const [agentName, setAgentName] = useState('John Doe');
   const [agentPhone, setAgentPhone] = useState('(555) 123-4567');
   const [agentEmail, setAgentEmail] = useState('john@example.com');
@@ -23,15 +53,20 @@ const LeadReactivationFormInner: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   };
 
-  // TODO: Replace with your actual n8n webhook URL
-  const WEBHOOK_URL = 'https://n8n-production-6955.up.railway.app/webhook/b6aeb04b-87ea-4711-a67e-e89e7ac5f293';
+  const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '';
 
   // Disabled unless a CSV file is chosen and the email is valid
-  const isFormValid = Boolean(csvFile && isValidEmail(agentEmail));
+  const isFormValid = Boolean(csvFile && isValidEmail(agentEmail) && turnstileToken);
+
+  const resetTurnstile = () => {
+    setTurnstileToken(null);
+    setWidgetKey(key => key + 1);
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setCsvFile(e.target.files[0]);
+      setErrorMessage('');
     } else {
       setCsvFile(null);
     }
@@ -39,30 +74,27 @@ const LeadReactivationFormInner: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (!csvFile) {
-      alert('Please select a CSV file.');
+      setErrorMessage('Please select a CSV file.');
       return;
     }
     if (!isValidEmail(agentEmail)) {
-      alert('Please enter a valid email address.');
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
-
-    if (!executeRecaptcha) {
-      alert('reCAPTCHA is still initializing. Please wait a moment and try again.');
+    if (csvFile.size > MAX_UPLOAD_BYTES) {
+      setErrorMessage(ERROR_MESSAGES.file_too_large);
+      return;
+    }
+    if (!turnstileToken) {
+      setErrorMessage('Please complete the verification challenge.');
       return;
     }
 
     setStatus('loading');
     try {
-      // Execute invisible reCAPTCHA v3
-      const token = await executeRecaptcha('reactivate_leads');
-      if (!token) {
-        alert('reCAPTCHA verification failed. Please try again.');
-        setStatus('error');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('csv_file', csvFile);
       formData.append('agent_name', agentName);
@@ -70,17 +102,17 @@ const LeadReactivationFormInner: React.FC = () => {
       formData.append('agent_email', agentEmail.trim());
       formData.append('email_signature', emailSignature);
       formData.append('campaign_name', 'Reactivation Campaign');
-      formData.append('recaptcha_token', token);
+      formData.append('cf-turnstile-response', turnstileToken);
 
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch('/api/reactivate', {
         method: 'POST',
-        headers: {
-          'x-devobi-key': process.env.AUTH_HEADER || '',
-        },
         body: formData,
       });
 
-      if (response.ok) {
+      const result = await response.json().catch(() => ({} as { success?: boolean; error?: string; rows?: number }));
+
+      if (response.ok && result.success) {
+        setUploadedRows(typeof result.rows === 'number' ? result.rows : null);
         setStatus('success');
         // Reset fields
         setCsvFile(null);
@@ -93,10 +125,18 @@ const LeadReactivationFormInner: React.FC = () => {
         if (fileInput) fileInput.value = '';
       } else {
         setStatus('error');
+        setErrorMessage(
+          ERROR_MESSAGES[result.error || ''] ||
+            'Submission failed. Please check the file and try again.',
+        );
       }
     } catch (error) {
       console.error('Submission error:', error);
       setStatus('error');
+      setErrorMessage('Could not reach the server. Please check your connection and try again.');
+    } finally {
+      // A Turnstile token is single-use, whether or not the request succeeded.
+      resetTurnstile();
     }
   };
 
@@ -107,10 +147,15 @@ const LeadReactivationFormInner: React.FC = () => {
           <div className="glass p-12 rounded-3xl max-w-xl w-full mx-auto text-center border-emerald-500/30 shadow-2xl animate-in fade-in zoom-in duration-500">
             <h3 className="text-3xl font-bold mb-4 text-white">Leads Uploaded!</h3>
             <p className="text-gray-400 text-lg mb-8 max-w-sm mx-auto">
-              Your CSV has been submitted. The lead reactivation will begin shortly.
+              {uploadedRows !== null
+                ? `${uploadedRows.toLocaleString()} lead${uploadedRows === 1 ? '' : 's'} received. The reactivation will begin shortly.`
+                : 'Your CSV has been submitted. The lead reactivation will begin shortly.'}
             </p>
             <button
-              onClick={() => setStatus('idle')}
+              onClick={() => {
+                setStatus('idle');
+                setUploadedRows(null);
+              }}
               className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-emerald-400 font-semibold transition-all cursor-pointer"
             >
               Upload Another CSV
@@ -147,6 +192,7 @@ const LeadReactivationFormInner: React.FC = () => {
                   onChange={handleFileChange}
                   className="w-full bg-black border border-white/10 p-4 focus:border-emerald-500 outline-none transition-all"
                 />
+                <p className="text-[11px] text-gray-500 ml-1">UTF-8 .csv, up to 2 MB and 5,000 rows.</p>
               </div>
 
               {/* Agent Details */}
@@ -219,9 +265,16 @@ const LeadReactivationFormInner: React.FC = () => {
                 </div>
               </div>
 
-              {status === 'error' && (
+              <TurnstileWidget
+                key={widgetKey}
+                siteKey={TURNSTILE_SITE_KEY}
+                onToken={setTurnstileToken}
+                className="flex justify-center"
+              />
+
+              {status === 'error' && errorMessage && (
                 <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                  <p className="text-red-400 text-sm text-center font-medium">Submission failed. Please try again.</p>
+                  <p className="text-red-400 text-sm text-center font-medium">{errorMessage}</p>
                 </div>
               )}
 
@@ -251,13 +304,13 @@ const LeadReactivationFormInner: React.FC = () => {
               </button>
 
               <p className="text-[11px] text-gray-500 text-center leading-normal">
-                This site is protected by reCAPTCHA and the Google{' '}
-                <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
-                  Privacy Policy
+                This site is protected by Cloudflare Turnstile. The{' '}
+                <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
+                  Cloudflare Privacy Policy
                 </a>{' '}
                 and{' '}
-                <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
-                  Terms of Service
+                <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noreferrer" className="text-gray-400 underline hover:text-gray-300">
+                  Website Terms
                 </a>{' '}
                 apply.
               </p>
@@ -269,17 +322,6 @@ const LeadReactivationFormInner: React.FC = () => {
   );
 };
 
-/**
- * LeadReactivationForm component wrapped with GoogleReCaptchaProvider
- */
-const LeadReactivationForm: React.FC = () => {
-  const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_KEY || '';
-
-  return (
-    <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
-      <LeadReactivationFormInner />
-    </GoogleReCaptchaProvider>
-  );
-};
+const LeadReactivationForm: React.FC = () => <LeadReactivationFormInner />;
 
 export default LeadReactivationForm;

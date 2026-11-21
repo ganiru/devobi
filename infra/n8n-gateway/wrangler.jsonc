@@ -1,0 +1,33 @@
+/**
+ * Cloudflare Worker: the only public entry point to the n8n lead webhook.
+ *
+ *   npx wrangler secret put GATEWAY_TOKEN      # shared with the site server
+ *   npx wrangler secret put N8N_HEADER_VALUE  # n8n header-auth credential value
+ *
+ * Requires Wrangler >= 4.36.0 for the `ratelimits` binding.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "n8n-gateway",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    // Serve exactly one path, and make it the rotated one.
+    "WEBHOOK_PATH": "/webhook/reactivate-2f9c41d7",
+    "N8N_ORIGIN": "https://n8n-production-6955.up.railway.app",
+    "MAX_BODY_BYTES": "3145728"
+  },
+  "ratelimits": [
+    {
+      "name": "WEBHOOK_RATE_LIMITER",
+      "namespace_id": "10101",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ]
+}

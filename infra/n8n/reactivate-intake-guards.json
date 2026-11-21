@@ -1,0 +1,522 @@
+{
+  "name": "Reactivate Intake (validated + hourly summary)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reactivate-2f9c41d7",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Webhook Header Auth"
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000001",
+      "name": "Lead CSV Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -520,
+        0
+      ],
+      "webhookId": "c9f2e7a4-5b1d-4e83-9a6f-2d7c4b8e1a30",
+      "notes": "Authentication: Header Auth. The value must equal N8N_HEADER_VALUE in the Cloudflare gateway. Respond: Using Respond to Webhook node."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Guards that run immediately after the Webhook node.\n// Anything that is not a real CSV from our own server is rejected here, so it\n// never reaches the pipeline (and never triggers a Telegram alert).\nconst MAX_BYTES = 2 * 1024 * 1024;\nconst MAX_ROWS = 5000;\nconst MAX_COLUMNS = 64;\nconst ALLOWED_MIME = ['text/csv', 'text/plain', 'text/x-csv', 'application/csv', 'application/vnd.ms-excel', 'application/octet-stream'];\nconst SIGNATURES = [\n  [0x25, 0x50, 0x44, 0x46], [0x50, 0x4b, 0x03, 0x04], [0x50, 0x4b, 0x05, 0x06],\n  [0x50, 0x4b, 0x07, 0x08], [0x1f, 0x8b], [0x42, 0x5a, 0x68],\n  [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00], [0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c],\n  [0x52, 0x61, 0x72, 0x21], [0x89, 0x50, 0x4e, 0x47], [0xff, 0xd8, 0xff],\n  [0x47, 0x49, 0x46, 0x38], [0x42, 0x4d], [0x52, 0x49, 0x46, 0x46],\n  [0xd0, 0xcf, 0x11, 0xe0], [0x7f, 0x45, 0x4c, 0x46], [0x4d, 0x5a],\n  [0x00, 0x61, 0x73, 0x6d], [0x53, 0x51, 0x4c, 0x69, 0x74, 0x65, 0x20, 0x66]\n];\n\nfunction parseCsv(text) {\n  const rows = [];\n  let row = [];\n  let field = '';\n  let inQuotes = false;\n  let i = 0;\n  const endField = function () { row.push(field); field = ''; };\n  const endRow = function () { endField(); rows.push(row); row = []; };\n  while (i < text.length) {\n    const ch = text[i];\n    if (inQuotes) {\n      if (ch === '\"') {\n        if (text[i + 1] === '\"') { field += '\"'; i += 2; continue; }\n        inQuotes = false; i += 1; continue;\n      }\n      field += ch; i += 1; continue;\n    }\n    if (ch === '\"' && field === '') { inQuotes = true; i += 1; continue; }\n    if (ch === ',') { endField(); i += 1; continue; }\n    if (ch === '\\r' || ch === '\\n') {\n      if (ch === '\\r' && text[i + 1] === '\\n') i += 1;\n      endRow(); i += 1; continue;\n    }\n    field += ch; i += 1;\n  }\n  if (field !== '' || row.length > 0) endRow();\n  return rows;\n}\n\nfunction serializeCell(value) {\n  if (/[\",\\r\\n]/.test(value) || /^\\s|\\s$/.test(value)) {\n    return '\"' + value.replace(/\"/g, '\"\"') + '\"';\n  }\n  return value;\n}\n\nfunction serializeCsv(rows) {\n  return rows.map(function (row) { return row.map(serializeCell).join(','); }).join('\\r\\n') + '\\r\\n';\n}\n\nconst PLAIN_NUMBER = /^-?\\d+(?:[.,]\\d+)*$/;\nfunction sanitizeCell(value) {\n  if (!value) return value;\n  const cleaned = value.replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, '');\n  const leading = cleaned.trimStart();\n  if (!leading) return cleaned;\n  const first = leading[0];\n  if (first === '=' || first === '+' || first === '@') return \"'\" + cleaned;\n  if (first === '\\t' || first === '\\r') return \"'\" + cleaned;\n  if (first === '-' && !PLAIN_NUMBER.test(leading)) return \"'\" + cleaned;\n  return cleaned;\n}\n\nfunction isBlankRow(row) {\n  return row.every(function (cell) { return cell.trim() === ''; });\n}\n\nconst item = $input.first();\nconst body = (item.json && item.json.body) || item.json || {};\nconst headers = (item.json && item.json.headers) || {};\nconst file = item.binary && item.binary.csv_file;\nconst helpersGetBinary =\n  this && this.helpers && typeof this.helpers.getBinaryDataBuffer === 'function'\n    ? this.helpers.getBinaryDataBuffer.bind(this.helpers)\n    : null;\n\nconst reject = function (reason) {\n  return [{\n    json: {\n      valid: false,\n      reason: reason,\n      receivedAt: new Date().toISOString(),\n      remoteIp: String(headers['cf-connecting-ip'] || headers['x-forwarded-for'] || '').slice(0, 64),\n      userAgent: String(headers['user-agent'] || '').slice(0, 160)\n    }\n  }];\n};\n\nconst text = function (value, max) {\n  if (typeof value !== 'string') return '';\n  return value.replace(/[\\u0000-\\u001f\\u007f]/g, ' ').trim().slice(0, max);\n};\n\ntry {\nconst agentName = text(body.agent_name, 120);\nconst agentEmail = text(body.agent_email, 200).toLowerCase();\nconst agentPhone = text(body.agent_phone, 40);\nconst emailSignature = text(body.email_signature, 1000);\nconst campaignName = text(body.campaign_name, 120) || 'Reactivation Campaign';\n\nif (!agentName || !agentEmail || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(agentEmail)) {\n  return reject('invalid_agent_details');\n}\nif (agentPhone.replace(/\\D/g, '').length < 7) {\n  return reject('invalid_agent_details');\n}\n\nif (!file) return reject('missing_csv');\nif (file.fileSize && Number(file.fileSize) > MAX_BYTES) return reject('file_too_large');\nif (file.mimeType && ALLOWED_MIME.indexOf(String(file.mimeType).toLowerCase()) === -1) {\n  return reject('unsupported_file_type');\n}\n\n// Binary data is inline base64 in default mode, but with settings.binaryMode\n// \"separate\" the item only carries a reference and the bytes must come from the\n// sandbox helper. Never assume file.data exists or is base64.\nlet buffer = null;\nconst inlineData =\n  typeof file.data === 'string' && /^[A-Za-z0-9+/=\\r\\n]{16,}$/.test(file.data.slice(0, 200));\nif (inlineData) buffer = Buffer.from(file.data, 'base64');\nif ((!buffer || buffer.length === 0) && helpersGetBinary) {\n  const fetched = await helpersGetBinary(0, 'csv_file');\n  if (fetched) buffer = Buffer.isBuffer(fetched) ? fetched : Buffer.from(fetched);\n}\nif (!buffer || buffer.length === 0) return reject('missing_csv');\nif (buffer.length > MAX_BYTES) return reject('file_too_large');\n\nconst looksBinary = SIGNATURES.some(function (signature) {\n  return signature.every(function (byte, index) { return buffer[index] === byte; });\n});\nif (looksBinary) return reject('binary_content');\n\nlet csvText;\ntry {\n  csvText = new TextDecoder('utf-8', { fatal: true }).decode(buffer);\n} catch (error) {\n  return reject('invalid_encoding');\n}\n\nif (csvText.indexOf('\\u0000') !== -1) return reject('binary_content');\nif (!csvText.trim()) return reject('empty_file');\n\nconst parsed = parseCsv(csvText).filter(function (row) { return !isBlankRow(row); });\nif (parsed.length === 0) return reject('empty_file');\n\nconst header = parsed[0];\nif (header.every(function (cell) { return cell.trim() === ''; })) return reject('no_header');\n\nconst columns = parsed.reduce(function (max, row) { return Math.max(max, row.length); }, 0);\nif (columns > MAX_COLUMNS) return reject('too_many_columns');\n\nconst dataRows = parsed.slice(1);\nif (dataRows.length === 0) return reject('no_data_rows');\nif (dataRows.length > MAX_ROWS) return reject('too_many_rows');\n\nconst normalised = parsed.map(function (row) {\n  const padded = row.slice(0, columns);\n  while (padded.length < columns) padded.push('');\n  return padded.map(sanitizeCell);\n});\n\nreturn [{\n  json: {\n    valid: true,\n    rowCount: dataRows.length,\n    columnCount: columns,\n    agent_name: agentName,\n    agent_phone: agentPhone,\n    agent_email: agentEmail,\n    email_signature: emailSignature,\n    campaign_name: campaignName,\n    source: text(body.source, 60) || 'devobi.com/reactivate',\n    request_id: text(body.request_id, 64),\n    receivedAt: new Date().toISOString()\n  },\n  binary: {\n    csv_file: {\n      data: Buffer.from(serializeCsv(normalised), 'utf8').toString('base64'),\n      mimeType: 'text/csv',\n      fileName: 'leads-sanitised.csv'\n    }\n  }\n}];\n} catch (err) {\n  // A thrown error here would leave the webhook (responseMode: responseNode)\n  // waiting for a response until it times out. Fail closed as invalid input.\n  return [{\n    json: {\n      valid: false,\n      reason: 'validator_exception',\n      detail: String((err && err.message) || err).slice(0, 200),\n      receivedAt: new Date().toISOString()\n    }\n  }];\n}\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000002",
+      "name": "Validate & Sanitise CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c0a1d2-0001-4000-8000-000000000003-cond",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000003",
+      "name": "Invalid input?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Counts rejected attempts for the hourly summary. Nothing is alerted here on\n// purpose: invalid input is expected internet noise, not an incident.\nconst data = $getWorkflowStaticData('global');\nconst bucket = (data.rejected && typeof data.rejected === 'object') ? data.rejected : {};\nconst items = $input.all();\nfor (const entry of items) {\n  const reason = String((entry.json && entry.json.reason) || 'unknown').slice(0, 60);\n  bucket[reason] = (bucket[reason] || 0) + 1;\n}\ndata.rejected = bucket;\ndata.rejectedTotal = (data.rejectedTotal || 0) + items.length;\ndata.lastRejectedAt = new Date().toISOString();\nreturn items;\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000004",
+      "name": "Record Rejected",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: false } }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000005",
+      "name": "Respond 400 (silent)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst data = $getWorkflowStaticData('global');\nconst items = $input.all();\ndata.acceptedTotal = (data.acceptedTotal || 0) + items.length;\ndata.acceptedRows = (data.acceptedRows || 0) + items.reduce(function (sum, entry) {\n  return sum + (Number(entry.json.rowCount) || 0);\n}, 0);\ndata.lastAcceptedAt = new Date().toISOString();\nreturn items;\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000006",
+      "name": "Record Accepted",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, accepted: true } }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000007",
+      "name": "Respond 202",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        -140
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1c0a1d2-0001-4000-8000-000000000008",
+      "name": "Handoff to existing pipeline",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        680,
+        -140
+      ],
+      "notes": "Connect your existing first processing node here. The sanitised CSV is in the csv_file binary field; agent fields are in json."
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000009",
+      "name": "Hourly Summary Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst data = $getWorkflowStaticData('global');\nconst rejected = (data.rejected && typeof data.rejected === 'object') ? data.rejected : {};\nconst reasons = Object.keys(rejected).sort().map(function (key) {\n  return '  - ' + key + ': ' + rejected[key];\n});\nconst rejectedTotal = Object.keys(rejected).reduce(function (sum, key) {\n  return sum + (Number(rejected[key]) || 0);\n}, 0);\nconst acceptedTotal = data.acceptedTotal || 0;\nconst acceptedRows = data.acceptedRows || 0;\nconst failures = data.failures || 0;\nconst hasActivity = (rejectedTotal + acceptedTotal + failures) > 0;\n\nconst lines = [];\nlines.push('Devobi lead intake - last hour');\nlines.push('');\nlines.push('Accepted uploads: ' + acceptedTotal + ' (' + acceptedRows + ' rows)');\nlines.push('Rejected attempts: ' + rejectedTotal);\nif (reasons.length > 0) {\n  for (const line of reasons) lines.push(line);\n}\nlines.push('Pipeline failures: ' + failures);\nif (data.lastRejectedAt) {\n  lines.push('');\n  lines.push('Last rejection: ' + data.lastRejectedAt);\n}\n\nreturn [{ json: { hasActivity: hasActivity, text: lines.join('\\n') } }];\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-00000000000a",
+      "name": "Build Hourly Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c0a1d2-0001-4000-8000-00000000000b-cond",
+              "leftValue": "={{ $json.hasActivity }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1c0a1d2-0001-4000-8000-00000000000b",
+      "name": "Activity in the last hour?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-00000000000c",
+      "name": "Telegram: Hourly Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst data = $getWorkflowStaticData('global');\ndata.rejected = {};\ndata.rejectedTotal = 0;\ndata.acceptedTotal = 0;\ndata.acceptedRows = 0;\ndata.failures = 0;\ndata.lastSummaryAt = new Date().toISOString();\nreturn $input.all();\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-00000000000d",
+      "name": "Reset Hourly Counters",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1c0a1d2-0001-4000-8000-00000000000e",
+      "name": "Nothing to report",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        200,
+        400
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1c0a1d2-0001-4000-8000-00000000000f",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        640
+      ],
+      "notes": "Set this workflow as its own error workflow in Settings, or point another workflow at it."
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// One alert per 15 minutes at most: a broken workflow would otherwise flood\n// Telegram just like the webhook bots did.\nconst data = $getWorkflowStaticData('global');\ndata.failures = (data.failures || 0) + 1;\n\nconst now = Date.now();\nconst lastAlertAt = Number(data.lastFailureAlertAt || 0);\nconst shouldAlert = (now - lastAlertAt) > 15 * 60 * 1000;\nif (shouldAlert) data.lastFailureAlertAt = now;\n\nconst first = $input.first();\nconst payload = (first && first.json) || {};\nconst workflowName = (payload.workflow && payload.workflow.name) || 'unknown workflow';\nconst nodeName = (payload.execution && payload.execution.lastNodeExecuted) || 'unknown node';\nconst error = (payload.execution && payload.execution.error) || {};\nconst message = error.message || error.description || 'no error message';\n\nreturn [{\n  json: {\n    shouldAlert: shouldAlert,\n    text: 'n8n pipeline failure\\n' + workflowName + ' / ' + nodeName + '\\n' + String(message).slice(0, 300)\n  }\n}];\n"
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000010",
+      "name": "Record Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c0a1d2-0001-4000-8000-000000000011-cond",
+              "leftValue": "={{ $json.shouldAlert }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000011",
+      "name": "Alert immediately?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      },
+      "id": "b1c0a1d2-0001-4000-8000-000000000012",
+      "name": "Telegram: Failure Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        560
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1c0a1d2-0001-4000-8000-000000000013",
+      "name": "Failure logged",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        200,
+        720
+      ]
+    }
+  ],
+  "connections": {
+    "Lead CSV Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate & Sanitise CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Sanitise CSV": {
+      "main": [
+        [
+          {
+            "node": "Invalid input?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid input?": {
+      "main": [
+        [
+          {
+            "node": "Record Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Rejected": {
+      "main": [
+        [
+          {
+            "node": "Respond 400 (silent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Accepted": {
+      "main": [
+        [
+          {
+            "node": "Respond 202",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond 202": {
+      "main": [
+        [
+          {
+            "node": "Handoff to existing pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hourly Summary Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Hourly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Hourly Summary": {
+      "main": [
+        [
+          {
+            "node": "Activity in the last hour?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activity in the last hour?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Hourly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing to report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: Hourly Summary": {
+      "main": [
+        [
+          {
+            "node": "Reset Hourly Counters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Record Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Failure": {
+      "main": [
+        [
+          {
+            "node": "Alert immediately?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert immediately?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Failure Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failure logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": []
+}
